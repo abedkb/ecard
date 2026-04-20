@@ -610,7 +610,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
       </div>
       <div class="card">
         <div class="card-title">📋 Walioingia</div>
-        <div class="tw"><table><thead><tr><th>Jina</th><th>Kadi</th><th>Aina</th><th>Saa</th></tr></thead><tbody id="walioingia-tbody"></tbody></table></div>
+        <div class="tw"></table><thead><tr><th>Jina</th><th>Kadi</th><th>Aina</th><th>Saa</th></tr></thead><tbody id="walioingia-tbody"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -692,7 +692,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
       <div class="card">
         <div class="card-title">📋 Ahadi za Sherehe</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="font-size:11px;color:var(--mt);" id="sh-ahadi-refresh-info"></span><button onclick="manualRefreshShAhadi()" class="btn btn-sm btn-out">🔄 Refresh</button></div>
-        <div class="tw"><table><thead><tr><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="sh-ahadi-tbody"></tbody></table></div>
+        <div class="tw"><tr><thead><tr><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="sh-ahadi-tbody"></tbody></table></div>
       </div>
     </div>
     <div id="sh-mc" style="display:none;">
@@ -737,7 +737,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
     <div class="view-only-banner"><div class="vob-icon">💰</div><div class="vob-text"><div class="vob-title">Taarifa za Michango</div><div class="vob-sub">Unaona muhtasari tu</div></div></div>
     <div id="vw-sherehe-info" class="card"></div>
     <div id="vw-michango-summary"></div>
-    <div class="card"><div class="card-title">📋 Orodha ya Michango</div><div class="tw"><table><thead><tr><th>#</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th></tr></thead><tbody id="vw-ahadi-tbody"></tbody></table></div></div>
+    <div class="card"><div class="card-title">📋 Orodha ya Michango</div><div class="tw"><tr><thead><tr><th>#</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th></td></thead><tbody id="vw-ahadi-tbody"></tbody></table></div></div>
   </div>
 </div>
 
@@ -884,19 +884,31 @@ function buildWaMsg(tukio, mgeni, url) {
   return ujumbe;
 }
 
+// IMPROVED SMS FUNCTION - Clean structure with line breaks
 function buildSmsMsg(tukio, mgeni, url) {
-  const mahali      = tukio.mahali_mwenyeji || 'Dar Es Salaam';
+  const mahali = tukio.mahali_mwenyeji || 'Dar Es Salaam';
   const jinaLaMgeni = mgeni.jina_kamili || '';
   const nenoKualika = mgeni.aina_kadi === 'Double' ? 'kuwaalika' : 'kukualika';
-  const mezaNambari = mgeni.nambari_meza ? ` Meza: ${mgeni.nambari_meza}.` : '';
+  const mezaNambari = mgeni.nambari_meza ? `\nMeza: ${mgeni.nambari_meza}` : '';
   const nambariKadiVal = mgeni.nambari_kadi || '';
-  const saa         = tukio.saa || 'Saa 12 Jioni';
-  const ukumbi      = tukio.ukumbi || '';
-  const tarehe      = formatTarehe(tukio.tarehe);
-  const familiaLine    = buildFamiliaLine(tukio);
+  const saa = tukio.saa || 'Saa 12 Jioni';
+  const ukumbi = tukio.ukumbi || '';
+  const tarehe = formatTarehe(tukio.tarehe);
+  const familiaLine = buildFamiliaLine(tukio);
   const maelezoSherehe = buildMaelezoSherehe(tukio, true);
+  const locationLine = tukio.location_link ? `\nRamani: ${tukio.location_link}` : '';
+
+  // Build clean, well-structured SMS with line breaks
+  let ujumbe = `MWALIKO WA SHEREHE\n\n`;
+  ujumbe += `Ndugu ${jinaLaMgeni},\n\n`;
+  ujumbe += `${familiaLine} wa ${mahali} wanayo furaha ${nenoKualika} kwenye ${maelezoSherehe}.\n\n`;
+  ujumbe += `Tarehe: ${tarehe}\n`;
+  ujumbe += `Saa: ${saa}\n`;
+  ujumbe += `Ukumbi: ${ukumbi}${locationLine}\n\n`;
+  ujumbe += `Nambari ya Kadi: ${nambariKadiVal}${mezaNambari}\n\n`;
+  ujumbe += `Angalia kadi yako hapa:\n${url}`;
   
-  return `MWALIKO: ${jinaLaMgeni}. ${familiaLine} wa ${mahali} wanayo furaha ${nenoKualika} kwenye ${maelezoSherehe}. Tarehe: ${tarehe}, ${saa}. Ukumbi: ${ukumbi}. Kadi: ${nambariKadiVal}.${mezaNambari}\nAngalia: ${url}`;
+  return ujumbe;
 }
 
 function pledgeUrl(nambariTukio) { return SITE+'?ahadi='+nambariTukio; }
@@ -1362,7 +1374,7 @@ async function shScanKadi(){const input=$('sh-scan-in').value.trim().toUpperCase
 async function doScanKadi(input,resultId,callback){const mgeni=AW.find(w=>w.nambari_kadi===input);if(!mgeni){$(resultId).innerHTML='<div class="al al-e">❌ Kadi haikupatikana!</div>';return;}if(mgeni.ameingia){$(resultId).innerHTML='<div class="al al-w">⚠ Tayari ameingia!</div>';return;}await fetch(`${SB}/rest/v1/wageni?id=eq.${mgeni.id}`,{method:'PATCH',headers:H,body:JSON.stringify({ameingia:true,tarehe_kuingia:new Date().toISOString()})});mgeni.ameingia=true;$(resultId).innerHTML=`<div style="background:var(--grl);border-radius:12px;padding:20px;text-align:center;"><div style="font-size:40px;">✅</div><p style="font-size:20px;font-weight:700;color:var(--gr);">${mgeni.jina_kamili}</p><div><span class="badge bg-gr">🎫 ${mgeni.aina_kadi}</span></div><p style="color:var(--gr);">KARIBU! ✓</p></div>`;toastFn(`✅ ${mgeni.jina_kamili} ameingia!`);callback();}
 function loadWalioingia(){const list=AW.filter(w=>w.ameingia).sort((a,b)=>new Date(b.tarehe_kuingia||0)-new Date(a.tarehe_kuingia||0));renderWalioingia('walioingia-tbody',list);}
 function loadShWalioingia(){const list=AW.filter(w=>w.ameingia&&w.tukio_id===currentShereheId).sort((a,b)=>new Date(b.tarehe_kuingia||0)-new Date(a.tarehe_kuingia||0));renderWalioingia('sh-walioingia-tbody',list);}
-function renderWalioingia(tbodyId,list){if(!list.length){$(tbodyId).innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;">Hakuna bado</td></tr>';return;}$(tbodyId).innerHTML=list.map(w=>`<tr><td style="font-weight:600;">${w.jina_kamili}</td><td>${w.nambari_kadi}</td><td>${w.aina_kadi}</td><td>${w.tarehe_kuingia?new Date(w.tarehe_kuingia).toLocaleTimeString():'—'}</td></tr>`).join('');}
+function renderWalioingia(tbodyId,list){if(!list.length){$(tbodyId).innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;">Hakuna bado</td></table>';return;}$(tbodyId).innerHTML=list.map(w=>`<tr><td style="font-weight:600;">${w.jina_kamili}</td><td>${w.nambari_kadi}</td><td>${w.aina_kadi}</td><td>${w.tarehe_kuingia?new Date(w.tarehe_kuingia).toLocaleTimeString():'—'}</td></tr>`).join('');}
 
 // ==================== MTAZAMAJI ====================
 function renderShereheInfo(t,containerId){const el=$(containerId);if(!el)return;el.innerHTML=`<div style="display:flex;gap:12px;"><div style="font-size:28px;">${ainaIcon(t.aina)}</div><div><p style="font-family:'Playfair Display';font-size:16px;font-weight:700;">${t.jina_tukio}</p><p>📅 ${formatTarehe(t.tarehe)} · ⏰ ${t.saa}</p><p>🏛 ${t.ukumbi} · 🎟 ${t.nambari_tukio}</p></div></div>`;}
