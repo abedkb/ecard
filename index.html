@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"/>
-<title>E-Card Tanzania — Mfumo wa Mialiko</title>
+<title>Abed-Card Tanzania </title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -169,7 +169,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
 .michango-amount{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:4px;}
 .michango-label{font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;}
 .michango-count{font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px;}
-/* Photo upload feedback */
 .photo-upload-status{padding:10px 14px;border-radius:8px;font-size:12px;margin-top:8px;display:none;}
 .photo-upload-status.show{display:block;}
 .photo-ok{background:#E8F5E9;color:#1B5E20;border:1px solid #A5D6A7;}
@@ -380,7 +379,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
           </div>
         </div>
 
-        <!-- ===== PHOTO UPLOAD — FIXED SECTION ===== -->
         <div class="card" style="margin-top:12px;margin-bottom:12px;background:var(--aml);border:1px solid var(--am);">
           <div class="card-title" style="color:var(--am);">📸 Picha ya Wahusika (itaonekana kama background)</div>
           <div class="fg">
@@ -395,7 +393,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
             <p style="font-size:10px;color:var(--mt);margin-top:5px;">💡 Picha itaonekana kama strip juu ya kadi na background. Tumia picha ya ubora wa juu kwa matokeo bora.</p>
           </div>
         </div>
-        <!-- ===== END PHOTO UPLOAD ===== -->
 
         <p style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px;">👥 Kamati ya Sherehe (hiari)</p>
         <div class="fgrid">
@@ -708,7 +705,7 @@ let ahadiRefreshInterval = null;
 let tSimuNjia = [], tBenkiNjia = [];
 let mcASimu = [], mcABenki = [], mcSSimu = [], mcSBenki = [];
 let pubTukioId = null, pubTukioData = null;
-let currentPhotoDataUrl = null;  // Stores compressed base64 photo
+let currentPhotoDataUrl = null;
 const usedCardNumbers = new Set();
 let isCreatingEvent = false;
 
@@ -743,8 +740,7 @@ function undaPINs() { $('t-pw-msimamizi').value=genPin(8); $('t-pw-mtazamaji').v
 function copyText(txt) { navigator.clipboard.writeText(txt).then(()=>toastFn('✅ Imenakiliwa!')); }
 function setKiasi(val) { const input=$('ap-kiasi'); if(input){input.value=val;} }
 
-// ==================== PHOTO UPLOAD — FIXED ====================
-// Compresses image to JPEG at reduced quality/size to fit Supabase text column
+// ==================== PHOTO UPLOAD ====================
 function compressImage(file, maxWidthPx, qualityVal) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -753,23 +749,13 @@ function compressImage(file, maxWidthPx, qualityVal) {
       img.onload = function() {
         try {
           const canvas = document.createElement('canvas');
-          // Calculate new dimensions keeping aspect ratio
-          let w = img.width;
-          let h = img.height;
-          if (w > maxWidthPx) {
-            h = Math.round(h * maxWidthPx / w);
-            w = maxWidthPx;
-          }
-          canvas.width = w;
-          canvas.height = h;
+          let w = img.width, h = img.height;
+          if (w > maxWidthPx) { h = Math.round(h * maxWidthPx / w); w = maxWidthPx; }
+          canvas.width = w; canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          // Output as JPEG with given quality
-          const dataUrl = canvas.toDataURL('image/jpeg', qualityVal);
-          resolve(dataUrl);
-        } catch(err) {
-          reject(err);
-        }
+          resolve(canvas.toDataURL('image/jpeg', qualityVal));
+        } catch(err) { reject(err); }
       };
       img.onerror = () => reject(new Error('Picha haikuweza kupakiwa'));
       img.src = e.target.result;
@@ -779,97 +765,51 @@ function compressImage(file, maxWidthPx, qualityVal) {
   });
 }
 
-// Called when user picks a photo file
 async function handlePhotoUpload(input) {
   const statusEl = $('photo-upload-status');
   const previewDiv = $('t-photo-preview');
   const previewImg = $('photo-preview-img');
   const sizeInfo = $('photo-size-info');
-
-  // Reset
   currentPhotoDataUrl = null;
   previewDiv.style.display = 'none';
   statusEl.className = 'photo-upload-status show photo-loading';
   statusEl.textContent = '⏳ Inapakua na kubana picha...';
-
   const file = input.files[0];
-  if (!file) {
-    statusEl.className = 'photo-upload-status show photo-err';
-    statusEl.textContent = '❌ Hakuna faili lililochaguliwa';
-    return;
-  }
-
-  // Validate type
+  if (!file) { statusEl.className = 'photo-upload-status show photo-err'; statusEl.textContent = '❌ Hakuna faili lililochaguliwa'; return; }
   const allowedTypes = ['image/jpeg','image/jpg','image/png','image/webp'];
-  if (!allowedTypes.includes(file.type)) {
-    statusEl.className = 'photo-upload-status show photo-err';
-    statusEl.textContent = '❌ Aina ya faili haifai. Tumia JPEG, PNG au WEBP tu.';
-    input.value = '';
-    return;
-  }
-
-  // Validate raw size (max 5MB raw)
-  if (file.size > 5 * 1024 * 1024) {
-    statusEl.className = 'photo-upload-status show photo-err';
-    statusEl.textContent = '❌ Picha ni kubwa sana (max 5MB). Chagua picha ndogo zaidi.';
-    input.value = '';
-    return;
-  }
-
+  if (!allowedTypes.includes(file.type)) { statusEl.className = 'photo-upload-status show photo-err'; statusEl.textContent = '❌ Aina ya faili haifai. Tumia JPEG, PNG au WEBP tu.'; input.value = ''; return; }
+  if (file.size > 5 * 1024 * 1024) { statusEl.className = 'photo-upload-status show photo-err'; statusEl.textContent = '❌ Picha ni kubwa sana (max 5MB). Chagua picha ndogo zaidi.'; input.value = ''; return; }
   try {
-    // Step 1: Compress to max 800px wide, 0.75 quality
     let compressed = await compressImage(file, 800, 0.75);
-    let sizeKb = Math.round(compressed.length * 0.75 / 1024); // approx KB
-
-    // Step 2: If still too large (>500KB base64), compress more aggressively
-    if (compressed.length > 700000) {
-      compressed = await compressImage(file, 600, 0.60);
-      sizeKb = Math.round(compressed.length * 0.75 / 1024);
-    }
-
-    // Step 3: If STILL too large, compress even more
-    if (compressed.length > 500000) {
-      compressed = await compressImage(file, 500, 0.50);
-      sizeKb = Math.round(compressed.length * 0.75 / 1024);
-    }
-
+    let sizeKb = Math.round(compressed.length * 0.75 / 1024);
+    if (compressed.length > 700000) { compressed = await compressImage(file, 600, 0.60); sizeKb = Math.round(compressed.length * 0.75 / 1024); }
+    if (compressed.length > 500000) { compressed = await compressImage(file, 500, 0.50); sizeKb = Math.round(compressed.length * 0.75 / 1024); }
     currentPhotoDataUrl = compressed;
-
-    // Show preview
     previewImg.src = compressed;
     previewDiv.style.display = 'block';
     sizeInfo.textContent = `✅ Picha iko tayari (~${sizeKb}KB baada ya kubana)`;
-
     statusEl.className = 'photo-upload-status show photo-ok';
     statusEl.textContent = `✅ Picha imepakiwa na kubana vizuri! Ukubwa: ~${sizeKb}KB`;
-
     toastFn('✅ Picha imepakiwa!');
   } catch(err) {
     console.error('Photo error:', err);
     statusEl.className = 'photo-upload-status show photo-err';
     statusEl.textContent = '❌ Hitilafu: ' + err.message;
-    input.value = '';
-    currentPhotoDataUrl = null;
+    input.value = ''; currentPhotoDataUrl = null;
   }
 }
 
 function clearPhotoPreview() {
   currentPhotoDataUrl = null;
-  const photoInput = $('t-photo');
-  if (photoInput) photoInput.value = '';
-  const previewDiv = $('t-photo-preview');
-  if (previewDiv) previewDiv.style.display = 'none';
-  const previewImg = $('photo-preview-img');
-  if (previewImg) previewImg.src = '';
-  const statusEl = $('photo-upload-status');
-  if (statusEl) { statusEl.className = 'photo-upload-status'; statusEl.textContent = ''; }
+  const photoInput = $('t-photo'); if (photoInput) photoInput.value = '';
+  const previewDiv = $('t-photo-preview'); if (previewDiv) previewDiv.style.display = 'none';
+  const previewImg = $('photo-preview-img'); if (previewImg) previewImg.src = '';
+  const statusEl = $('photo-upload-status'); if (statusEl) { statusEl.className = 'photo-upload-status'; statusEl.textContent = ''; }
   toastFn('Picha imeondolewa');
 }
 
 // ==================== FAMILIA HELPERS ====================
-function getFamiliaYa(tukio) {
-  return (tukio.maelezo_sherehe||'').replace(/^Familia ya\s*/i,'').trim();
-}
+function getFamiliaYa(tukio) { return (tukio.maelezo_sherehe||'').replace(/^Familia ya\s*/i,'').trim(); }
 function buildFamiliaLine(tukio) {
   const familiaYa = getFamiliaYa(tukio);
   const mwenyeji = tukio.jina_mwenyeji || '';
@@ -932,13 +872,21 @@ function buildSmsMsg(tukio, mgeni, url) {
   const maelezoSherehe = buildMaelezoSherehe(tukio, true);
   const locationLine = tukio.location_link ? ` Ramani: ${tukio.location_link}` : '';
 
+  // ---- IMPROVEMENT: Aina ya kadi label ----
+  const ainaKadiLabel = mgeni.aina_kadi === 'VIP'
+    ? 'VIP'
+    : mgeni.aina_kadi === 'Double'
+      ? 'Double (Watu 2)'
+      : 'Single (Mtu 1)';
+
   let ujumbe = `MWALIKO WA SHEREHE\n\n`;
   ujumbe += `Ndugu ${jinaLaMgeni},\n\n`;
   ujumbe += `${familiaLine} wa ${mahali} wanayo furaha ${nenoKualika} kwenye ${maelezoSherehe}.\n\n`;
   ujumbe += `Tarehe: ${tarehe}\n`;
   ujumbe += `Saa: ${saa}\n`;
   ujumbe += `Ukumbi: ${ukumbi}${locationLine}\n\n`;
-  ujumbe += `Nambari ya Kadi: ${nambariKadiVal}${mezaNambari}\n\n`;
+  ujumbe += `Nambari ya Kadi: ${nambariKadiVal}${mezaNambari}\n`;
+  ujumbe += `Aina ya Kadi: ${ainaKadiLabel}\n\n`;
   ujumbe += `Angalia kadi yako hapa:\n${url}`;
   return ujumbe;
 }
@@ -1001,7 +949,6 @@ function getBenkiColor(key){return(BENKI_LIST.find(b=>b.key===key)||{color:'#555
 function serializePayments(simu,benki){return JSON.stringify({simu:simu||[],benki:benki||[]});}
 function deserializePayments(str){if(!str) return{simu:[],benki:[]};try{return JSON.parse(str);}catch(e){return{simu:[],benki:[]};}}
 function hexToRgb(hex){
-  // Handle shorthand hex (#abc) and full hex (#aabbcc)
   let h = hex.replace('#','');
   if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
   const r=parseInt(h.slice(0,2),16)||0;
@@ -1114,7 +1061,6 @@ async function undaSherehe(){
   btn.innerHTML='<span class="loading-spinner"></span> Inaunda...';btn.disabled=true;
   setAl('al-tukio','⏳ Inaunda sherehe...','i');
 
-  // Use currentPhotoDataUrl which is already compressed
   const photoToSave = currentPhotoDataUrl || null;
 
   const eventData={
@@ -1212,13 +1158,11 @@ function renderWageniTable(tbodyId,list,canEdit){
 async function futaMgeniHere(id){if(!confirm('Futa mgeni huyu?'))return;await fetch(`${SB}/rest/v1/wageni?id=eq.${id}`,{method:'DELETE',headers:{'apikey':SK,'Authorization':'Bearer '+SK}});AW=AW.filter(w=>w.id!==id);loadWageni();loadShWageni();renderStats();toastFn('Mgeni amefutwa');}
 async function rsvp(wid,jibu){await fetch(`${SB}/rest/v1/wageni?id=eq.${wid}`,{method:'PATCH',headers:H,body:JSON.stringify({rsvp:jibu})});const w=AW.find(x=>x.id===wid);if(w)w.rsvp=jibu;toastFn(jibu==='nakuja'?'✅ Asante! Karibu sana!':'🙏 Asante kwa kutuarifu.');}
 
-// ==================== E-CARD — FIXED PHOTO DISPLAY ====================
+// ==================== E-CARD ====================
 function checkPhotoValid(photoData) {
-  // Robust check: must be a non-empty string starting with data:image
   if (!photoData) return false;
   if (typeof photoData !== 'string') return false;
   if (!photoData.startsWith('data:image')) return false;
-  // Must have base64 content after comma
   const commaIdx = photoData.indexOf(',');
   if (commaIdx === -1 || commaIdx >= photoData.length - 10) return false;
   return true;
@@ -1232,7 +1176,6 @@ function buildEcard(tukio, mgeni, containerId) {
   const container = $(containerId);
   if (!container) return;
 
-  // FIXED: Use robust photo validation instead of length check
   const hasPhoto = checkPhotoValid(tukio.photo_data);
 
   const mwenyeji   = tukio.jina_mwenyeji || '';
@@ -1249,7 +1192,6 @@ function buildEcard(tukio, mgeni, containerId) {
       ? `<span style="display:inline-flex;padding:6px 18px;border-radius:30px;font-size:11px;font-weight:800;border:2px solid ${R};color:${R};background:rgba(${hexToRgb(R)},0.08);letter-spacing:1px;">👫 DOUBLE</span>`
       : `<span style="display:inline-flex;padding:6px 18px;border-radius:30px;font-size:11px;font-weight:800;border:2px solid ${R};color:${R};background:rgba(${hexToRgb(R)},0.08);letter-spacing:1px;">🧑 SINGLE</span>`);
 
-  // FIXED: Photo strip with proper onerror fallback and crossOrigin handling
   const photoStripHtml = hasPhoto ? `
     <div style="height:190px;position:relative;overflow:hidden;background:#f0e8e0;">
       <img src="${tukio.photo_data}"
@@ -1261,7 +1203,6 @@ function buildEcard(tukio, mgeni, containerId) {
     </div>` : `
     <div style="height:8px;background:linear-gradient(90deg,${R},${G},${R});"></div>`;
 
-  // FIXED: Background photo layer — only added when photo is valid
   const bgPhotoLayer = hasPhoto ? `
     <img src="${tukio.photo_data}"
       style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.10;z-index:0;pointer-events:none;filter:blur(1px) saturate(0.8);"
@@ -1327,7 +1268,6 @@ function buildEcard(tukio, mgeni, containerId) {
   </div>
   </div>`;
 
-  // Generate QR and barcode after DOM is ready
   setTimeout(()=>{
     const canvas=$(qid);
     if(canvas){
@@ -1378,21 +1318,15 @@ async function pakulaPicha(containerId,filename){
   toastFn('⏳ Inaunda picha...');
   try{
     const canvas=await html2canvas(kadiEl,{
-      scale:2.5,
-      useCORS:true,
-      allowTaint:true,  // FIXED: Allow tainted canvas for base64 images
-      backgroundColor:'#FFFBF5',
-      logging:false
+      scale:2.5,useCORS:true,allowTaint:true,
+      backgroundColor:'#FFFBF5',logging:false
     });
     const link=document.createElement('a');
     link.download=(filename||'ecard')+'.png';
     link.href=canvas.toDataURL('image/png');
     link.click();
     toastFn('✅ Picha imepakuliwa!');
-  }catch(e){
-    console.error('html2canvas error:',e);
-    toastFn('❌ Hitilafu ya kupakua');
-  }
+  }catch(e){console.error('html2canvas error:',e);toastFn('❌ Hitilafu ya kupakua');}
 }
 async function tumaWaPichaHaraka(wid){const mgeni=AW.find(w=>w.id===wid);if(!mgeni)return;const tukio=AM.find(t=>t.id===mgeni.tukio_id);if(!tukio)return;const tempDiv=document.createElement('div');tempDiv.id='temp_kadi_'+wid;tempDiv.style.cssText='position:fixed;left:-9999px;top:0;width:450px;';document.body.appendChild(tempDiv);buildEcard(tukio,mgeni,tempDiv.id);await new Promise(r=>setTimeout(r,900));await pakulaPicha(tempDiv.id,mgeni.jina_kamili+'_'+mgeni.nambari_kadi);setTimeout(()=>document.body.removeChild(tempDiv),2000);}
 function tumaWaHaraka(wid){const mgeni=AW.find(w=>w.id===wid);if(!mgeni)return;const tukio=AM.find(t=>t.id===mgeni.tukio_id);if(!tukio)return;if(!mgeni.namba_simu||mgeni.namba_simu.length<9){toastFn('⚠ Mgeni hana namba');return;}const kadiUrl=mgeni.kadi_url||SITE+'?kadi='+mgeni.nambari_kadi;window.open('https://wa.me/'+mgeni.namba_simu.replace(/^0/,'255')+'?text='+encodeURIComponent(buildWaMsg(tukio,mgeni,kadiUrl)),'_blank');}
