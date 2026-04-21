@@ -1505,7 +1505,7 @@ checkUrlParams();
 // IMPORTANT: Replace with your actual Beem Africa credentials
 const BEEM_API_KEY    = '151ef094e2e1693e';      // From Beem dashboard
 const BEEM_SECRET_KEY = 'NmVmZGMwNWE2NzY5MTMyZjBlMzdjNjY0YmNmNjE0N2FhN2RmMzI1OGFlN2NjNzg0OTY5NjMzYjE0OTI5MzAwNg==';   // From Beem dashboard
-const BEEM_SENDER_ID  = '2557555863325';                        // Max 11 chars, approved sender name
+const BEEM_SENDER_ID  = 'INFO';                        // Max 11 chars, approved sender name
 const BEEM_API_URL    = 'https://apisms.beem.africa/v1/send';
 
 // ---------- CORE SMS SENDER ----------
@@ -1850,49 +1850,20 @@ async function beemTestSMS() {
 }
 
 // ---------- RUNTIME CREDENTIAL OVERRIDE ----------
-// Hii inabadilisha beemSendSMS ili itumie Supabase Edge Function kama proxy
+// This patches beemSendSMS to use session-set credentials if available
+const _origBeemSendSMS = beemSendSMS;
 window.beemSendSMS = async function(recipient, message) {
-  try {
-    const response = await fetch(
-      'https://dfcqredvuuosmmjforwf.supabase.co/functions/v1/send-sms',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + SK
-        },
-        body: JSON.stringify({ recipient: recipient, message: message })
-      }
-    );
-    const data = await response.json();
-    if (data.success) {
-      return { success: true, message: 'SMS imetumwa', data };
-    } else {
-      return { success: false, message: data.message || 'Imeshindwa', data };
-    }
-  } catch (err) {
-    return { success: false, message: 'Hitilafu ya mtandao: ' + err.message };
-  }
-};
+  // Use session credentials if set
+  const apiKey    = (window._beemCredsSet && window._BEEM_API_KEY)    || BEEM_API_KEY;
+  const secretKey = (window._beemCredsSet && window._BEEM_SECRET_KEY) || BEEM_SECRET_KEY;
+  const senderId  = (window._beemCredsSet && window._BEEM_SENDER_ID)  || BEEM_SENDER_ID;
 
-// Hii inabadilisha beemSendBatch ili itumie window.beemSendSMS iliyoboreshwa
-window.beemSendBatch = async function(batch, onProgress) {
-  let sent = 0, failed = 0;
-  const errors = [];
-  for (let i = 0; i < batch.length; i++) {
-    const { phone, message, name } = batch[i];
-    if (onProgress) onProgress(i, batch.length, name);
-    const result = await window.beemSendSMS(phone, message);
-    if (result.success) {
-      sent++;
-    } else {
-      failed++;
-      errors.push({ name, phone, reason: result.message });
-    }
-    if (i < batch.length - 1) await new Promise(r => setTimeout(r, 350));
-  }
-  return { sent, failed, errors };
-};
+  let phone = recipient.toString().trim().replace(/\s+/g, '');
+  if (phone.startsWith('0'))       phone = '255' + phone.slice(1);
+  if (phone.startsWith('+255'))    phone = phone.slice(1);
+  if (!phone.startsWith('255'))    phone = '255' + phone;
+  if (phone.length !== 12)         return { success: false, message: `Namba si sahihi: ${recipient}` };
+
   const payload = {
     source_addr: senderId,
     encoding:    0,
@@ -1904,17 +1875,15 @@ window.beemSendBatch = async function(batch, onProgress) {
   const credentials = btoa(`${apiKey}:${secretKey}`);
 
   try {
-const response = await fetch(
-  'https://dfcqredvuuosmmjforwf.supabase.co/functions/v1/send-sms',
-  {
-    method: 'POST',
-    headers: {
-      'Content-Type':  'application/json',
-      'Authorization': 'Bearer ' + SK
-    },
-    body: JSON.stringify({ recipient, message })
-  }
-);
+    const response = await fetch(BEEM_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Basic ${credentials}`,
+        'Accept':        'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
 
     const data = await response.json();
     if (response.ok && data.successful) {
