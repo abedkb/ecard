@@ -1850,6 +1850,7 @@ async function beemTestSMS() {
 }
 
 // ---------- RUNTIME CREDENTIAL OVERRIDE ----------
+// Hii inabadilisha beemSendSMS ili itumie Supabase Edge Function kama proxy
 window.beemSendSMS = async function(recipient, message) {
   try {
     const response = await fetch(
@@ -1857,27 +1858,24 @@ window.beemSendSMS = async function(recipient, message) {
       {
         method: 'POST',
         headers: {
-          'Content-Type':  'application/json',
+          'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + SK
         },
         body: JSON.stringify({ recipient: recipient, message: message })
       }
     );
-
     const data = await response.json();
-
     if (data.success) {
       return { success: true, message: 'SMS imetumwa', data };
     } else {
       return { success: false, message: data.message || 'Imeshindwa', data };
     }
-
   } catch (err) {
     return { success: false, message: 'Hitilafu ya mtandao: ' + err.message };
   }
 };
 
-// Override beemSendBatch to use the patched function
+// Hii inabadilisha beemSendBatch ili itumie window.beemSendSMS iliyoboreshwa
 window.beemSendBatch = async function(batch, onProgress) {
   let sent = 0, failed = 0;
   const errors = [];
@@ -1895,7 +1893,6 @@ window.beemSendBatch = async function(batch, onProgress) {
   }
   return { sent, failed, errors };
 };
-
   const payload = {
     source_addr: senderId,
     encoding:    0,
