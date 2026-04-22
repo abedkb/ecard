@@ -1185,6 +1185,9 @@ function buildEcard(tukio, mgeni, containerId) {
   const tarehe      = formatTarehe(tukio.tarehe);
   const familiaLine = buildFamiliaLine(tukio);
   const maelezoSherehe = buildMaelezoSherehe(tukio, false);
+  
+  // GUEST NAME - prominently displayed
+  const guestName = mgeni.jina_kamili || 'Mgeni Wetu';
 
   const ainaBadge = mgeni.aina_kadi === 'VIP'
     ? `<span style="display:inline-flex;padding:6px 18px;border-radius:30px;font-size:11px;font-weight:800;background:linear-gradient(90deg,${G},#FFD700);color:#1A1A2E;letter-spacing:1px;box-shadow:0 2px 8px rgba(201,168,76,0.4);">⭐ VIP GUEST</span>`
@@ -1215,8 +1218,15 @@ function buildEcard(tukio, mgeni, containerId) {
     ${bgPhotoLayer}
     <div style="position:relative;z-index:2;">
       ${photoStripHtml}
-      <div style="padding:${hasPhoto?'10px':'22px'} 22px 18px;text-align:center;">
+      <div style="padding:${hasPhoto?'10px':'22px'} 22px 12px;text-align:center;">
         ${!hasPhoto ? `<div style="margin-bottom:14px;">${ainaBadge}</div>` : ''}
+        
+        <!-- GUEST NAME SECTION - Prominently displayed -->
+        <div style="margin: 8px 0 12px 0;">
+          <p style="font-family:'Great Vibes',cursive;font-size:36px;color:${R};line-height:1.2;margin-bottom:5px;">🎓 ${guestName}</p>
+          <div style="width:50px;height:2px;background:${G};margin:8px auto;"></div>
+        </div>
+        
         <p style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#555;margin-bottom:2px;">Familia ya</p>
         <p style="font-family:'Playfair Display',serif;font-size:20px;font-weight:800;color:${R};line-height:1.2;">${mwenyeji}</p>
         <p style="font-family:'Cormorant Garamond',serif;font-size:13px;color:#666;margin-bottom:10px;margin-top:2px;">wa ${mahali}</p>
