@@ -845,20 +845,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
 const SB = 'https://dfcqredvuuosmmjforwf.supabase.co';
 const SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY3FyZWR2dXVvc21tamZvcndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NTc2NTUsImV4cCI6MjA5MTAzMzY1NX0.0MnVvys_Vcc8vjiQJnzeZYS9_itSFgQ1WSziz2TTsmM';
 const AP = 'ecard2026';
-const _PRODUCTION_URL = 'https://abedkb.github.io/ecard/';
-const SITE = (function(){
-  var saved = localStorage.getItem('abedcards_site_url');
-  if (saved && saved.indexOf('http') === 0) return saved.replace(/\/+$/, '') + '/';
-  var origin = window.location.origin;
-  // On localhost / file:// / any non-public origin → use the known production URL
-  if (!origin || origin === 'null' || window.location.protocol === 'file:' ||
-      origin.indexOf('127.0.0.1') >= 0 || origin.indexOf('localhost') >= 0 ||
-      origin.indexOf('::1') >= 0) {
-    return _PRODUCTION_URL;
-  }
-  var base = (origin + window.location.pathname).split('?')[0].split('#')[0];
-  return base.replace(/\/+$/, '') + '/';
-})();
+const SITE = (window.location.origin + window.location.pathname).split('?')[0].split('#')[0];
 const ABEDTECH_PHONE = '0755 863 325';
 
 const H = {
@@ -2742,14 +2729,12 @@ function buildBeemReminderMsg(tukio, mgeni) {
 
 // ---------- BEEM SETTINGS PANEL ----------
 function openBeemSettings() {
-  var savedSiteUrl = localStorage.getItem('abedcards_site_url') || '';
   openMod('⚙️ Mipangilio ya Beem Africa SMS', `
     <div>
       <div class="al al-i" style="font-size:12px;">Ingia Beem Africa kwenye <strong>apisms.beem.africa</strong> kupata API Key na Secret Key yako.</div>
       <div class="fg"><label>API Key</label><input type="text" class="fi" id="beem-set-apikey" placeholder="Weka Beem API Key" value="${BEEM_API_KEY !== 'YOUR_BEEM_API_KEY_HERE' ? BEEM_API_KEY : ''}"/></div>
       <div class="fg"><label>Secret Key</label><input type="password" class="fi" id="beem-set-secret" placeholder="Weka Beem Secret Key" value="${BEEM_SECRET_KEY !== 'YOUR_BEEM_SECRET_KEY_HERE' ? BEEM_SECRET_KEY : ''}"/></div>
       <div class="fg"><label>Sender ID (max 11 herufi)</label><input type="text" class="fi" id="beem-set-sender" maxlength="11" placeholder="ECARD" value="${BEEM_SENDER_ID}"/></div>
-      <div class="fg"><label>🔗 URL ya App (kwa viungo vinavyoweza kubonyezwa)</label><input type="url" class="fi" id="beem-set-siteurl" placeholder="${_PRODUCTION_URL}" value="${savedSiteUrl || _PRODUCTION_URL}"/><div style="font-size:10px;color:var(--mt);margin-top:3px;">URL ya tovuti yako halisi (https://...). Viungo vyote katika SMS na WhatsApp vitatumia URL hii.</div></div>
       <div class="fg">
         <button onclick="beemSaveSettings()" class="btn btn-g btn-block">💾 Hifadhi Mipangilio</button>
       </div>
@@ -2760,32 +2745,26 @@ function openBeemSettings() {
         </div>
       </div>
       <div class="cred-box" style="margin-top:14px;">
-        <div class="cred-title">📊 Hali ya Mfumo</div>
+        <div class="cred-title">📊 Hali ya Beem</div>
         <div class="cred-row"><span class="cred-label">API Key:</span><span class="cred-value" style="font-size:11px;">${BEEM_API_KEY !== 'YOUR_BEEM_API_KEY_HERE' ? '✅ Imewekwa' : '❌ Haijawekwa'}</span></div>
         <div class="cred-row"><span class="cred-label">Secret:</span><span class="cred-value" style="font-size:11px;">${BEEM_SECRET_KEY !== 'YOUR_BEEM_SECRET_KEY_HERE' ? '✅ Imewekwa' : '❌ Haijawekwa'}</span></div>
         <div class="cred-row"><span class="cred-label">Sender ID:</span><span class="cred-value">${BEEM_SENDER_ID}</span></div>
-        <div class="cred-row"><span class="cred-label">App URL:</span><span class="cred-value" style="font-size:10px;word-break:break-all;">${savedSiteUrl ? '✅ ' + savedSiteUrl : '⚠ Haijawekwa — viungo vinaweza kutofanya kazi'}</span></div>
-        <div class="cred-row"><span class="cred-label">SITE sasa:</span><span class="cred-value" style="font-size:10px;word-break:break-all;">${SITE}</span></div>
       </div>
     </div>`);
 }
 
 function beemSaveSettings() {
-  const key     = $('beem-set-apikey') ? $('beem-set-apikey').value.trim() : '';
-  const secret  = $('beem-set-secret') ? $('beem-set-secret').value.trim() : '';
-  const sender  = $('beem-set-sender') ? $('beem-set-sender').value.trim() : 'ECARD';
-  const siteUrl = $('beem-set-siteurl') ? $('beem-set-siteurl').value.trim() : '';
+  const key    = $('beem-set-apikey') ? $('beem-set-apikey').value.trim() : '';
+  const secret = $('beem-set-secret') ? $('beem-set-secret').value.trim() : '';
+  const sender = $('beem-set-sender') ? $('beem-set-sender').value.trim() : 'ECARD';
   if (!key || !secret) { toastFn('⚠ Jaza API Key na Secret Key'); return; }
+  // Update runtime values (page session only — for permanent, edit the constants above)
   window._BEEM_API_KEY    = key;
   window._BEEM_SECRET_KEY = secret;
   window._BEEM_SENDER_ID  = sender || 'ECARD';
+  // Patch the module-level send function to use session values
   window._beemCredsSet = true;
-  if (siteUrl && siteUrl.indexOf('http') === 0) {
-    localStorage.setItem('abedcards_site_url', siteUrl.replace(/\/+$/, '') + '/');
-    toastFn('✅ Mipangilio imehifadhiwa — reload kurasa ili viungo vitumie URL mpya');
-  } else {
-    toastFn('✅ Mipangilio imehifadhiwa (session hii)');
-  }
+  toastFn('✅ Mipangilio imehifadhiwa (session hii)');
   closeModDirect();
 }
 
@@ -3101,7 +3080,6 @@ function buildKamatiWaMsg(tukio, m) {
   var familiaLine = buildFamiliaLine(tukio);
   var tarehe = formatTarehe(tukio.tarehe);
   var mhusika = tukio.jina_mhusika || '';
-  var url = pledgeUrl(tukio.nambari_tukio);
   var msg = '🏅 *TAARIFA YA KAMATI*\n\n';
   msg += 'Ndugu *' + (m.jina||'') + '*,\n\n';
   msg += 'Unajulishwa kuwa umechaguliwa kuwa *' + (m.jukumu||'') + '*\n';
@@ -3110,8 +3088,7 @@ function buildKamatiWaMsg(tukio, m) {
   msg += '📅 *Tarehe:* ' + tarehe + '\n';
   msg += '📍 *Mahali:* ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n';
   msg += '\n' + familiaLine + ' wanakushukuru kwa mchango wako.\n';
-  msg += 'Tafadhali wasiliana nasi kwa maswali yoyote.\n\n';
-  msg += '🔗 *Kiungo cha Sherehe:*\n' + url + '\n\n';
+  msg += 'Tafadhali wasiliana nasi kwa maswali yoyote.\n';
   msg += '_Powered by AbedTech ' + ABEDTECH_PHONE + '_';
   return msg;
 }
@@ -3120,7 +3097,6 @@ function buildKamatiSmsMsg(tukio, m) {
   var familiaLine = buildFamiliaLine(tukio);
   var tarehe = formatTarehe(tukio.tarehe);
   var mhusika = tukio.jina_mhusika || '';
-  var url = pledgeUrl(tukio.nambari_tukio);
   var msg = 'TAARIFA YA KAMATI\n\n';
   msg += 'Ndugu ' + (m.jina||'') + ',\n\n';
   msg += 'Umechaguliwa kuwa ' + (m.jukumu||'') + '\n';
@@ -3128,8 +3104,7 @@ function buildKamatiSmsMsg(tukio, m) {
   if (mhusika) msg += 'Mhusika: ' + mhusika + '\n';
   msg += 'Tarehe: ' + tarehe + '\n';
   msg += 'Mahali: ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n';
-  msg += '\n' + familiaLine + ' wanakushukuru.\n\n';
-  msg += 'Kiungo cha Sherehe:\n' + url + '\n';
+  msg += '\n' + familiaLine + ' wanakushukuru.\n';
   msg += '-AbedTech ' + ABEDTECH_PHONE;
   return msg;
 }
@@ -3276,7 +3251,6 @@ function buildBajetiWaMsg(tukio, b) {
   var familiaLine = buildFamiliaLine(tukio);
   var tarehe = formatTarehe(tukio.tarehe);
   var mhusika = tukio.jina_mhusika || '';
-  var url = pledgeUrl(tukio.nambari_tukio);
   var msg = '💹 *TAARIFA YA BAJETI*\n\n';
   if (b.mtoa) msg += 'Ndugu *' + b.mtoa + '*,\n\n';
   msg += 'Tunakuarifu kuhusu shughuli iliyokupangiwa katika:\n';
@@ -3287,8 +3261,7 @@ function buildBajetiWaMsg(tukio, b) {
   msg += '📋 *Shughuli:* ' + (b.shughuli||'—') + '\n';
   msg += '💰 *Kiasi:* TZS ' + (parseInt(b.kiasi)||0).toLocaleString() + '/=\n\n';
   msg += familiaLine + ' wanakushukuru.\n';
-  msg += 'Tafadhali wasiliana nasi kwa maswali yoyote.\n\n';
-  msg += '🔗 *Kiungo cha Sherehe:*\n' + url + '\n\n';
+  msg += 'Tafadhali wasiliana nasi kwa maswali yoyote.\n';
   msg += '_Powered by AbedTech ' + ABEDTECH_PHONE + '_';
   return msg;
 }
@@ -3297,7 +3270,6 @@ function buildBajetiSmsMsg(tukio, b) {
   var familiaLine = buildFamiliaLine(tukio);
   var tarehe = formatTarehe(tukio.tarehe);
   var mhusika = tukio.jina_mhusika || '';
-  var url = pledgeUrl(tukio.nambari_tukio);
   var msg = 'TAARIFA YA BAJETI\n\n';
   if (b.mtoa) msg += 'Ndugu ' + b.mtoa + ',\n\n';
   msg += 'Shughuli yako: ' + (b.shughuli||'—') + '\n';
@@ -3306,8 +3278,7 @@ function buildBajetiSmsMsg(tukio, b) {
   if (mhusika) msg += 'Mhusika: ' + mhusika + '\n';
   msg += 'Tarehe: ' + tarehe + '\n';
   msg += 'Mahali: ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n';
-  msg += '\n' + familiaLine + ' wanakushukuru.\n\n';
-  msg += 'Kiungo cha Sherehe:\n' + url + '\n';
+  msg += '\n' + familiaLine + ' wanakushukuru.\n';
   msg += '-AbedTech ' + ABEDTECH_PHONE;
   return msg;
 }
