@@ -351,6 +351,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
       <div class="tab" onclick="aTab('mc')">📋 Mchango Card</div>
       <div class="tab" onclick="aTab('sc')">📷 Scan</div>
       <div class="tab" onclick="aTab('sk')">🙏 Shukrani</div>
+      <div class="tab" onclick="aTab('km')">👥 Kamati</div>
+      <div class="tab" onclick="aTab('bj')">💹 Bajeti</div>
     </div>
     <div id="at-ev">
       <div class="sg">
@@ -580,6 +582,60 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
       </div>
       <div id="sk-wageni-list"></div>
     </div>
+    <div id="at-km" style="display:none;">
+      <div class="card">
+        <div class="card-title">👥 Kamati ya Sherehe <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadKamatiList('admin')">📥 Pakua</button></span></div>
+        <div class="fg"><label>Chagua Sherehe</label><select class="fsel" id="km-tukio-sel" onchange="loadKamati('admin')"></select></div>
+      </div>
+      <div id="km-admin-content" style="display:none;">
+        <div class="card">
+          <div class="card-title">➕ Ongeza Mwanakamati</div>
+          <div class="fgrid">
+            <div class="fg"><label>Jukumu *</label>
+              <select class="fsel" id="km-a-jukumu">
+                <option value="">— Chagua Jukumu —</option>
+                <option>Mwenyekiti</option><option>Katibu</option><option>Mweka Hazina</option>
+                <option>Mapambo</option><option>Ulinzi</option><option>Keki</option>
+                <option>Chakula</option><option>Mengineyo</option>
+              </select>
+            </div>
+            <div class="fg"><label>au Jukumu Jipya</label><input type="text" class="fi" id="km-a-jukumu-custom" placeholder="mfano: Usafiri, Mziki..."/></div>
+            <div class="fg"><label>Jina Kamili *</label><input type="text" class="fi" id="km-a-jina" placeholder="Jina la mwanakamati"/></div>
+            <div class="fg"><label>Namba ya Simu</label><input type="tel" class="fi" id="km-a-simu" placeholder="07XXXXXXXX"/></div>
+          </div>
+          <div id="al-km-admin"></div>
+          <button class="btn btn-g btn-block" onclick="ongezaKamatiMwanachama('admin')">➕ Ongeza Mwanakamati</button>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Orodha ya Kamati <span style="font-size:11px;font-weight:400;color:var(--mt);" id="km-admin-count"></span></div>
+          <div class="tw"><table><thead><tr><th>#</th><th>Jukumu</th><th>Jina</th><th>Simu</th><th>Vitendo</th></tr></thead><tbody id="km-admin-tbody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+    <div id="at-bj" style="display:none;">
+      <div class="card">
+        <div class="card-title">💹 Bajeti ya Sherehe <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadBajetiList('admin')">📥 Pakua</button></span></div>
+        <div class="fg"><label>Chagua Sherehe</label><select class="fsel" id="bj-tukio-sel" onchange="loadBajeti('admin')"></select></div>
+      </div>
+      <div id="bj-admin-content" style="display:none;">
+        <div id="bj-admin-totals" class="sg" style="margin-bottom:14px;display:none;"></div>
+        <div class="card">
+          <div class="card-title">➕ Ongeza Shughuli ya Bajeti</div>
+          <div id="al-bj-admin"></div>
+          <div class="fgrid">
+            <div class="fg full"><label>Shughuli / Aina ya Matumizi *</label><input type="text" class="fi" id="bj-a-shughuli" placeholder="mfano: Chakula cha Waalikwa, Mziki, Mapambo..."/></div>
+            <div class="fg"><label>Kiasi (TZS) *</label><input type="number" class="fi" id="bj-a-kiasi" placeholder="500000" min="0"/></div>
+            <div class="fg"><label>Mtoa / Msambazaji</label><input type="text" class="fi" id="bj-a-mtoa" placeholder="Jina la msambazaji"/></div>
+            <div class="fg full"><label>Namba ya Simu ya Mtoa</label><input type="tel" class="fi" id="bj-a-simu" placeholder="07XXXXXXXX"/></div>
+          </div>
+          <button class="btn btn-g btn-block" onclick="ongezaBajetiShughuli('admin')">➕ Ongeza Shughuli</button>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Orodha ya Bajeti</div>
+          <div class="tw"><table><thead><tr><th>#</th><th>Shughuli</th><th>Kiasi (TZS)</th><th>Mtoa</th><th>Simu</th><th>Vitendo</th></tr></thead><tbody id="bj-admin-tbody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -597,6 +653,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
       <div class="tab" onclick="shTab('mc')">📋 Mchango Card</div>
       <div class="tab" onclick="shTab('sc')">📷 Scan</div>
       <div class="tab" onclick="shTab('sk')">🙏 Shukrani</div>
+      <div class="tab" onclick="shTab('km')">👥 Kamati</div>
+      <div class="tab" onclick="shTab('bj')">💹 Bajeti</div>
     </div>
     <div id="sh-wa">
       <div id="sh-sherehe-info" class="card"></div>
@@ -709,6 +767,58 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
       </div>
       <div id="sh-sk-wageni-list"></div>
     </div>
+    <div id="sh-km" style="display:none;">
+      <div class="card">
+        <div class="card-title">👥 Kamati ya Sherehe <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadKamatiList('sherehe')">📥 Pakua</button></span></div>
+      </div>
+      <div id="km-sh-content">
+        <div class="card">
+          <div class="card-title">➕ Ongeza Mwanakamati</div>
+          <div class="fgrid">
+            <div class="fg"><label>Jukumu *</label>
+              <select class="fsel" id="km-s-jukumu">
+                <option value="">— Chagua Jukumu —</option>
+                <option>Mwenyekiti</option><option>Katibu</option><option>Mweka Hazina</option>
+                <option>Mapambo</option><option>Ulinzi</option><option>Keki</option>
+                <option>Chakula</option><option>Mengineyo</option>
+              </select>
+            </div>
+            <div class="fg"><label>au Jukumu Jipya</label><input type="text" class="fi" id="km-s-jukumu-custom" placeholder="mfano: Usafiri, Mziki..."/></div>
+            <div class="fg"><label>Jina Kamili *</label><input type="text" class="fi" id="km-s-jina" placeholder="Jina la mwanakamati"/></div>
+            <div class="fg"><label>Namba ya Simu</label><input type="tel" class="fi" id="km-s-simu" placeholder="07XXXXXXXX"/></div>
+          </div>
+          <div id="al-km-sh"></div>
+          <button class="btn btn-g btn-block" onclick="ongezaKamatiMwanachama('sherehe')">➕ Ongeza Mwanakamati</button>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Orodha ya Kamati <span style="font-size:11px;font-weight:400;color:var(--mt);" id="km-sh-count"></span></div>
+          <div class="tw"><table><thead><tr><th>#</th><th>Jukumu</th><th>Jina</th><th>Simu</th><th>Vitendo</th></tr></thead><tbody id="km-sh-tbody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+    <div id="sh-bj" style="display:none;">
+      <div class="card">
+        <div class="card-title">💹 Bajeti ya Sherehe <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadBajetiList('sherehe')">📥 Pakua</button></span></div>
+      </div>
+      <div id="bj-sh-content">
+        <div id="bj-sh-totals" class="sg" style="margin-bottom:14px;display:none;"></div>
+        <div class="card">
+          <div class="card-title">➕ Ongeza Shughuli ya Bajeti</div>
+          <div id="al-bj-sh"></div>
+          <div class="fgrid">
+            <div class="fg full"><label>Shughuli / Aina ya Matumizi *</label><input type="text" class="fi" id="bj-s-shughuli" placeholder="mfano: Chakula cha Waalikwa, Mziki, Mapambo..."/></div>
+            <div class="fg"><label>Kiasi (TZS) *</label><input type="number" class="fi" id="bj-s-kiasi" placeholder="500000" min="0"/></div>
+            <div class="fg"><label>Mtoa / Msambazaji</label><input type="text" class="fi" id="bj-s-mtoa" placeholder="Jina la msambazaji"/></div>
+            <div class="fg full"><label>Namba ya Simu ya Mtoa</label><input type="tel" class="fi" id="bj-s-simu" placeholder="07XXXXXXXX"/></div>
+          </div>
+          <button class="btn btn-g btn-block" onclick="ongezaBajetiShughuli('sherehe')">➕ Ongeza Shughuli</button>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Orodha ya Bajeti</div>
+          <div class="tw"><table><thead><tr><th>#</th><th>Shughuli</th><th>Kiasi (TZS)</th><th>Mtoa</th><th>Simu</th><th>Vitendo</th></tr></thead><tbody id="bj-sh-tbody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -735,7 +845,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
 const SB = 'https://dfcqredvuuosmmjforwf.supabase.co';
 const SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY3FyZWR2dXVvc21tamZvcndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NTc2NTUsImV4cCI6MjA5MTAzMzY1NX0.0MnVvys_Vcc8vjiQJnzeZYS9_itSFgQ1WSziz2TTsmM';
 const AP = 'ecard2026';
-const SITE = (window.location.origin + window.location.pathname).split('?')[0].split('#')[0];
+const _PRODUCTION_URL = 'https://abedkb.github.io/ecard/';
+const SITE = (function(){
+  var saved = localStorage.getItem('abedcards_site_url');
+  if (saved && saved.indexOf('http') === 0) return saved.replace(/\/+$/, '') + '/';
+  var origin = window.location.origin;
+  // On localhost / file:// / any non-public origin → use the known production URL
+  if (!origin || origin === 'null' || window.location.protocol === 'file:' ||
+      origin.indexOf('127.0.0.1') >= 0 || origin.indexOf('localhost') >= 0 ||
+      origin.indexOf('::1') >= 0) {
+    return _PRODUCTION_URL;
+  }
+  var base = (origin + window.location.pathname).split('?')[0].split('#')[0];
+  return base.replace(/\/+$/, '') + '/';
+})();
 const ABEDTECH_PHONE = '0755 863 325';
 
 const H = {
@@ -874,7 +997,7 @@ function buildMaelezoSherehe(tukio, includeNames = true) {
   } else if (ainaLower === 'harusi') {
     return mhusika ? `sherehe ya Harusi ya ${mhusika}` : `sherehe ya Harusi`;
   } else if (ainaLower === 'kitchen party') {
-    return mhusika ? `sherehe ya Kitchen Party ya ${mhusika}` : `sherehe ya Kitchen Party`;
+    return mhusika ? `sherehe ya Kitchen Party ya binti yao mpendwa ${mhusika}` : `sherehe ya Kitchen Party`;
   } else if (ainaLower === 'mkutano') {
     return mhusika ? `Mkutano wa ${mhusika}` : `Mkutano`;
   } else if (ainaLower === 'kikao') {
@@ -893,7 +1016,7 @@ function getDefaultAhadiMsg(tukio) {
   if (aina === 'kustaafu') return `Pongezi kwa kustaafu${mhusika?' kwa '+mhusika:''}! Umefanya kazi nzuri sana. Mungu akubariki unapoanza sura mpya ya maisha yako.`;
   if (aina === 'birthday') return `Hongera sana${mhusika?' '+mhusika:''}! Mungu akubariki na akupe afya njema, furaha na maisha marefu yenye baraka.`;
   if (aina === 'graduation') return `Hongera kwa kuhitimu${mhusika?' kwa '+mhusika:''}! Usomi wako umezaa matunda. Mungu akubariki katika kazi zako za baadaye.`;
-  if (aina === 'mkutano') return `Asante kwa mwaliko wa mkutano huu. Ninatumaini tutafanikisha malengo yetu pamoja. Mungu abariki maamuzi mazuri.`;
+  if (aina === 'mkutano') return `Asante kwa mwaliko wa mkutano huu. Ninatumaini tutafanikisha malengo yetu pamoja. Mungu abariki maamuzi mazuri ya kuandaa mkutano huu.`;
   if (aina === 'kikao') return `Asante kwa mwaliko wa kikao hiki. Ninatumaini tutafanikisha malengo yetu kwa pamoja. Mungu abariki maamuzi yetu.`;
   return `Mungu awabariki sana. Ahadi yangu ninaweka kwa moyo wote na ninawatakia sherehe nzuri yenye baraka tele.`;
 }
@@ -1050,21 +1173,24 @@ function buildAhadiReminderWaMsg(tukio, ahadi) {
   const familiaLine = buildFamiliaLine(tukio);
   const mahali = tukio.mahali_mwenyeji || '';
   const tarehe = formatTarehe(tukio.tarehe);
+  const mhusika = tukio.jina_mhusika || '';
   const mwisho = tukio.mwisho_mchango ? `\n⏰ *Mwisho wa Kulipa:* ${formatTarehe(tukio.mwisho_mchango)}` : '';
   const pay = deserializePayments(tukio.payment_options);
   let njiaLines = '';
-  if (pay.simu && pay.simu.length) njiaLines += pay.simu.map(s => `${getSimuLabel(s.platform)}: *${s.nambari||''}*`).join('\n');
-  if (pay.benki && pay.benki.length) { if (njiaLines) njiaLines += '\n'; njiaLines += pay.benki.map(b => `${getBenkiLabel(b.benki)}: *${b.akaunti||''}*`).join('\n'); }
+  if (pay.simu && pay.simu.length) njiaLines += pay.simu.map(s => `${getSimuLabel(s.platform)}: *${s.nambari||''}*${s.jina ? ` — *${s.jina}*` : ''}`).join('\n');
+  if (pay.benki && pay.benki.length) { if (njiaLines) njiaLines += '\n'; njiaLines += pay.benki.map(b => `${getBenkiLabel(b.benki)}: *${b.akaunti||''}*${b.jina ? ` — *${b.jina}*` : ''}`).join('\n'); }
   const njiaSection = njiaLines ? `\n💳 *Tuma Mchango kwa:*\n${njiaLines}` : '';
   const url = pledgeUrl(tukio.nambari_tukio);
 
   let msg = `🙏 *UKUMBUSHO WA AHADI*\n\n`;
   msg += `Ndugu *${jina}*,\n\n`;
-  msg += `${familiaLine} wa ${mahali} wanakukumbusha kukamilisha/kupunguza mchango wako katika ${buildMaelezoSherehe(tukio,false)}.\n\n`;
-  msg += `💰 *Kiasi cha Ahadi:* TZS ${(ahadi.kiasi||0).toLocaleString()}/=\n`;
-  msg += `📅 *Tarehe ya Ahadi:* ${ahadi.tarehe_ahadi||'—'}${mwisho}\n`;
+  msg += `${familiaLine} wa ${mahali} wanakukumbusha kukamilisha/kupunguza mchango wako katika *${buildMaelezoSherehe(tukio, true)}*.\n`;
+  if (mhusika) msg += `👤 *Jina la Mhusika:* ${mhusika}\n`;
+  msg += `\n💰 *Kiasi cha Ahadi:* TZS ${(ahadi.kiasi||0).toLocaleString()}/=\n`;
+  msg += `📅 *Tarehe ya Sherehe:* ${tarehe}\n`;
+  msg += `📋 *Tarehe ya Ahadi:* ${ahadi.tarehe_ahadi||'—'}${mwisho}\n`;
   msg += njiaSection;
-  msg += `\n\n🔗 *Weka au Thibitisha Ahadi:*\n${url}\n\n`;
+  msg += `\n\n🔗 *Weka au Thibitisha Ahadi Yako:*\n${url}\n\n`;
   msg += `Mungu akubariki kwa ukarimu wako! 🙏\n`;
   msg += `_Powered by AbedTech ${ABEDTECH_PHONE}_`;
   return msg;
@@ -1073,12 +1199,28 @@ function buildAhadiReminderWaMsg(tukio, ahadi) {
 function buildAhadiReminderSmsMsg(tukio, ahadi) {
   const jina = ahadi.jina_mtoaji || '';
   const familiaLine = buildFamiliaLine(tukio);
+  const mahali = tukio.mahali_mwenyeji || '';
   const tarehe = formatTarehe(tukio.tarehe);
+  const mhusika = tukio.jina_mhusika || '';
+  const mwisho = tukio.mwisho_mchango ? `\nMwisho wa Kulipa: ${formatTarehe(tukio.mwisho_mchango)}` : '';
   const pay = deserializePayments(tukio.payment_options);
-  let njia = '';
-  if (pay.simu && pay.simu.length) njia = pay.simu.slice(0,1).map(s=>`${getSimuLabel(s.platform)}:${s.nambari||''}`).join('');
+  let njiaLines = '';
+  if (pay.simu && pay.simu.length) njiaLines += pay.simu.map(s => `${getSimuLabel(s.platform)}: ${s.nambari||''}${s.jina ? ` — ${s.jina}` : ''}`).join('\n');
+  if (pay.benki && pay.benki.length) { if (njiaLines) njiaLines += '\n'; njiaLines += pay.benki.map(b => `${getBenkiLabel(b.benki)}: ${b.akaunti||''}${b.jina ? ` — ${b.jina}` : ''}`).join('\n'); }
+  const njiaSection = njiaLines ? `\nTuma Mchango kwa:\n${njiaLines}` : '';
   const url = pledgeUrl(tukio.nambari_tukio);
-  return `UKUMBUSHO: Ndugu ${jina}, ahadi yako ya TZS ${(ahadi.kiasi||0).toLocaleString()}/= kwa ${buildMaelezoSherehe(tukio,false)} ya ${familiaLine} bado haijafika. ${njia?'Lipa kwa '+njia+'.':''} Thibitisha: ${url} -AbedTech ${ABEDTECH_PHONE}`;
+
+  let msg = `UKUMBUSHO WA AHADI\n\n`;
+  msg += `Ndugu ${jina},\n\n`;
+  msg += `${familiaLine} wa ${mahali} wanakukumbusha kukamilisha/kupunguza mchango wako katika ${buildMaelezoSherehe(tukio, true)}.\n`;
+  if (mhusika) msg += `Jina la Mhusika: ${mhusika}\n`;
+  msg += `\nKiasi cha Ahadi: TZS ${(ahadi.kiasi||0).toLocaleString()}/=\n`;
+  msg += `Tarehe ya Sherehe: ${tarehe}\n`;
+  msg += `Tarehe ya Ahadi: ${ahadi.tarehe_ahadi||'—'}${mwisho}\n`;
+  msg += njiaSection;
+  msg += `\n\nBonyeza kiungo hapa chini kuthibitisha au kufanya ahadi yako:\n${url}\n\n`;
+  msg += `Mungu akubariki!\n-AbedTech ${ABEDTECH_PHONE}`;
+  return msg;
 }
 
 function sendAhadiReminder(ahadiId) {
@@ -1355,6 +1497,7 @@ async function loadAll(){
 function jaziMcSelects(){const s=$('mc-tukio-sel');if(!s)return;const prev=s.value;s.innerHTML='<option value="">— Chagua sherehe —</option>';AM.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${ainaIcon(t.aina)} ${t.jina_tukio}`;s.appendChild(o);});if(prev)s.value=prev;}
 function renderStats(){$('a-ev').textContent=AM.length;$('a-wa').textContent=AW.length;$('a-ah').textContent=(AA.reduce((s,a)=>s+a.kiasi,0)/1000).toLocaleString();$('a-lp').textContent=(AA.filter(a=>a.status==='imelipwa').reduce((s,a)=>s+a.kiasi,0)/1000).toLocaleString();}
 function jaziSelects(){['wa-tukio-sel','kd-tukio-sel','ah-tukio-sel','sk-tukio-sel'].forEach(id=>{const s=$(id);if(!s)return;const prev=s.value;s.innerHTML='<option value="">— Chagua sherehe —</option>';AM.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${ainaIcon(t.aina)} ${t.jina_tukio}`;s.appendChild(o);});if(prev)s.value=prev;});}
+function jaziKmBjSelects(){['km-tukio-sel','bj-tukio-sel'].forEach(id=>{const s=$(id);if(!s)return;const prev=s.value;s.innerHTML='<option value="">— Chagua sherehe —</option>';AM.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=`${ainaIcon(t.aina)} ${t.jina_tukio}`;s.appendChild(o);});if(prev)s.value=prev;});}
 function initAdminForm(){if(!$('t-pw-msimamizi').value) undaPINs();$('t-tarehe').value=leo();$('mg-malipo').value=leo();renderSimuNjia('t-simu-njia-list',tSimuNjia,'t');renderBenkiNjia('t-benki-njia-list',tBenkiNjia,'t');}
 
 // ==================== SHEREHE FUNCTIONS ====================
@@ -1705,20 +1848,77 @@ function shareShPledgeLink(){const t=AM.find(x=>x.id===currentShereheId);if(!t)r
 function onMcTukioChange(role){if(role==='admin'){const tid=$('mc-tukio-sel').value,wrap=$('mc-admin-fields');if(!tid){wrap.style.display='none';$('mc-admin-preview').innerHTML='';$('mc-admin-share').style.display='none';const ww=$('mc-admin-wageni-wrap');if(ww)ww.style.display='none';return;}const t=AM.find(x=>x.id===parseInt(tid));if(!t){wrap.style.display='none';return;}$('mc-a-single').value=t.single_amount||'';$('mc-a-double').value=t.double_amount||'';$('mc-a-mwisho').value=t.mwisho_mchango||'';const pay=deserializePayments(t.payment_options);mcASimu=[...pay.simu];mcABenki=[...pay.benki];renderSimuNjia('mc-a-simu-list',mcASimu,'mca');renderBenkiNjia('mc-a-benki-list',mcABenki,'mca');wrap.style.display='block';loadMcWageniList('admin');}}
 function getMchangoData(role){if(role==='admin'){const tid=$('mc-tukio-sel').value,t=AM.find(x=>x.id===parseInt(tid));if(!t)return null;const simuFinal=mcASimu.length?mcASimu:deserializePayments(t.payment_options).simu,benkiFinal=mcABenki.length?mcABenki:deserializePayments(t.payment_options).benki;return{tukio:t,single:$('mc-a-single').value.trim()||t.single_amount||'',double:$('mc-a-double').value.trim()||t.double_amount||'',simu:simuFinal,benki:benkiFinal,mwisho:$('mc-a-mwisho').value||t.mwisho_mchango||''};}else{const t=AM.find(x=>x.id===currentShereheId);if(!t)return null;const simuFinal=mcSSimu.length?mcSSimu:deserializePayments(t.payment_options).simu,benkiFinal=mcSBenki.length?mcSBenki:deserializePayments(t.payment_options).benki;return{tukio:t,single:$('mc-s-single').value.trim()||t.single_amount||'',double:$('mc-s-double').value.trim()||t.double_amount||'',simu:simuFinal,benki:benkiFinal,mwisho:$('mc-s-mwisho').value||t.mwisho_mchango||''};}}
 
-function buildMchangoCardMsg(tukio,single,double_,simu,benki,mwisho){
-  const url=pledgeUrl(tukio.nambari_tukio);
-  const mahali=tukio.mahali_mwenyeji||'Dar Es Salaam';
-  const tarehe=formatTarehe(tukio.tarehe);
-  const mwishoLine=mwisho?formatTarehe(mwisho):'';
-  const mwenyekiti=tukio.mwenyekiti_jina||'';
-  const mwenyekitiSimu=tukio.mwenyekiti_simu||'';
-  const familiaLine=buildFamiliaLine(tukio);
-  const maelezoSherehe=buildMaelezoSherehe(tukio,true);
-  let simuLines='',benkiLines='';
-  if(simu&&simu.length) simuLines=simu.map(s=>`${getSimuLabel(s.platform)}: ${s.nambari||''}`).join('\n');
-  if(benki&&benki.length) benkiLines=benki.map(b=>`${getBenkiLabel(b.benki)}: ${b.akaunti||''}`).join('\n');
-  const njiaSection=(simuLines||benkiLines)?`\nTuma Mchango:\n${simuLines}${simuLines&&benkiLines?'\n':''}${benkiLines}`:'';
-  return `Habari! 💝\n${familiaLine} wa ${mahali} wanayo furaha kukualika kwenye ${maelezoSherehe} inayotarajia kufanyika tarehe ${tarehe}, ${tukio.saa}.\n\nSINGLE: ${single}\nDOUBLE: ${double_}${njiaSection}\n\nWeka Ahadi:\n${url}\n${mwishoLine?'Mwisho: '+mwishoLine+'\n':''}${mwenyekiti?'Mwenyekiti: '+mwenyekiti+(mwenyekitiSimu?' ('+mwenyekitiSimu+')':''):''}\n_Powered by AbedTech_`;
+function buildMchangoWaMsg(tukio, single, double_, simu, benki, mwisho, mgeni) {
+  const url = pledgeUrl(tukio.nambari_tukio);
+  const mahali = tukio.mahali_mwenyeji || 'Dar Es Salaam';
+  const tarehe = formatTarehe(tukio.tarehe);
+  const saa = tukio.saa || '';
+  const mhusika = tukio.jina_mhusika || '';
+  const ainaTukio = tukio.aina || 'Harusi';
+  const familiaLine = buildFamiliaLine(tukio);
+  const maelezoSherehe = buildMaelezoSherehe(tukio, true);
+  const jina = mgeni && mgeni.jina_kamili ? mgeni.jina_kamili : '';
+  const nenoKualika = mgeni && mgeni.aina_kadi === 'Double' ? 'kuwaalika' : 'kukualika';
+  const mwishoLine = mwisho ? `\n⏰ *Mwisho wa Kutoa Mchango:* ${formatTarehe(mwisho)}` : '';
+  let njiaLines = '';
+  if (simu && simu.length) njiaLines += simu.map(s => `${getSimuLabel(s.platform)}: *${s.nambari||''}*${s.jina ? ` — *${s.jina}*` : ''}`).join('\n');
+  if (benki && benki.length) { if (njiaLines) njiaLines += '\n'; njiaLines += benki.map(b => `🏦 ${getBenkiLabel(b.benki)}: *${b.akaunti||''}*${b.jina ? ` — *${b.jina}*` : ''}`).join('\n'); }
+  const njiaSection = njiaLines ? `\n\n💳 *Njia za Kuchangia:*\n${njiaLines}` : '';
+  const amountSection = (single || double_) ? `\n\n💰 *Kiasi cha Mchango:*\n${single ? `🧑 SINGLE: *TZS ${single}*\n` : ''}${double_ ? `👫 DOUBLE: *TZS ${double_}*` : ''}` : '';
+  let msg = `💝 *MCHANGO WA ${ainaTukio.toUpperCase()}*\n\n`;
+  if (jina) msg += `Ndugu *${jina}*,\n\n`;
+  msg += `${familiaLine} wa ${mahali} wanayo furaha ${jina ? nenoKualika : 'kukualika'} kwenye *${maelezoSherehe}*.\n`;
+  if (mhusika) msg += `👤 *Jina la Mhusika:* ${mhusika}\n`;
+  msg += `\nKwa kutambua kuwa wewe ni ndugu, jamaa na rafiki wa karibu wa familia hii, tunaomba mchango wako wa hali na mali ili kufanikisha shughuli hii.\n`;
+  msg += `\n📅 *Tarehe:* ${tarehe}\n`;
+  msg += `⏰ *Saa:* ${saa}\n`;
+  msg += `🏛 *Ukumbi:* ${tukio.ukumbi || ''}`;
+  if (tukio.location_link) msg += `\n🗺 *Ramani:* ${tukio.location_link}`;
+  msg += amountSection;
+  msg += njiaSection;
+  msg += mwishoLine;
+  msg += `\n\n🔗 *Weka Ahadi Yako:*\n${url}\n\n`;
+  msg += `Karibuni Nyote! Mungu awabariki sana.\n`;
+  msg += `_Powered by AbedTech ${ABEDTECH_PHONE}_`;
+  return msg;
+}
+
+function buildMchangoSmsMsg(tukio, single, double_, simu, benki, mwisho, mgeni) {
+  const url = pledgeUrl(tukio.nambari_tukio);
+  const mahali = tukio.mahali_mwenyeji || 'Dar Es Salaam';
+  const tarehe = formatTarehe(tukio.tarehe);
+  const saa = tukio.saa || '';
+  const mhusika = tukio.jina_mhusika || '';
+  const ainaTukio = tukio.aina || 'Harusi';
+  const familiaLine = buildFamiliaLine(tukio);
+  const maelezoSherehe = buildMaelezoSherehe(tukio, true);
+  const jina = mgeni && mgeni.jina_kamili ? mgeni.jina_kamili : '';
+  const nenoKualika = mgeni && mgeni.aina_kadi === 'Double' ? 'kuwaalika' : 'kukualika';
+  const mwishoLine = mwisho ? `\nMwisho wa Kutoa Mchango: ${formatTarehe(mwisho)}` : '';
+  let njiaLines = '';
+  if (simu && simu.length) njiaLines += simu.map(s => `${getSimuLabel(s.platform)}: ${s.nambari||''}${s.jina ? ` — ${s.jina}` : ''}`).join('\n');
+  if (benki && benki.length) { if (njiaLines) njiaLines += '\n'; njiaLines += benki.map(b => `${getBenkiLabel(b.benki)}: ${b.akaunti||''}${b.jina ? ` — ${b.jina}` : ''}`).join('\n'); }
+  const njiaSection = njiaLines ? `\nNjia za Kuchangia:\n${njiaLines}` : '';
+  const amountSection = (single || double_) ? `\nKiasi cha Mchango:\n${single ? `SINGLE: TZS ${single}\n` : ''}${double_ ? `DOUBLE: TZS ${double_}` : ''}` : '';
+  let msg = `MCHANGO WA ${ainaTukio.toUpperCase()}\n\n`;
+  if (jina) msg += `Ndugu ${jina},\n\n`;
+  msg += `${familiaLine} wa ${mahali} wanayo furaha ${jina ? nenoKualika : 'kukualika'} kwenye ${maelezoSherehe}.\n`;
+  if (mhusika) msg += `Jina la Mhusika: ${mhusika}\n`;
+  msg += `\nKwa kutambua kuwa wewe ni ndugu, jamaa na rafiki wa karibu wa familia hii, tunaomba mchango wako wa hali na mali ili kufanikisha shughuli hii.\n`;
+  msg += `\nTarehe: ${tarehe}\n`;
+  msg += `Saa: ${saa}\n`;
+  msg += `Ukumbi: ${tukio.ukumbi || ''}`;
+  if (tukio.location_link) msg += `\nRamani: ${tukio.location_link}`;
+  msg += amountSection;
+  msg += njiaSection;
+  msg += mwishoLine;
+  msg += `\n\nWeka Ahadi Yako:\n${url}\n\n`;
+  msg += `Karibuni Nyote!\n-AbedTech ${ABEDTECH_PHONE}`;
+  return msg;
+}
+
+function buildMchangoCardMsg(tukio, single, double_, simu, benki, mwisho) {
+  return buildMchangoWaMsg(tukio, single, double_, simu, benki, mwisho);
 }
 /**
  * buildMchangoCardHTML
@@ -1946,7 +2146,7 @@ function buildMchangoCardHTML(tukio, single, double_, simu, benki, mwisho, mgeni
   </div><!-- /mchango-card -->
 </div>`;
 }
-function generateMchangoCard(role){const data=getMchangoData(role);if(!data){toastFn('Chagua sherehe kwanza');return;}const{tukio,single,double:double_,simu,benki,mwisho}=data;const previewId=role==='admin'?'mc-admin-preview':'mc-sh-preview',shareId=role==='admin'?'mc-admin-share':'mc-sh-share',shareContentId=role==='admin'?'mc-admin-share-content':'mc-sh-share-content';$(previewId).innerHTML=buildMchangoCardHTML(tukio,single,double_,simu,benki,mwisho);const qid='mcqr_'+String(tukio.id).replace(/-/g,'').substring(0,8),R=tukio.rangi_kuu||'#8B1A1A',url=pledgeUrl(tukio.nambari_tukio);setTimeout(()=>{const canvas=$(qid);if(canvas)QRCode.toCanvas(canvas,url,{width:80,margin:1,color:{dark:R,light:'#FFFFFF'}});},300);const msg=buildMchangoCardMsg(tukio,single,double_,simu,benki,mwisho);$(shareId).style.display='block';$(shareContentId).innerHTML=`<div><div class="msg-preview-box">${msg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div><div style="display:flex;flex-direction:column;gap:8px;"><a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" class="share-channel-btn" style="background:#25D366;color:white;">💬 Tuma WhatsApp</a><button onclick="copyText(${JSON.stringify(msg)})" class="share-channel-btn" style="background:#1A1A2E;color:white;">📋 Nakili Ujumbe</button><button onclick="pakulaPicha('${previewId}','MchangoCard_${tukio.nambari_tukio}')" class="share-channel-btn" style="background:linear-gradient(135deg,#E65100,#FF6D00);color:white;">📥 Pakua Kadi</button></div></div>`;toastFn('✅ Kadi imetengenezwa!');loadMcWageniList(role);}
+function generateMchangoCard(role){const data=getMchangoData(role);if(!data){toastFn('Chagua sherehe kwanza');return;}const{tukio,single,double:double_,simu,benki,mwisho}=data;const previewId=role==='admin'?'mc-admin-preview':'mc-sh-preview',shareId=role==='admin'?'mc-admin-share':'mc-sh-share',shareContentId=role==='admin'?'mc-admin-share-content':'mc-sh-share-content';$(previewId).innerHTML=buildMchangoCardHTML(tukio,single,double_,simu,benki,mwisho);const qid='mcqr_'+String(tukio.id).replace(/-/g,'').substring(0,8),R=tukio.rangi_kuu||'#8B1A1A',url=pledgeUrl(tukio.nambari_tukio);setTimeout(()=>{const canvas=$(qid);if(canvas)QRCode.toCanvas(canvas,url,{width:80,margin:1,color:{dark:R,light:'#FFFFFF'}});},300);const waMsg=buildMchangoWaMsg(tukio,single,double_,simu,benki,mwisho);const smsMsg=buildMchangoSmsMsg(tukio,single,double_,simu,benki,mwisho);$(shareId).style.display='block';$(shareContentId).innerHTML=`<div class="share-panel"><div class="share-panel-header"><div class="share-panel-header-icon">📲</div><div class="share-panel-header-text"><div class="share-panel-header-title">Shiriki Ujumbe wa Mchango</div><div class="share-panel-header-sub">WhatsApp, SMS, au Pakua Kadi</div></div></div><div class="share-channel"><div class="share-channel-label"><span style="font-size:14px;">💬</span><span style="font-weight:700;margin-left:6px;">WhatsApp</span></div><div class="msg-preview-box" style="max-height:160px;font-size:11px;">${waMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div><a href="https://wa.me/?text=${encodeURIComponent(waMsg)}" target="_blank" class="share-channel-btn" style="background:#25D366;color:white;">💬 Tuma WhatsApp</a><button onclick="copyText(${JSON.stringify(waMsg)})" class="share-channel-btn" style="background:#128C7E;color:white;margin-top:6px;">📋 Nakili WhatsApp</button></div><div class="share-channel"><div class="share-channel-label"><span style="font-size:14px;">💬</span><span style="font-weight:700;margin-left:6px;">SMS</span></div><div class="sms-preview">${smsMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div><button onclick="copyText(${JSON.stringify(smsMsg)})" class="share-channel-btn" style="background:#0077B6;color:white;">📋 Nakili SMS</button></div><div class="share-channel"><div class="share-channel-label"><span style="font-size:14px;">📥</span><span style="font-weight:700;margin-left:6px;">Pakua Kadi</span></div><button onclick="pakulaPicha('${previewId}','MchangoCard_${tukio.nambari_tukio}')" class="share-channel-btn" style="background:linear-gradient(135deg,#E65100,#FF6D00);color:white;">📥 Pakua Kadi kama Picha</button></div></div>`;toastFn('✅ Kadi imetengenezwa!');loadMcWageniList(role);}
 
 // ==================== PER-GUEST MESSAGING ====================
 function buildPledgeMsgPersonalized(tukio, mgeni, type) {
@@ -1959,22 +2159,7 @@ function buildPledgeMsgPersonalized(tukio, mgeni, type) {
 }
 
 function buildMchangoCardMsgPersonalized(tukio, single, double_, simu, benki, mwisho, mgeni) {
-  const url = pledgeUrl(tukio.nambari_tukio);
-  const mahali = tukio.mahali_mwenyeji || 'Dar Es Salaam';
-  const tarehe = formatTarehe(tukio.tarehe);
-  const mwishoLine = mwisho ? formatTarehe(mwisho) : '';
-  const mwenyekiti = tukio.mwenyekiti_jina || '';
-  const mwenyekitiSimu = tukio.mwenyekiti_simu || '';
-  const familiaLine = buildFamiliaLine(tukio);
-  const maelezoSherehe = buildMaelezoSherehe(tukio, true);
-  const jina = mgeni && mgeni.jina_kamili ? mgeni.jina_kamili : '';
-  const nenoKualika = mgeni && mgeni.aina_kadi === 'Double' ? 'kuwaalika' : 'kukualika';
-  let simuLines = '', benkiLines = '';
-  if (simu && simu.length) simuLines = simu.map(s => `${getSimuLabel(s.platform)}: ${s.nambari || ''}`).join('\n');
-  if (benki && benki.length) benkiLines = benki.map(b => `${getBenkiLabel(b.benki)}: ${b.akaunti || ''}`).join('\n');
-  const njiaSection = (simuLines || benkiLines) ? `\nTuma Mchango:\n${simuLines}${simuLines && benkiLines ? '\n' : ''}${benkiLines}` : '';
-  const greeting = jina ? `Habari Ndugu ${jina}! 💝\n` : 'Habari! 💝\n';
-  return `${greeting}${familiaLine} wa ${mahali} wanayo furaha ${nenoKualika} kwenye ${maelezoSherehe} inayotarajia kufanyika tarehe ${tarehe}, ${tukio.saa}.\n\nSINGLE: ${single}\nDOUBLE: ${double_}${njiaSection}\n\nWeka Ahadi:\n${url}\n${mwishoLine ? 'Mwisho: ' + mwishoLine + '\n' : ''}${mwenyekiti ? 'Mwenyekiti: ' + mwenyekiti + (mwenyekitiSimu ? ' (' + mwenyekitiSimu + ')' : '') : ''}\n_Powered by AbedTech_`;
+  return buildMchangoWaMsg(tukio, single, double_, simu, benki, mwisho, mgeni);
 }
 
 function renderAhadiWageniOmbi(tukio, wageniList, containerId) {
@@ -2017,13 +2202,14 @@ function renderMcWageniList(wageniList, containerId, role, tukio, mcData) {
     const simuWa = hasSimu ? mgeni.namba_simu.replace(/^0/, '255') : '';
     let waBtnHtml = '', smsBtnHtml = '';
     if (tukio && mcData) {
-      const msg = buildMchangoCardMsgPersonalized(tukio, mcData.single, mcData.double_, mcData.simu, mcData.benki, mcData.mwisho, mgeni);
+      const waMsg = buildMchangoWaMsg(tukio, mcData.single, mcData.double_, mcData.simu, mcData.benki, mcData.mwisho, mgeni);
+      const smsMsg = buildMchangoSmsMsg(tukio, mcData.single, mcData.double_, mcData.simu, mcData.benki, mcData.mwisho, mgeni);
       waBtnHtml = hasSimu
-        ? `<a href="https://wa.me/${simuWa}?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none;">📲 WA</a>`
-        : `<a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" class="btn btn-sm" style="background:#128C7E;color:white;text-decoration:none;">💬 WA</a>`;
+        ? `<a href="https://wa.me/${simuWa}?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none;">📲 WA</a>`
+        : `<a href="https://wa.me/?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn btn-sm" style="background:#128C7E;color:white;text-decoration:none;">💬 WA</a>`;
       smsBtnHtml = hasSimu
-        ? `<a href="sms:${mgeni.namba_simu}?body=${encodeURIComponent(msg)}" class="btn btn-sm" style="background:#0077B6;color:white;text-decoration:none;">💬 SMS</a>`
-        : `<button onclick="copyText(${JSON.stringify(msg)})" class="btn btn-sm" style="background:#E3F2FD;color:#0077B6;">📋</button>`;
+        ? `<a href="sms:${mgeni.namba_simu}?body=${encodeURIComponent(smsMsg)}" class="btn btn-sm" style="background:#0077B6;color:white;text-decoration:none;">💬 SMS</a>`
+        : `<button onclick="copyText(${JSON.stringify(smsMsg)})" class="btn btn-sm" style="background:#E3F2FD;color:#0077B6;">📋</button>`;
     }
     return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0EDE8;">
       <div style="flex:1;min-width:0;">
@@ -2100,16 +2286,22 @@ function sendMchangoKwaWageni(wid, role) {
   const {tukio, single, double: double_, simu, benki, mwisho} = data;
   const tempId = 'mc_mod_' + wid;
   const cardHtml = buildMchangoCardHTML(tukio, single, double_, simu, benki, mwisho, mgeni);
-  const msg = buildMchangoCardMsgPersonalized(tukio, single, double_, simu, benki, mwisho, mgeni);
+  const waMsg = buildMchangoWaMsg(tukio, single, double_, simu, benki, mwisho, mgeni);
+  const smsMsg = buildMchangoSmsMsg(tukio, single, double_, simu, benki, mwisho, mgeni);
   const hasSimu = mgeni.namba_simu && mgeni.namba_simu.length >= 9;
   const simuWa = hasSimu ? mgeni.namba_simu.replace(/^0/, '255') : '';
-  const directBtn = hasSimu
-    ? `<a href="https://wa.me/${simuWa}?text=${encodeURIComponent(msg)}" target="_blank" class="share-channel-btn" style="background:#25D366;color:white;text-decoration:none;">📲 Tuma kwa ${mgeni.jina_kamili}</a>`
+  const directWaBtn = hasSimu
+    ? `<a href="https://wa.me/${simuWa}?text=${encodeURIComponent(waMsg)}" target="_blank" class="share-channel-btn" style="background:#25D366;color:white;text-decoration:none;">📲 Tuma WA kwa ${mgeni.jina_kamili}</a>`
+    : '';
+  const directSmsBtn = hasSimu
+    ? `<a href="sms:${mgeni.namba_simu}?body=${encodeURIComponent(smsMsg)}" class="share-channel-btn" style="background:#0077B6;color:white;text-decoration:none;">💬 Tuma SMS kwa ${mgeni.jina_kamili}</a>`
     : '';
   const shareHtml = `<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
-    ${directBtn}
-    <a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" class="share-channel-btn" style="background:#128C7E;color:white;text-decoration:none;">💬 WhatsApp (bila namba)</a>
-    <button onclick="copyText(${JSON.stringify(msg)})" class="share-channel-btn" style="background:#1A1A2E;color:white;">📋 Nakili Ujumbe</button>
+    ${directWaBtn}
+    <a href="https://wa.me/?text=${encodeURIComponent(waMsg)}" target="_blank" class="share-channel-btn" style="background:#128C7E;color:white;text-decoration:none;">💬 WhatsApp (bila namba)</a>
+    <button onclick="copyText(${JSON.stringify(waMsg)})" class="share-channel-btn" style="background:#1A1A2E;color:white;">📋 Nakili WhatsApp</button>
+    ${directSmsBtn}
+    <button onclick="copyText(${JSON.stringify(smsMsg)})" class="share-channel-btn" style="background:#0077B6;color:white;">📋 Nakili SMS</button>
     <button onclick="pakulaPicha('${tempId}','MchangoCard_${mgeni.jina_kamili}')" class="share-channel-btn" style="background:linear-gradient(135deg,#E65100,#FF6D00);color:white;">📥 Pakua Kadi</button>
   </div>`;
   openMod(`📋 Kadi ya ${mgeni.jina_kamili}`, `<div id="${tempId}">${cardHtml}</div>${shareHtml}`);
@@ -2212,8 +2404,28 @@ async function angaliaKadi(){
 }
 
 // ==================== TABS ====================
-function aTab(tab){['ev','wa','kd','ah','mc','sc','sk'].forEach(t=>{const e=$('at-'+t);if(e)e.style.display=t===tab?'block':'none';});if(tab==='sk'){loadSkWageni();}}
-function shTab(tab){['wa','kd','ah','mc','sc','sk'].forEach(t=>{const e=$('sh-'+t);if(e)e.style.display=t===tab?'block':'none';});if(tab==='sk')loadShSkWageni();if(tab==='ah')loadShAhadiWageniOmbi();if(tab==='mc')loadMcWageniList('sherehe');}
+function aTab(tab){
+  ['ev','wa','kd','ah','mc','sc','sk','km','bj'].forEach(t=>{const e=$('at-'+t);if(e)e.style.display=t===tab?'block':'none';});
+  document.querySelectorAll('#s-admin .tabs .tab').forEach(el=>el.classList.remove('active'));
+  const aTabMap={'ev':0,'wa':1,'kd':2,'ah':3,'mc':4,'sc':5,'sk':6,'km':7,'bj':8};
+  const aTabs=document.querySelectorAll('#s-admin .tabs .tab');
+  if(aTabs[aTabMap[tab]])aTabs[aTabMap[tab]].classList.add('active');
+  if(tab==='sk'){loadSkWageni();}
+  if(tab==='km'){jaziKmBjSelects();loadKamati('admin');}
+  if(tab==='bj'){jaziKmBjSelects();loadBajeti('admin');}
+}
+function shTab(tab){
+  ['wa','kd','ah','mc','sc','sk','km','bj'].forEach(t=>{const e=$('sh-'+t);if(e)e.style.display=t===tab?'block':'none';});
+  document.querySelectorAll('#s-sherehe .tabs .tab').forEach(el=>el.classList.remove('active'));
+  const shTabMap={'wa':0,'kd':1,'ah':2,'mc':3,'sc':4,'sk':5,'km':6,'bj':7};
+  const shTabs=document.querySelectorAll('#s-sherehe .tabs .tab');
+  if(shTabs[shTabMap[tab]])shTabs[shTabMap[tab]].classList.add('active');
+  if(tab==='sk')loadShSkWageni();
+  if(tab==='ah')loadShAhadiWageniOmbi();
+  if(tab==='mc')loadMcWageniList('sherehe');
+  if(tab==='km')loadKamati('sherehe');
+  if(tab==='bj')loadBajeti('sherehe');
+}
 
 // ==================== URL PARAMS & INIT ====================
 async function checkUrlParams(){
@@ -2530,12 +2742,14 @@ function buildBeemReminderMsg(tukio, mgeni) {
 
 // ---------- BEEM SETTINGS PANEL ----------
 function openBeemSettings() {
+  var savedSiteUrl = localStorage.getItem('abedcards_site_url') || '';
   openMod('⚙️ Mipangilio ya Beem Africa SMS', `
     <div>
       <div class="al al-i" style="font-size:12px;">Ingia Beem Africa kwenye <strong>apisms.beem.africa</strong> kupata API Key na Secret Key yako.</div>
       <div class="fg"><label>API Key</label><input type="text" class="fi" id="beem-set-apikey" placeholder="Weka Beem API Key" value="${BEEM_API_KEY !== 'YOUR_BEEM_API_KEY_HERE' ? BEEM_API_KEY : ''}"/></div>
       <div class="fg"><label>Secret Key</label><input type="password" class="fi" id="beem-set-secret" placeholder="Weka Beem Secret Key" value="${BEEM_SECRET_KEY !== 'YOUR_BEEM_SECRET_KEY_HERE' ? BEEM_SECRET_KEY : ''}"/></div>
       <div class="fg"><label>Sender ID (max 11 herufi)</label><input type="text" class="fi" id="beem-set-sender" maxlength="11" placeholder="ECARD" value="${BEEM_SENDER_ID}"/></div>
+      <div class="fg"><label>🔗 URL ya App (kwa viungo vinavyoweza kubonyezwa)</label><input type="url" class="fi" id="beem-set-siteurl" placeholder="${_PRODUCTION_URL}" value="${savedSiteUrl || _PRODUCTION_URL}"/><div style="font-size:10px;color:var(--mt);margin-top:3px;">URL ya tovuti yako halisi (https://...). Viungo vyote katika SMS na WhatsApp vitatumia URL hii.</div></div>
       <div class="fg">
         <button onclick="beemSaveSettings()" class="btn btn-g btn-block">💾 Hifadhi Mipangilio</button>
       </div>
@@ -2546,26 +2760,32 @@ function openBeemSettings() {
         </div>
       </div>
       <div class="cred-box" style="margin-top:14px;">
-        <div class="cred-title">📊 Hali ya Beem</div>
+        <div class="cred-title">📊 Hali ya Mfumo</div>
         <div class="cred-row"><span class="cred-label">API Key:</span><span class="cred-value" style="font-size:11px;">${BEEM_API_KEY !== 'YOUR_BEEM_API_KEY_HERE' ? '✅ Imewekwa' : '❌ Haijawekwa'}</span></div>
         <div class="cred-row"><span class="cred-label">Secret:</span><span class="cred-value" style="font-size:11px;">${BEEM_SECRET_KEY !== 'YOUR_BEEM_SECRET_KEY_HERE' ? '✅ Imewekwa' : '❌ Haijawekwa'}</span></div>
         <div class="cred-row"><span class="cred-label">Sender ID:</span><span class="cred-value">${BEEM_SENDER_ID}</span></div>
+        <div class="cred-row"><span class="cred-label">App URL:</span><span class="cred-value" style="font-size:10px;word-break:break-all;">${savedSiteUrl ? '✅ ' + savedSiteUrl : '⚠ Haijawekwa — viungo vinaweza kutofanya kazi'}</span></div>
+        <div class="cred-row"><span class="cred-label">SITE sasa:</span><span class="cred-value" style="font-size:10px;word-break:break-all;">${SITE}</span></div>
       </div>
     </div>`);
 }
 
 function beemSaveSettings() {
-  const key    = $('beem-set-apikey') ? $('beem-set-apikey').value.trim() : '';
-  const secret = $('beem-set-secret') ? $('beem-set-secret').value.trim() : '';
-  const sender = $('beem-set-sender') ? $('beem-set-sender').value.trim() : 'ECARD';
+  const key     = $('beem-set-apikey') ? $('beem-set-apikey').value.trim() : '';
+  const secret  = $('beem-set-secret') ? $('beem-set-secret').value.trim() : '';
+  const sender  = $('beem-set-sender') ? $('beem-set-sender').value.trim() : 'ECARD';
+  const siteUrl = $('beem-set-siteurl') ? $('beem-set-siteurl').value.trim() : '';
   if (!key || !secret) { toastFn('⚠ Jaza API Key na Secret Key'); return; }
-  // Update runtime values (page session only — for permanent, edit the constants above)
   window._BEEM_API_KEY    = key;
   window._BEEM_SECRET_KEY = secret;
   window._BEEM_SENDER_ID  = sender || 'ECARD';
-  // Patch the module-level send function to use session values
   window._beemCredsSet = true;
-  toastFn('✅ Mipangilio imehifadhiwa (session hii)');
+  if (siteUrl && siteUrl.indexOf('http') === 0) {
+    localStorage.setItem('abedcards_site_url', siteUrl.replace(/\/+$/, '') + '/');
+    toastFn('✅ Mipangilio imehifadhiwa — reload kurasa ili viungo vitumie URL mpya');
+  } else {
+    toastFn('✅ Mipangilio imehifadhiwa (session hii)');
+  }
   closeModDirect();
 }
 
@@ -2816,6 +3036,362 @@ function downloadAhadiList(ctx) {
       + (a.tarehe_ahadi||'') + '\n';
   });
   _csvDownload('Ahadi_' + evName.replace(/\s+/g,'-') + '.csv', csv);
+}
+
+// ==================== KAMATI & BAJETI MANAGEMENT ====================
+
+function getKamatiKey(tid) { return 'abedcards_kamati_' + tid; }
+function getBajetiKey(tid) { return 'abedcards_bajeti_' + tid; }
+
+function getKamatiData(tid) {
+  try { return JSON.parse(localStorage.getItem(getKamatiKey(tid)) || '[]'); } catch(e) { return []; }
+}
+function saveKamatiData(tid, data) { localStorage.setItem(getKamatiKey(tid), JSON.stringify(data)); }
+function getBajetiData(tid) {
+  try { return JSON.parse(localStorage.getItem(getBajetiKey(tid)) || '[]'); } catch(e) { return []; }
+}
+function saveBajetiData(tid, data) { localStorage.setItem(getBajetiKey(tid), JSON.stringify(data)); }
+
+function loadKamati(role) {
+  var isAdmin = role === 'admin';
+  var tid = isAdmin ? (parseInt((($('km-tukio-sel')||{}).value)||'') || null) : currentShereheId;
+  var contentDiv = $(isAdmin ? 'km-admin-content' : 'km-sh-content');
+  if (!contentDiv) return;
+  if (!tid) { contentDiv.style.display = 'none'; return; }
+  contentDiv.style.display = 'block';
+  renderKamatiTable(isAdmin ? 'km-admin-tbody' : 'km-sh-tbody', isAdmin ? 'km-admin-count' : 'km-sh-count', tid, role);
+}
+
+function renderKamatiTable(tbodyId, countId, tid, role) {
+  var tbody = $(tbodyId);
+  var countEl = $(countId);
+  if (!tbody) return;
+  var data = getKamatiData(tid);
+  if (countEl) countEl.textContent = data.length ? '(' + data.length + ' wanachama)' : '';
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--mt);padding:30px;">📋 Hakuna wanakamati bado</td></tr>';
+    return;
+  }
+  var tukio = AM.find(function(t){ return t.id === tid; });
+  tbody.innerHTML = data.map(function(m, i) {
+    var simuWa = m.simu ? m.simu.replace(/^0/, '255') : '';
+    var hasSimu = simuWa.length >= 9;
+    var waMsg = tukio ? buildKamatiWaMsg(tukio, m) : '';
+    var smsMsg = tukio ? buildKamatiSmsMsg(tukio, m) : '';
+    var smsHref = (m.simu && smsMsg) ? 'sms:' + m.simu + '?body=' + encodeURIComponent(smsMsg) : '';
+    var waBtn = waMsg
+      ? (hasSimu
+          ? '<a href="https://wa.me/' + simuWa + '?text=' + encodeURIComponent(waMsg) + '" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none;">💬 WA</a>'
+          : '<a href="https://wa.me/?text=' + encodeURIComponent(waMsg) + '" target="_blank" class="btn btn-sm" style="background:#128C7E;color:white;text-decoration:none;">💬 WA</a>')
+      : '';
+    var smsBtn = smsHref ? '<a href="' + smsHref + '" class="btn btn-sm" style="background:#1565C0;color:white;text-decoration:none;">📱 SMS</a>' : '';
+    return '<tr>'
+      + '<td style="color:#888;font-size:11px;font-weight:700;text-align:center;">' + (i+1) + '</td>'
+      + '<td><span class="badge bg-bl">' + (m.jukumu||'—') + '</span></td>'
+      + '<td style="font-weight:600;">' + (m.jina||'—') + '</td>'
+      + '<td style="font-size:12px;">' + (m.simu||'—') + '</td>'
+      + '<td class="action-buttons">' + waBtn + ' ' + smsBtn
+        + ' <button class="btn btn-sm" style="background:#FF6D00;color:white;" onclick="harirhuKamatiMwanachama(' + tid + ',\'' + m.id + '\',\'' + role + '\')">✏</button>'
+        + ' <button class="btn btn-r btn-sm" onclick="futaKamatiMwanachama(' + tid + ',\'' + m.id + '\',\'' + role + '\')">🗑</button>'
+      + '</td></tr>';
+  }).join('');
+}
+
+function buildKamatiWaMsg(tukio, m) {
+  var familiaLine = buildFamiliaLine(tukio);
+  var tarehe = formatTarehe(tukio.tarehe);
+  var mhusika = tukio.jina_mhusika || '';
+  var url = pledgeUrl(tukio.nambari_tukio);
+  var msg = '🏅 *TAARIFA YA KAMATI*\n\n';
+  msg += 'Ndugu *' + (m.jina||'') + '*,\n\n';
+  msg += 'Unajulishwa kuwa umechaguliwa kuwa *' + (m.jukumu||'') + '*\n';
+  msg += 'katika *' + buildMaelezoSherehe(tukio, true) + '*\n';
+  if (mhusika) msg += '👤 *Mhusika:* ' + mhusika + '\n';
+  msg += '📅 *Tarehe:* ' + tarehe + '\n';
+  msg += '📍 *Mahali:* ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n';
+  msg += '\n' + familiaLine + ' wanakushukuru kwa mchango wako.\n';
+  msg += 'Tafadhali wasiliana nasi kwa maswali yoyote.\n\n';
+  msg += '🔗 *Kiungo cha Sherehe:*\n' + url + '\n\n';
+  msg += '_Powered by AbedTech ' + ABEDTECH_PHONE + '_';
+  return msg;
+}
+
+function buildKamatiSmsMsg(tukio, m) {
+  var familiaLine = buildFamiliaLine(tukio);
+  var tarehe = formatTarehe(tukio.tarehe);
+  var mhusika = tukio.jina_mhusika || '';
+  var url = pledgeUrl(tukio.nambari_tukio);
+  var msg = 'TAARIFA YA KAMATI\n\n';
+  msg += 'Ndugu ' + (m.jina||'') + ',\n\n';
+  msg += 'Umechaguliwa kuwa ' + (m.jukumu||'') + '\n';
+  msg += 'katika ' + buildMaelezoSherehe(tukio, true) + '\n';
+  if (mhusika) msg += 'Mhusika: ' + mhusika + '\n';
+  msg += 'Tarehe: ' + tarehe + '\n';
+  msg += 'Mahali: ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n';
+  msg += '\n' + familiaLine + ' wanakushukuru.\n\n';
+  msg += 'Kiungo cha Sherehe:\n' + url + '\n';
+  msg += '-AbedTech ' + ABEDTECH_PHONE;
+  return msg;
+}
+
+function ongezaKamatiMwanachama(role) {
+  var isAdmin = role === 'admin';
+  var tid = isAdmin ? (parseInt((($('km-tukio-sel')||{}).value)||'') || null) : currentShereheId;
+  var alId = isAdmin ? 'al-km-admin' : 'al-km-sh';
+  var jukemuSel = $(isAdmin ? 'km-a-jukumu' : 'km-s-jukumu');
+  var jukemuCustom = $(isAdmin ? 'km-a-jukumu-custom' : 'km-s-jukumu-custom');
+  var jinaEl = $(isAdmin ? 'km-a-jina' : 'km-s-jina');
+  var simuEl = $(isAdmin ? 'km-a-simu' : 'km-s-simu');
+  if (!tid) { setAl(alId, 'Chagua sherehe kwanza', 'e'); return; }
+  var jukumu = (jukemuCustom && jukemuCustom.value.trim()) || (jukemuSel && jukemuSel.value) || '';
+  var jina = jinaEl ? jinaEl.value.trim() : '';
+  var simu = simuEl ? simuEl.value.trim() : '';
+  if (!jukumu) { setAl(alId, 'Weka jukumu la mwanakamati', 'e'); return; }
+  if (!jina) { setAl(alId, 'Weka jina la mwanakamati', 'e'); return; }
+  var data = getKamatiData(tid);
+  data.push({ id: Date.now() + Math.random().toString(36).slice(2), jukumu: jukumu, jina: jina, simu: simu });
+  saveKamatiData(tid, data);
+  if (jukemuSel) jukemuSel.value = '';
+  if (jukemuCustom) jukemuCustom.value = '';
+  if (jinaEl) jinaEl.value = '';
+  if (simuEl) simuEl.value = '';
+  setAl(alId, '✅ Mwanakamati ameongezwa', 's');
+  setTimeout(function(){ setAl(alId, ''); }, 2000);
+  loadKamati(role);
+}
+
+function harirhuKamatiMwanachama(tid, mid, role) {
+  var data = getKamatiData(tid);
+  var m = data.find(function(x){ return x.id === mid; });
+  if (!m) return;
+  var jukumuOpts = ['Mwenyekiti','Katibu','Mweka Hazina','Mapambo','Ulinzi','Keki','Chakula','Mengineyo'];
+  var isCustom = jukumuOpts.indexOf(m.jukumu) < 0;
+  var optsHtml = jukumuOpts.map(function(j){
+    return '<option' + (!isCustom && j === m.jukumu ? ' selected' : '') + '>' + j + '</option>';
+  }).join('');
+  openMod('✏ Hariri Mwanakamati', '<div class="fgrid">'
+    + '<div class="fg"><label>Jukumu</label><select class="fsel" id="edk-jukumu"><option value="">— Chagua —</option>' + optsHtml + '</select></div>'
+    + '<div class="fg"><label>au Jukumu Jipya</label><input type="text" class="fi" id="edk-jukumu-custom" value="' + (isCustom ? (m.jukumu||'') : '') + '" placeholder="Jukumu maalum"/></div>'
+    + '<div class="fg"><label>Jina Kamili</label><input type="text" class="fi" id="edk-jina" value="' + (m.jina||'') + '"/></div>'
+    + '<div class="fg"><label>Namba ya Simu</label><input type="tel" class="fi" id="edk-simu" value="' + (m.simu||'') + '"/></div>'
+    + '</div><button class="btn btn-g btn-block" style="margin-top:12px;" onclick="hifadhiKamatiEdit(' + tid + ',\'' + mid + '\',\'' + role + '\')">💾 Hifadhi</button>'
+  );
+}
+
+function hifadhiKamatiEdit(tid, mid, role) {
+  var jukumu = ($('edk-jukumu-custom') && $('edk-jukumu-custom').value.trim()) || ($('edk-jukumu') && $('edk-jukumu').value) || '';
+  var jina = $('edk-jina') ? $('edk-jina').value.trim() : '';
+  var simu = $('edk-simu') ? $('edk-simu').value.trim() : '';
+  if (!jukumu) { toastFn('⚠ Weka jukumu'); return; }
+  if (!jina) { toastFn('⚠ Weka jina'); return; }
+  var data = getKamatiData(tid);
+  var idx = data.findIndex(function(x){ return x.id === mid; });
+  if (idx < 0) return;
+  data[idx] = { id: mid, jukumu: jukumu, jina: jina, simu: simu };
+  saveKamatiData(tid, data);
+  closeModDirect();
+  toastFn('✅ Imehifadhiwa');
+  loadKamati(role);
+}
+
+function futaKamatiMwanachama(tid, mid, role) {
+  if (!confirm('Futa mwanakamati huyu?')) return;
+  var data = getKamatiData(tid).filter(function(x){ return x.id !== mid; });
+  saveKamatiData(tid, data);
+  toastFn('Mwanakamati amefutwa');
+  loadKamati(role);
+}
+
+function downloadKamatiList(role) {
+  var isAdmin = role === 'admin';
+  var tid = isAdmin ? (parseInt((($('km-tukio-sel')||{}).value)||'') || null) : currentShereheId;
+  var tukio = tid ? AM.find(function(t){ return t.id === tid; }) : null;
+  var data = tid ? getKamatiData(tid) : [];
+  if (!data.length) { toastFn('Hakuna wanakamati wa kupakua'); return; }
+  var evName = tukio ? tukio.jina_tukio : 'Sherehe';
+  var csv = '#,Jukumu,Jina,Simu\n';
+  data.forEach(function(m, i) {
+    csv += (i+1) + ',"' + (m.jukumu||'').replace(/"/g,'""') + '","' + (m.jina||'').replace(/"/g,'""') + '",' + (m.simu||'') + '\n';
+  });
+  _csvDownload('Kamati_' + evName.replace(/\s+/g,'-') + '.csv', csv);
+}
+
+// ==================== BAJETI ====================
+
+function loadBajeti(role) {
+  var isAdmin = role === 'admin';
+  var tid = isAdmin ? (parseInt((($('bj-tukio-sel')||{}).value)||'') || null) : currentShereheId;
+  var contentDiv = $(isAdmin ? 'bj-admin-content' : 'bj-sh-content');
+  if (!contentDiv) return;
+  if (!tid) { contentDiv.style.display = 'none'; return; }
+  contentDiv.style.display = 'block';
+  renderBajetiTable(isAdmin ? 'bj-admin-tbody' : 'bj-sh-tbody', isAdmin ? 'bj-admin-totals' : 'bj-sh-totals', tid, role);
+}
+
+function renderBajetiTable(tbodyId, totalsId, tid, role) {
+  var tbody = $(tbodyId);
+  var totalsEl = $(totalsId);
+  if (!tbody) return;
+  var data = getBajetiData(tid);
+  var tukio = AM.find(function(t){ return t.id === tid; });
+  var jumla = data.reduce(function(s, b){ return s + (parseInt(b.kiasi)||0); }, 0);
+  if (totalsEl) {
+    if (data.length) {
+      totalsEl.style.display = '';
+      totalsEl.innerHTML = '<div style="display:flex;gap:20px;flex-wrap:wrap;padding:8px 4px;">'
+        + '<div><div style="font-size:11px;color:var(--mt);">Shughuli</div><div style="font-weight:700;font-size:16px;">' + data.length + '</div></div>'
+        + '<div><div style="font-size:11px;color:var(--mt);">Jumla ya Bajeti</div><div style="font-weight:700;font-size:16px;color:#1B5E20;">TZS ' + jumla.toLocaleString() + '/=</div></div>'
+        + '</div>';
+    } else { totalsEl.style.display = 'none'; }
+  }
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--mt);padding:30px;">💹 Hakuna shughuli za bajeti bado</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(function(b, i) {
+    var simuWa = b.simu ? b.simu.replace(/^0/, '255') : '';
+    var hasSimu = simuWa.length >= 9;
+    var waMsg = tukio ? buildBajetiWaMsg(tukio, b) : '';
+    var smsHref = (b.simu && tukio) ? 'sms:' + b.simu + '?body=' + encodeURIComponent(buildBajetiSmsMsg(tukio, b)) : '';
+    var waBtn = waMsg
+      ? (hasSimu
+          ? '<a href="https://wa.me/' + simuWa + '?text=' + encodeURIComponent(waMsg) + '" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none;">💬 WA</a>'
+          : '<a href="https://wa.me/?text=' + encodeURIComponent(waMsg) + '" target="_blank" class="btn btn-sm" style="background:#128C7E;color:white;text-decoration:none;">💬 WA</a>')
+      : '';
+    var smsBtn = smsHref ? '<a href="' + smsHref + '" class="btn btn-sm" style="background:#1565C0;color:white;text-decoration:none;">📱 SMS</a>' : '';
+    return '<tr>'
+      + '<td style="color:#888;font-size:11px;font-weight:700;text-align:center;">' + (i+1) + '</td>'
+      + '<td style="font-weight:600;">' + (b.shughuli||'—') + '</td>'
+      + '<td style="font-weight:700;color:#1B5E20;">TZS ' + (parseInt(b.kiasi)||0).toLocaleString() + '/=</td>'
+      + '<td>' + (b.mtoa||'—') + '</td>'
+      + '<td style="font-size:12px;">' + (b.simu||'—') + '</td>'
+      + '<td class="action-buttons">' + waBtn + ' ' + smsBtn
+        + ' <button class="btn btn-sm" style="background:#FF6D00;color:white;" onclick="harirhuBajetiShughuli(' + tid + ',\'' + b.id + '\',\'' + role + '\')">✏</button>'
+        + ' <button class="btn btn-r btn-sm" onclick="futaBajetiShughuli(' + tid + ',\'' + b.id + '\',\'' + role + '\')">🗑</button>'
+      + '</td></tr>';
+  }).join('');
+}
+
+function buildBajetiWaMsg(tukio, b) {
+  var familiaLine = buildFamiliaLine(tukio);
+  var tarehe = formatTarehe(tukio.tarehe);
+  var mhusika = tukio.jina_mhusika || '';
+  var url = pledgeUrl(tukio.nambari_tukio);
+  var msg = '💹 *TAARIFA YA BAJETI*\n\n';
+  if (b.mtoa) msg += 'Ndugu *' + b.mtoa + '*,\n\n';
+  msg += 'Tunakuarifu kuhusu shughuli iliyokupangiwa katika:\n';
+  msg += '*' + buildMaelezoSherehe(tukio, true) + '*\n';
+  if (mhusika) msg += '👤 *Mhusika:* ' + mhusika + '\n';
+  msg += '📅 *Tarehe:* ' + tarehe + '\n';
+  msg += '📍 *Mahali:* ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n\n';
+  msg += '📋 *Shughuli:* ' + (b.shughuli||'—') + '\n';
+  msg += '💰 *Kiasi:* TZS ' + (parseInt(b.kiasi)||0).toLocaleString() + '/=\n\n';
+  msg += familiaLine + ' wanakushukuru.\n';
+  msg += 'Tafadhali wasiliana nasi kwa maswali yoyote.\n\n';
+  msg += '🔗 *Kiungo cha Sherehe:*\n' + url + '\n\n';
+  msg += '_Powered by AbedTech ' + ABEDTECH_PHONE + '_';
+  return msg;
+}
+
+function buildBajetiSmsMsg(tukio, b) {
+  var familiaLine = buildFamiliaLine(tukio);
+  var tarehe = formatTarehe(tukio.tarehe);
+  var mhusika = tukio.jina_mhusika || '';
+  var url = pledgeUrl(tukio.nambari_tukio);
+  var msg = 'TAARIFA YA BAJETI\n\n';
+  if (b.mtoa) msg += 'Ndugu ' + b.mtoa + ',\n\n';
+  msg += 'Shughuli yako: ' + (b.shughuli||'—') + '\n';
+  msg += 'Kiasi: TZS ' + (parseInt(b.kiasi)||0).toLocaleString() + '/=\n';
+  msg += 'Tukio: ' + buildMaelezoSherehe(tukio, true) + '\n';
+  if (mhusika) msg += 'Mhusika: ' + mhusika + '\n';
+  msg += 'Tarehe: ' + tarehe + '\n';
+  msg += 'Mahali: ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n';
+  msg += '\n' + familiaLine + ' wanakushukuru.\n\n';
+  msg += 'Kiungo cha Sherehe:\n' + url + '\n';
+  msg += '-AbedTech ' + ABEDTECH_PHONE;
+  return msg;
+}
+
+function ongezaBajetiShughuli(role) {
+  var isAdmin = role === 'admin';
+  var tid = isAdmin ? (parseInt((($('bj-tukio-sel')||{}).value)||'') || null) : currentShereheId;
+  var alId = isAdmin ? 'al-bj-admin' : 'al-bj-sh';
+  var shughuliEl = $(isAdmin ? 'bj-a-shughuli' : 'bj-s-shughuli');
+  var kiasiEl = $(isAdmin ? 'bj-a-kiasi' : 'bj-s-kiasi');
+  var mtoaEl = $(isAdmin ? 'bj-a-mtoa' : 'bj-s-mtoa');
+  var simuEl = $(isAdmin ? 'bj-a-simu' : 'bj-s-simu');
+  if (!tid) { setAl(alId, 'Chagua sherehe kwanza', 'e'); return; }
+  var shughuli = shughuliEl ? shughuliEl.value.trim() : '';
+  var kiasi = kiasiEl ? (parseInt(kiasiEl.value) || 0) : 0;
+  var mtoa = mtoaEl ? mtoaEl.value.trim() : '';
+  var simu = simuEl ? simuEl.value.trim() : '';
+  if (!shughuli) { setAl(alId, 'Weka jina la shughuli', 'e'); return; }
+  if (!kiasi) { setAl(alId, 'Weka kiasi cha shughuli', 'e'); return; }
+  var data = getBajetiData(tid);
+  data.push({ id: Date.now() + Math.random().toString(36).slice(2), shughuli: shughuli, kiasi: kiasi, mtoa: mtoa, simu: simu });
+  saveBajetiData(tid, data);
+  if (shughuliEl) shughuliEl.value = '';
+  if (kiasiEl) kiasiEl.value = '';
+  if (mtoaEl) mtoaEl.value = '';
+  if (simuEl) simuEl.value = '';
+  setAl(alId, '✅ Shughuli imeongezwa', 's');
+  setTimeout(function(){ setAl(alId, ''); }, 2000);
+  loadBajeti(role);
+}
+
+function harirhuBajetiShughuli(tid, bid, role) {
+  var data = getBajetiData(tid);
+  var b = data.find(function(x){ return x.id === bid; });
+  if (!b) return;
+  openMod('✏ Hariri Shughuli ya Bajeti', '<div class="fgrid">'
+    + '<div class="fg full"><label>Shughuli</label><input type="text" class="fi" id="edb-shughuli" value="' + (b.shughuli||'') + '"/></div>'
+    + '<div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="edb-kiasi" value="' + (b.kiasi||0) + '" min="0"/></div>'
+    + '<div class="fg"><label>Mtoa</label><input type="text" class="fi" id="edb-mtoa" value="' + (b.mtoa||'') + '"/></div>'
+    + '<div class="fg full"><label>Namba ya Simu</label><input type="tel" class="fi" id="edb-simu" value="' + (b.simu||'') + '"/></div>'
+    + '</div><button class="btn btn-g btn-block" style="margin-top:12px;" onclick="hifadhiBajetiEdit(' + tid + ',\'' + bid + '\',\'' + role + '\')">💾 Hifadhi</button>'
+  );
+}
+
+function hifadhiBajetiEdit(tid, bid, role) {
+  var shughuli = $('edb-shughuli') ? $('edb-shughuli').value.trim() : '';
+  var kiasi = $('edb-kiasi') ? (parseInt($('edb-kiasi').value) || 0) : 0;
+  var mtoa = $('edb-mtoa') ? $('edb-mtoa').value.trim() : '';
+  var simu = $('edb-simu') ? $('edb-simu').value.trim() : '';
+  if (!shughuli) { toastFn('⚠ Weka jina la shughuli'); return; }
+  if (!kiasi) { toastFn('⚠ Weka kiasi'); return; }
+  var data = getBajetiData(tid);
+  var idx = data.findIndex(function(x){ return x.id === bid; });
+  if (idx < 0) return;
+  data[idx] = { id: bid, shughuli: shughuli, kiasi: kiasi, mtoa: mtoa, simu: simu };
+  saveBajetiData(tid, data);
+  closeModDirect();
+  toastFn('✅ Imehifadhiwa');
+  loadBajeti(role);
+}
+
+function futaBajetiShughuli(tid, bid, role) {
+  if (!confirm('Futa shughuli hii kutoka bajeti?')) return;
+  var data = getBajetiData(tid).filter(function(x){ return x.id !== bid; });
+  saveBajetiData(tid, data);
+  toastFn('Shughuli imefutwa');
+  loadBajeti(role);
+}
+
+function downloadBajetiList(role) {
+  var isAdmin = role === 'admin';
+  var tid = isAdmin ? (parseInt((($('bj-tukio-sel')||{}).value)||'') || null) : currentShereheId;
+  var tukio = tid ? AM.find(function(t){ return t.id === tid; }) : null;
+  var data = tid ? getBajetiData(tid) : [];
+  if (!data.length) { toastFn('Hakuna shughuli za bajeti za kupakua'); return; }
+  var evName = tukio ? tukio.jina_tukio : 'Sherehe';
+  var jumla = data.reduce(function(s, b){ return s + (parseInt(b.kiasi)||0); }, 0);
+  var csv = 'BAJETI YA: ' + evName + ',,,,\n';
+  csv += 'Jumla ya Bajeti,TZS ' + jumla.toLocaleString() + '/=,,,\n\n';
+  csv += '#,Shughuli,Kiasi (TZS),Mtoa,Simu\n';
+  data.forEach(function(b, i) {
+    csv += (i+1) + ',"' + (b.shughuli||'').replace(/"/g,'""') + '",' + (parseInt(b.kiasi)||0) + ',"' + (b.mtoa||'').replace(/"/g,'""') + '",' + (b.simu||'') + '\n';
+  });
+  _csvDownload('Bajeti_' + evName.replace(/\s+/g,'-') + '.csv', csv);
 }
 
 </script>
