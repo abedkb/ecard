@@ -674,10 +674,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
         <button class="btn btn-g btn-block" onclick="shOngezaMgeni()">➕ Ongeza Mgeni</button>
       </div>
       <div class="card">
-        <div class="card-title">📋 Wageni wa Sherehe Hii <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm btn-out" onclick="refreshShGuests()" style="font-size:10px;">🔄 Refresh</button><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadWageniList('sh')">📥 Pakua</button></span></div>
+        <div class="card-title">📋 Wageni wa Sherehe Hii <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm btn-out" onclick="refreshShGuests()" style="font-size:10px;">🔄 Refresh</button><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadWageniList('sh')">📥 Pakua</button><button class="btn btn-sm" style="background:#1B5E20;color:white;font-size:10px;" onclick="beemSelectedSMSModal()">📱 Chagua SMS</button><button class="btn btn-sm" style="background:#25D366;color:white;font-size:10px;" onclick="beemSelectedWhatsAppModal()">💬 Chagua WA</button></span></div>
+        <div id="beem-selected-count" style="font-size:11px;color:#555;margin-top:8px;">📌 Hakuna aliyeteuliwa</div>
         <div class="wageni-table-wrapper">
           <table class="wageni-table">
-            <thead><tr><th>#</th><th>👤 Jina</th><th>🎫 Nambari Kadi</th><th>🏷 Aina</th><th>💬 RSVP</th><th>✅ Ameingia</th><th>⚙ Vitendo</th></tr></thead>
+            <thead><tr><th style="width:34px;text-align:center;"><input type="checkbox" id="beem-select-all" onclick="toggleSelectAllWageni(this)"></th><th>#</th><th>👤 Jina</th><th>🎫 Nambari Kadi</th><th>🏷 Aina</th><th>💬 RSVP</th><th>✅ Ameingia</th><th>⚙ Vitendo</th></tr></thead>
             <tbody id="sh-wageni-tbody"></tbody>
           </table>
         </div>
@@ -2434,10 +2435,16 @@ checkUrlParams();
 
 // ---------- BEEM CONFIGURATION ----------
 // IMPORTANT: Replace with your actual Beem Africa credentials
-const BEEM_API_KEY    = '151ef094e2e1693e';      // From Beem dashboard
-const BEEM_SECRET_KEY = 'NmVmZGMwNWE2NzY5MTMyZjBlMzdjNjY0YmNmNjE0N2FhN2RmMzI1OGFlN2NjNzg0OTY5NjMzYjE0OTI5MzAwNg==';   // From Beem dashboard
-const BEEM_SENDER_ID  = 'INFO';                        // Max 11 chars, approved sender name
-const BEEM_API_URL    = 'https://apisms.beem.africa/v1/send';
+const BEEM_API_KEY    = 'f88948a544a3882d';      // From Beem dashboard
+const BEEM_SECRET_KEY = 'ODUxMjM0OGI5OGQwMjBlNTk3ZjdlYjcwMDJlMzZhYzY3M2MzNGNmZjg0ZGU2ZTYzZjcxZWIwOGZlZDM1ZjhhNg==';   // From Beem dashboard
+const BEEM_SENDER_ID  = 'ABEDCARDS';                        // Max 11 chars, approved sender name
+const BEEM_API_URL     = 'https://apisms.beem.africa/v1/send';
+const BEEM_WHATSAPP_URLS = [
+  'https://apiwhatsapp.beem.africa/v1/send',
+  'https://api.whatsapp.beem.africa/v1/send',
+  'https://apisms.beem.africa/v1/whatsapp/send',
+  'https://apisms.beem.africa/v1/send'
+];
 
 // ---------- CORE SMS SENDER ----------
 /**
@@ -2456,8 +2463,6 @@ async function beemSendSMS(recipient, message) {
 
   const payload = {
     source_addr: BEEM_SENDER_ID,
-    encoding:    0,
-    schedule_time: '',
     message:     message,
     recipients:  [{ recipient_id: 1, dest_addr: phone }]
   };
@@ -2489,6 +2494,70 @@ async function beemSendSMS(recipient, message) {
 }
 
 /**
+ * Send a WhatsApp message via Beem Africa API
+ * @param {string} recipient  - Phone number e.g. "255712345678" (255 format)
+ * @param {string} message    - WhatsApp message body text
+ * @returns {Promise<{success: boolean, message: string, data?: any}>}
+ */
+async function beemSendWhatsApp(recipient, message) {
+  // Normalize phone number to 255XXXXXXXXX format
+  let phone = recipient.toString().trim().replace(/\s+/g, '');
+  if (phone.startsWith('0'))       phone = '255' + phone.slice(1);
+  if (phone.startsWith('+255'))    phone = phone.slice(1);
+  if (!phone.startsWith('255'))    phone = '255' + phone;
+  if (phone.length !== 12)         return { success: false, message: `Namba si sahihi: ${recipient}` };
+
+  const payload = {
+    source_addr: BEEM_SENDER_ID,
+    message:     message,
+    recipients:  [{ recipient_id: 1, dest_addr: phone }]
+  };
+
+  const credentials = btoa(`${BEEM_API_KEY}:${BEEM_SECRET_KEY}`);
+  let lastError = null;
+
+  for (const url of BEEM_WHATSAPP_URLS) {
+    try {
+      const finalPayload = { ...payload };
+      if (url === BEEM_API_URL) finalPayload.channel = 'whatsapp';
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Basic ${credentials}`,
+          'Accept':        'application/json'
+        },
+        body: JSON.stringify(finalPayload)
+      });
+
+      let data;
+      let text;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        text = await response.clone().text();
+        lastError = `Beem WhatsApp (${url}): invalid JSON response — ${text.trim().replace(/\s+/g, ' ').slice(0,200)}`;
+        continue;
+      }
+
+      if (response.ok && data.successful) {
+        return { success: true, message: 'WhatsApp imetumwa', data };
+      }
+
+      const errMsg = data.message || data.error || `HTTP ${response.status}`;
+      lastError = `Beem WhatsApp (${url}): ${errMsg}`;
+      // try the next endpoint in case this one is wrong
+    } catch (err) {
+      lastError = `Beem WhatsApp (${url}): ${err.message}`;
+      // try next endpoint if the URL does not resolve or fails
+    }
+  }
+
+  return { success: false, message: lastError || 'Beem WhatsApp: hitilafu isiyojulikana' };
+}
+
+/**
  * Send SMS to multiple recipients
  * @param {Array<{phone: string, message: string, name: string}>} batch
  * @param {function} onProgress  - called with (sent, total, currentName)
@@ -2511,6 +2580,34 @@ async function beemSendBatch(batch, onProgress) {
     }
     // Beem rate limit: small delay between sends
     if (i < batch.length - 1) await new Promise(r => setTimeout(r, 350));
+  }
+
+  return { sent, failed, errors };
+}
+
+/**
+ * Send WhatsApp to multiple recipients
+ * @param {Array<{phone: string, message: string, name: string}>} batch
+ * @param {function} onProgress  - called with (sent, total, currentName)
+ * @returns {Promise<{sent: number, failed: number, errors: Array}>}
+ */
+async function beemSendWhatsAppBatch(batch, onProgress) {
+  let sent = 0, failed = 0;
+  const errors = [];
+
+  for (let i = 0; i < batch.length; i++) {
+    const { phone, message, name } = batch[i];
+    if (onProgress) onProgress(i, batch.length, name);
+
+    const result = await beemSendWhatsApp(phone, message);
+    if (result.success) {
+      sent++;
+    } else {
+      failed++;
+      errors.push({ name, phone, reason: result.message });
+    }
+    // Beem rate limit: small delay between sends
+    if (i < batch.length - 1) await new Promise(r => setTimeout(r, 500)); // Slightly longer for WhatsApp
   }
 
   return { sent, failed, errors };
@@ -2594,6 +2691,51 @@ async function beemConfirmSendOne(wid) {
   }
 }
 
+async function beemTumaKadiWhatsApp(wid) {
+  if (BEEM_API_KEY === 'YOUR_BEEM_API_KEY_HERE') {
+    toastFn('⚠ Weka Beem credentials kwanza'); return;
+  }
+  const mgeni = AW.find(w => w.id === wid);
+  if (!mgeni) { toastFn('Mgeni haikupatikani'); return; }
+  if (!mgeni.namba_simu || mgeni.namba_simu.length < 9) { toastFn('⚠ Mgeni hana namba ya simu'); return; }
+
+  const tukio = AM.find(t => t.id === mgeni.tukio_id);
+  if (!tukio) { toastFn('Sherehe haikupatikani'); return; }
+
+  const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+  const msg = buildSmsMsg(tukio, mgeni, url); // Use same message builder, or create separate for WA
+
+  openMod('📤 Tuma WhatsApp — ' + mgeni.jina_kamili, `
+    <div>
+      <div class="al al-i" style="font-size:12px;">Ujumbe huu utatumwa kwa ${mgeni.jina_kamili} (${mgeni.namba_simu}):</div>
+      <div class="msg-preview-box" style="max-height:200px;overflow-y:auto;font-size:11px;">*From ${BEEM_SENDER_ID}:*\n\n${msg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:14px;">Herufi: ${('*From ' + BEEM_SENDER_ID + ':\n\n' + msg).length}</div>
+      <button onclick="beemConfirmSendOneWA(${wid})" class="btn btn-gr btn-block">📤 Tuma Sasa</button>
+      <button onclick="closeModDirect()" class="btn btn-out btn-block" style="margin-top:8px;">Ghairi</button>
+    </div>`);
+}
+
+async function beemConfirmSendOneWA(wid) {
+  const mgeni = AW.find(w => w.id === wid);
+  const tukio = mgeni ? AM.find(t => t.id === mgeni.tukio_id) : null;
+  if (!mgeni || !tukio) return;
+
+  $('mod-body').innerHTML = '<div style="text-align:center;padding:20px;"><span class="loading-spinner"></span> Inatuma...</div>';
+
+  const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+  const baseMsg = buildSmsMsg(tukio, mgeni, url);
+  const msg = `*From ${BEEM_SENDER_ID}:*\n\n${baseMsg}`;
+  const result = await beemSendWhatsApp(mgeni.namba_simu, msg);
+
+  if (result.success) {
+    $('mod-body').innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:40px;">✅</div><div style="font-weight:700;margin:10px 0;">WhatsApp Imetumwa!</div><div style="font-size:13px;color:#555;">${mgeni.jina_kamili} amepata mwaliko wake</div><button onclick="closeModDirect()" class="btn btn-g btn-block" style="margin-top:16px;">Sawa</button></div>`;
+    toastFn('✅ WhatsApp imetumwa kwa ' + mgeni.jina_kamili);
+  } else {
+    $('mod-body').innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:40px;">❌</div><div style="font-weight:700;margin:10px 0;color:#B71C1C;">Imeshindwa!</div><div style="font-size:12px;color:#B71C1C;">${result.message}</div><button onclick="closeModDirect()" class="btn btn-r btn-block" style="margin-top:16px;">Funga</button></div>`;
+    toastFn('❌ Imeshindwa: ' + result.message);
+  }
+}
+
 // ---------- BULK SMS — ALL GUESTS OF AN EVENT ----------
 function beemBulkSMSModal(tukioId) {
   if (BEEM_API_KEY === 'YOUR_BEEM_API_KEY_HERE') {
@@ -2615,6 +2757,13 @@ function beemBulkSMSModal(tukioId) {
           <div><div style="font-size:20px;font-weight:700;color:#1B5E20;">${wenye_simu.length}</div><div style="font-size:11px;color:#888;">Wana Simu</div></div>
           <div><div style="font-size:20px;font-weight:700;color:#B71C1C;">${wasio_simu.length}</div><div style="font-size:11px;color:#888;">Hawana Simu</div></div>
         </div>
+      </div>
+      <div class="fg">
+        <label>Njia ya Kutuma</label>
+        <select class="fsel" id="beem-bulk-channel">
+          <option value="sms">📱 SMS</option>
+          <option value="whatsapp">💬 WhatsApp</option>
+        </select>
       </div>
       <div class="fg">
         <label>Aina ya Ujumbe</label>
@@ -2639,30 +2788,39 @@ function beemBulkSMSModal(tukioId) {
         </select>
       </div>
       <div id="beem-recipient-count" style="font-size:12px;color:#555;margin-bottom:12px;padding:8px 12px;background:#E3F2FD;border-radius:6px;">
-        📤 SMS zitakazotumiwa: <strong>${wenye_simu.length}</strong>
+        📤 Ujumbe zitakazotumiwa: <strong>${wenye_simu.length}</strong>
       </div>
-      <div class="al al-w" style="font-size:11px;">⚠ Beem Africa itachaji kwa kila SMS iliyotumwa. Hakikisha una salio la kutosha.</div>
+      <div class="al al-w" id="beem-warning" style="font-size:11px;">⚠ Beem Africa itachaji kwa kila SMS iliyotumwa. Hakikisha una salio la kutosha.</div>
       <div style="display:flex;gap:8px;margin-top:14px;">
-        <button onclick="beemExecuteBulk(${tid})" class="btn btn-gr" style="flex:1;">📤 Tuma SMS</button>
+        <button onclick="beemExecuteBulk(${tid})" class="btn btn-gr" id="beem-send-btn" style="flex:1;">📤 Tuma SMS</button>
         <button onclick="closeModDirect()" class="btn btn-out" style="flex:1;">Ghairi</button>
       </div>
     </div>`);
 
   // Dynamic listener
   setTimeout(() => {
+    const channelEl = $('beem-bulk-channel');
     const typeEl = $('beem-bulk-type');
     const filterEl = $('beem-bulk-filter');
     const customWrap = $('beem-custom-msg-wrap');
     const countEl = $('beem-recipient-count');
+    const warningEl = $('beem-warning');
+    const sendBtn = $('beem-send-btn');
 
-    function updateCount() {
+    function updateUI() {
+      const channel = channelEl ? channelEl.value : 'sms';
       const list = getBeemFilteredGuests(tid, filterEl ? filterEl.value : 'all');
-      if (countEl) countEl.innerHTML = `📤 SMS zitakazotumiwa: <strong>${list.length}</strong>`;
+      const channelName = channel === 'sms' ? 'SMS' : 'WhatsApp';
+      const icon = channel === 'sms' ? '📱' : '💬';
+      if (countEl) countEl.innerHTML = `📤 ${channelName} zitakazotumiwa: <strong>${list.length}</strong>`;
+      if (warningEl) warningEl.innerHTML = `⚠ Beem Africa itachaji kwa kila ${channelName} iliyotumwa. Hakikisha una salio la kutosha.`;
+      if (sendBtn) sendBtn.innerHTML = `📤 Tuma ${channelName}`;
       if (customWrap) customWrap.style.display = typeEl && typeEl.value === 'custom' ? 'block' : 'none';
     }
 
-    if (typeEl) typeEl.addEventListener('change', updateCount);
-    if (filterEl) filterEl.addEventListener('change', updateCount);
+    if (channelEl) channelEl.addEventListener('change', updateUI);
+    if (typeEl) typeEl.addEventListener('change', updateUI);
+    if (filterEl) filterEl.addEventListener('change', updateUI);
   }, 200);
 }
 
@@ -2682,10 +2840,12 @@ async function beemExecuteBulk(tukioId) {
   const t = AM.find(x => x.id === tid);
   if (!t) return;
 
+  const channelEl = $('beem-bulk-channel');
   const typeEl = $('beem-bulk-type');
   const filterEl = $('beem-bulk-filter');
   const customMsgEl = $('beem-custom-msg');
 
+  const channel = channelEl ? channelEl.value : 'sms';
   const msgType = typeEl ? typeEl.value : 'mwaliko';
   const filter  = filterEl ? filterEl.value : 'all';
   const customMsg = customMsgEl ? customMsgEl.value.trim() : '';
@@ -2709,15 +2869,131 @@ async function beemExecuteBulk(tukioId) {
     } else {
       msg = customMsg;
     }
+    if (channel === 'whatsapp') {
+      msg = `*From ${BEEM_SENDER_ID}:*\n\n${msg}`;
+    }
     return { phone: mgeni.namba_simu, message: msg, name: mgeni.jina_kamili };
   });
 
-  const result = await beemSendBatch(batch, (sent, total, name) => {
-    $('mod-body').innerHTML = beemProgressHtml(sent, total, name);
-  });
+  let result;
+  if (channel === 'whatsapp') {
+    result = await beemSendWhatsAppBatch(batch, (sent, total, name) => {
+      $('mod-body').innerHTML = beemProgressHtml(sent, total, name);
+    });
+  } else {
+    result = await beemSendBatch(batch, (sent, total, name) => {
+      $('mod-body').innerHTML = beemProgressHtml(sent, total, name);
+    });
+  }
 
   $('mod-body').innerHTML = beemResultHtml(result);
-  toastFn(`✅ ${result.sent} SMS zimetumwa, ${result.failed} zimeshindwa`);
+  const channelName = channel === 'sms' ? 'SMS' : 'WhatsApp';
+  toastFn(`✅ ${result.sent} ${channelName} zimetumwa, ${result.failed} zimeshindwa`);
+}
+
+function getSelectedBeemGuests() {
+  return Array.from(document.querySelectorAll('.beem-select-checkbox:checked'))
+    .map(cb => {
+      const guestId = parseInt(cb.dataset.guestId, 10);
+      return AW.find(w => w.id === guestId);
+    })
+    .filter(Boolean);
+}
+
+function toggleSelectAllWageni(el) {
+  const checked = el.checked;
+  document.querySelectorAll('.beem-select-checkbox').forEach(cb => cb.checked = checked);
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const count = document.querySelectorAll('.beem-select-checkbox:checked').length;
+  const label = $('beem-selected-count');
+  if (label) {
+    label.textContent = count ? `📌 Walichoanguliwa: ${count}` : '📌 Hakuna aliyeteuliwa';
+  }
+}
+
+function beemSelectedSMSModal() {
+  const selected = getSelectedBeemGuests();
+  if (!selected.length) { toastFn('⚠ Chagua wageni kwanza'); return; }
+  openBeemSelectedModal('sms', selected);
+}
+
+function beemSelectedWhatsAppModal() {
+  const selected = getSelectedBeemGuests();
+  if (!selected.length) { toastFn('⚠ Chagua wageni kwanza'); return; }
+  openBeemSelectedModal('whatsapp', selected);
+}
+
+function openBeemSelectedModal(channel, selected) {
+  const channelName = channel === 'sms' ? 'SMS' : 'WhatsApp';
+  openMod(`${channelName} kwa Waliochaguliwa (${selected.length})`, `
+    <div>
+      <div class="al al-i" style="font-size:12px;">Ujumbe utatumwa kwa wageni walicho chagua kwenye orodha.</div>
+      <div class="fg">
+        <label>Aina ya Ujumbe</label>
+        <select class="fsel" id="beem-selected-type">
+          <option value="mwaliko">💌 Mwaliko wa Sherehe</option>
+          <option value="reminder">⏰ Ukumbusho wa Sherehe</option>
+          <option value="custom">✏️ Ujumbe Maalum</option>
+        </select>
+      </div>
+      <div id="beem-selected-custom-wrap" style="display:none;">
+        <div class="fg"><label>Ujumbe Maalum</label><textarea class="fi" id="beem-selected-custom-msg" rows="4" placeholder="Andika ujumbe hapa..." style="resize:none;"></textarea></div>
+      </div>
+      <div class="al al-w" style="font-size:11px;">⚠ Beem Africa itachaji kwa kila ujumbe uliotumwa. Hakikisha una salio la kutosha.</div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button onclick="beemExecuteSelected('${channel}')" class="btn btn-gr btn-block">📤 Tuma ${channelName}</button>
+        <button onclick="closeModDirect()" class="btn btn-out btn-block">Ghairi</button>
+      </div>
+    </div>`);
+  setTimeout(() => {
+    const typeEl = $('beem-selected-type');
+    const customWrap = $('beem-selected-custom-wrap');
+    if (typeEl) typeEl.addEventListener('change', () => {
+      if (customWrap) customWrap.style.display = typeEl.value === 'custom' ? 'block' : 'none';
+    });
+  }, 200);
+}
+
+async function beemExecuteSelected(channel) {
+  const selected = getSelectedBeemGuests();
+  if (!selected.length) { toastFn('⚠ Chagua wageni kwanza'); return; }
+
+  const typeEl = $('beem-selected-type');
+  const customMsgEl = $('beem-selected-custom-msg');
+  const msgType = typeEl ? typeEl.value : 'mwaliko';
+  const customMsg = customMsgEl ? customMsgEl.value.trim() : '';
+
+  if (msgType === 'custom' && !customMsg) {
+    toastFn('⚠ Andika ujumbe kwanza'); return;
+  }
+
+  $('mod-body').innerHTML = beemProgressHtml(0, selected.length, '...');
+
+  const batch = selected.map(mgeni => {
+    const tukio = AM.find(t => t.id === mgeni.tukio_id);
+    let msg;
+    if (msgType === 'mwaliko') {
+      const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+      msg = buildSmsMsg(tukio, mgeni, url);
+    } else if (msgType === 'reminder') {
+      msg = buildBeemReminderMsg(tukio, mgeni);
+    } else {
+      msg = customMsg;
+    }
+    if (channel === 'whatsapp') msg = `*From ${BEEM_SENDER_ID}:*\n\n${msg}`;
+    return { phone: mgeni.namba_simu, message: msg, name: mgeni.jina_kamili };
+  });
+
+  const result = channel === 'whatsapp'
+    ? await beemSendWhatsAppBatch(batch, (sent, total, name) => { $('mod-body').innerHTML = beemProgressHtml(sent, total, name); })
+    : await beemSendBatch(batch, (sent, total, name) => { $('mod-body').innerHTML = beemProgressHtml(sent, total, name); });
+
+  $('mod-body').innerHTML = beemResultHtml(result);
+  const channelName = channel === 'sms' ? 'SMS' : 'WhatsApp';
+  toastFn(`✅ ${result.sent} ${channelName} zimetumwa, ${result.failed} zimeshindwa`);
 }
 
 function buildBeemReminderMsg(tukio, mgeni) {
@@ -2729,7 +3005,7 @@ function buildBeemReminderMsg(tukio, mgeni) {
 
 // ---------- BEEM SETTINGS PANEL ----------
 function openBeemSettings() {
-  openMod('⚙️ Mipangilio ya Beem Africa SMS', `
+  openMod('⚙️ Mipangilio ya Beem Africa SMS na WhatsApp', `
     <div>
       <div class="al al-i" style="font-size:12px;">Ingia Beem Africa kwenye <strong>apisms.beem.africa</strong> kupata API Key na Secret Key yako.</div>
       <div class="fg"><label>API Key</label><input type="text" class="fi" id="beem-set-apikey" placeholder="Weka Beem API Key" value="${BEEM_API_KEY !== 'YOUR_BEEM_API_KEY_HERE' ? BEEM_API_KEY : ''}"/></div>
@@ -2865,7 +3141,11 @@ window.renderWageniTable = function(tbodyId, list, canEdit) {
     const smsBtn = (canEdit && w.namba_simu && w.namba_simu.length >= 9)
       ? `<button class="btn btn-sm" style="background:#1B5E20;color:white;" title="Tuma SMS kwa Beem" onclick="beemTumaKadiSMS(${w.id})">📱 SMS</button>`
       : '';
+    const waBtn = (canEdit && w.namba_simu && w.namba_simu.length >= 9)
+      ? `<button class="btn btn-sm" style="background:#25D366;color:white;" title="Tuma WhatsApp kwa Beem" onclick="beemTumaKadiWhatsApp(${w.id})">💬 WA</button>`
+      : '';
     return `<tr>
+      <td style="text-align:center;"><input type="checkbox" class="beem-select-checkbox" data-guest-id="${w.id}" onchange="updateSelectedCount()"></td>
       <td style="color:#888;font-size:11px;font-weight:700;text-align:center;">${idx+1}</td>
       <td style="font-weight:600;">${safeText(w.jina_kamili)}<br><span style="font-size:10px;color:var(--mt);">${safeText(w.namba_simu)}</span></td>
       <td><code style="background:#F5F5F5;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;">${safeText(w.nambari_kadi)}</code></td>
@@ -2879,6 +3159,7 @@ window.renderWageniTable = function(tbodyId, list, canEdit) {
             <button class="btn btn-sm" style="background:#FF6D00;color:white;" onclick="tumaWaPichaHaraka(${w.id})">🖼</button>
             <button class="btn btn-sm" style="background:#0077B6;color:white;" onclick="tumaSMSHaraka(${w.id})">💬</button>
             ${smsBtn}
+            ${waBtn}
             <button class="btn btn-r btn-sm" onclick="futaMgeniHere(${w.id})">🗑</button>
           </td>`
         : '<td style="color:var(--mt);text-align:center;">—</td>'}
