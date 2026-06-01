@@ -1252,6 +1252,7 @@ function sendAhadiReminder(ahadiId) {
       <div class="msg-preview-box" style="max-height:240px;overflow-y:auto;font-size:11px;">${waMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
         ${hasSimu ? `<a href="https://wa.me/${simuWa}?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn btn-block" style="background:#25D366;color:white;padding:12px;border-radius:8px;text-align:center;font-weight:700;text-decoration:none;">📲 Tuma WhatsApp kwa ${ahadi.jina_mtoaji}</a>` : ''}
+        ${hasSimu ? `<button onclick="beemEndelaAhadiReminder(${ahadi.id})" class="btn btn-block" style="background:#1B5E20;color:white;">📱 Tuma SMS (Beem — ${BEEM_SENDER_ID})</button>` : ''}
         <button onclick="copyText(${JSON.stringify(waMsg)})" class="btn btn-out btn-block">📋 Nakili Ujumbe WhatsApp</button>
         <button onclick="copyText(${JSON.stringify(smsMsg)})" class="btn btn-out btn-block">📋 Nakili SMS (Fupi)</button>
       </div>
@@ -2367,12 +2368,15 @@ function renderAhadiWageniOmbi(tukio, wageniList, containerId) {
     const smsBtn = hasSimu
       ? `<a href="sms:${mgeni.namba_simu}?body=${encodeURIComponent(smsMsg)}" class="btn btn-sm" style="background:#0077B6;color:white;text-decoration:none;">💬 SMS</a>`
       : `<button onclick="copyText(${JSON.stringify(smsMsg)})" class="btn btn-sm" style="background:#E3F2FD;color:#0077B6;">📋 Nakili</button>`;
+    const beemBtn = hasSimu
+      ? `<button onclick="beemTumaAhadiOmbi(${mgeni.id},${tukio.id})" class="btn btn-sm" style="background:#1B5E20;color:white;" title="Tuma SMS via Beem (${BEEM_SENDER_ID})">📱</button>`
+      : '';
     return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0EDE8;">
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mgeni.jina_kamili}</div>
         <div style="font-size:11px;color:#888;">${mgeni.namba_simu || '—'} · ${mgeni.aina_kadi}</div>
       </div>
-      <div style="display:flex;gap:4px;flex-shrink:0;">${waBtn}${smsBtn}</div>
+      <div style="display:flex;gap:4px;flex-shrink:0;">${waBtn}${smsBtn}${beemBtn}</div>
     </div>`;
   }).join('');
 }
@@ -2398,12 +2402,15 @@ function renderMcWageniList(wageniList, containerId, role, tukio, mcData) {
         ? `<a href="sms:${mgeni.namba_simu}?body=${encodeURIComponent(smsMsg)}" class="btn btn-sm" style="background:#0077B6;color:white;text-decoration:none;">💬 SMS</a>`
         : `<button onclick="copyText(${JSON.stringify(smsMsg)})" class="btn btn-sm" style="background:#E3F2FD;color:#0077B6;">📋</button>`;
     }
+    const beemMcBtn = hasSimu
+      ? `<button onclick="beemTumaMchangoOmbi(${mgeni.id},'${role}')" class="btn btn-sm" style="background:#1B5E20;color:white;" title="Tuma SMS via Beem (${BEEM_SENDER_ID})">📱</button>`
+      : '';
     return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0EDE8;">
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mgeni.jina_kamili}</div>
         <div style="font-size:11px;color:#888;">${mgeni.namba_simu || '—'} · ${mgeni.aina_kadi}</div>
       </div>
-      <div style="display:flex;gap:4px;flex-shrink:0;">${waBtnHtml}${smsBtnHtml}<button onclick="sendMchangoKwaWageni(${mgeni.id},'${role}')" class="btn btn-sm" style="background:var(--p);color:white;">📋 Kadi</button></div>
+      <div style="display:flex;gap:4px;flex-shrink:0;">${waBtnHtml}${smsBtnHtml}${beemMcBtn}<button onclick="sendMchangoKwaWageni(${mgeni.id},'${role}')" class="btn btn-sm" style="background:var(--p);color:white;">📋 Kadi</button></div>
     </div>`;
   }).join('');
 }
@@ -2628,6 +2635,49 @@ window.addEventListener('unhandledrejection',function(e){console.error('Unhandle
 
 show('s-welcome');
 checkUrlParams();
+// ==================== BEEM QUICK-SEND HELPERS ====================
+async function beemEndelaAhadiReminder(ahadiId) {
+  const ahadi = AA.find(a => a.id === ahadiId);
+  if (!ahadi) return;
+  const tukio = AM.find(t => t.id === ahadi.tukio_id);
+  if (!tukio) { toastFn('Sherehe haikupatikana'); return; }
+  if (!ahadi.namba_simu || ahadi.namba_simu.length < 9) { toastFn('⚠ Mtoaji hana namba'); return; }
+  $('mod-body').innerHTML = '<div style="text-align:center;padding:20px;"><span class="loading-spinner"></span> Inatuma SMS...</div>';
+  const smsMsg = buildAhadiReminderSmsMsg(tukio, ahadi);
+  const result = await beemSendSMS(ahadi.namba_simu, smsMsg);
+  if (result.success) {
+    $('mod-body').innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:40px;">✅</div><div style="font-weight:700;margin:10px 0;">SMS Imetumwa!</div><div style="font-size:13px;color:#555;">Ukumbusho wa ahadi umetumwa kwa <strong>${ahadi.jina_mtoaji}</strong> kupitia <strong>${BEEM_SENDER_ID}</strong></div><button onclick="closeModDirect()" class="btn btn-g btn-block" style="margin-top:16px;">Sawa</button></div>`;
+    toastFn('✅ SMS imetumwa kwa ' + ahadi.jina_mtoaji);
+  } else {
+    $('mod-body').innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:40px;">❌</div><div style="font-weight:700;margin:10px 0;color:#B71C1C;">Imeshindwa!</div><div style="font-size:12px;color:#B71C1C;">${result.message}</div><button onclick="closeModDirect()" class="btn btn-r btn-block" style="margin-top:16px;">Funga</button></div>`;
+    toastFn('❌ ' + result.message);
+  }
+}
+
+async function beemTumaAhadiOmbi(mgeniId, tukioId) {
+  const mgeni = AW.find(w => w.id === mgeniId);
+  const tukio = AM.find(t => t.id === tukioId);
+  if (!mgeni || !tukio) return;
+  if (!mgeni.namba_simu || mgeni.namba_simu.length < 9) { toastFn('⚠ Mgeni hana namba'); return; }
+  toastFn('⏳ Inatuma SMS...');
+  const smsMsg = buildPledgeMsgPersonalized(tukio, mgeni, 'sms');
+  const result = await beemSendSMS(mgeni.namba_simu, smsMsg);
+  toastFn(result.success ? `✅ SMS imetumwa kwa ${mgeni.jina_kamili} (${BEEM_SENDER_ID})` : `❌ ${result.message}`);
+}
+
+async function beemTumaMchangoOmbi(mgeniId, role) {
+  const mgeni = AW.find(w => w.id === mgeniId);
+  if (!mgeni) return;
+  if (!mgeni.namba_simu || mgeni.namba_simu.length < 9) { toastFn('⚠ Mgeni hana namba'); return; }
+  const data = getMchangoData(role);
+  if (!data) { toastFn('Jaza taarifa za mchango kwanza'); return; }
+  const {tukio, single, double: double_, simu, benki, mwisho} = data;
+  toastFn('⏳ Inatuma SMS...');
+  const smsMsg = buildMchangoSmsMsg(tukio, single, double_, simu, benki, mwisho, mgeni);
+  const result = await beemSendSMS(mgeni.namba_simu, smsMsg);
+  toastFn(result.success ? `✅ SMS imetumwa kwa ${mgeni.jina_kamili} (${BEEM_SENDER_ID})` : `❌ ${result.message}`);
+}
+
 // ==================== BEEM AFRICA SMS INTEGRATION ====================
 // Paste this entire block into the <script> section of your AbedCards HTML
 // Place it BEFORE the closing  tag
