@@ -2877,127 +2877,42 @@ function sanitizeSmsText(t) {
 }
 
 // ---------- BEEM CONFIGURATION ----------
-// IMPORTANT: Replace with your actual Beem Africa credentials
-const BEEM_API_KEY    = 'f88948a544a3882d';      // From Beem dashboard
-const BEEM_SECRET_KEY = 'ODUxMjM0OGI5OGQwMjBlNTk3ZjdlYjcwMDJlMzZhYzY3M2MzNGNmZjg0ZGU2ZTYzZjcxZWIwOGZlZDM1ZjhhNg==';   // From Beem dashboard
-const BEEM_SENDER_ID  = 'A.A.K.CARDS';                      // Max 11 chars, approved sender name
-const BEEM_API_URL     = 'https://apisms.beem.africa/v1/send';
-const BEEM_WHATSAPP_URLS = [
-  'https://apiwhatsapp.beem.africa/v1/send',
-  'https://api.whatsapp.beem.africa/v1/send',
-  'https://apisms.beem.africa/v1/whatsapp/send',
-  'https://apisms.beem.africa/v1/send'
-];
+const BEEM_SENDER_ID = 'A.A.K.CARDS';
+const BEEM_EDGE_URL  = `${SB}/functions/v1/beem-sms`;
 
 // ---------- CORE SMS SENDER ----------
-/**
- * Send an SMS via Beem Africa API
- * @param {string} recipient  - Phone number e.g. "255712345678" (255 format)
- * @param {string} message    - SMS body text
- * @returns {Promise<{success: boolean, message: string, data?: any}>}
- */
 async function beemSendSMS(recipient, message) {
-  // Normalize phone number to 255XXXXXXXXX format
-  let phone = recipient.toString().trim().replace(/\s+/g, '');
-  if (phone.startsWith('0'))       phone = '255' + phone.slice(1);
-  if (phone.startsWith('+255'))    phone = phone.slice(1);
-  if (!phone.startsWith('255'))    phone = '255' + phone;
-  if (phone.length !== 12)         return { success: false, message: `Namba si sahihi: ${recipient}` };
-
-  const payload = {
-    source_addr: BEEM_SENDER_ID,
-    message:     message,
-    recipients:  [{ recipient_id: 1, dest_addr: phone }]
-  };
-
-  const credentials = btoa(`${BEEM_API_KEY}:${BEEM_SECRET_KEY}`);
-
   try {
-    const response = await fetch(BEEM_API_URL, {
+    const response = await fetch(BEEM_EDGE_URL, {
       method: 'POST',
       headers: {
         'Content-Type':  'application/json',
-        'Authorization': `Basic ${credentials}`,
-        'Accept':        'application/json'
+        'Authorization': `Bearer ${SK}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ recipient, message, sender_id: BEEM_SENDER_ID })
     });
-
     const data = await response.json();
-
-    if (response.ok && data.successful) {
-      return { success: true, message: 'SMS imetumwa', data };
-    } else {
-      const errMsg = data.message || data.error || `HTTP ${response.status}`;
-      return { success: false, message: `Beem: ${errMsg}`, data };
-    }
+    return data;
   } catch (err) {
     return { success: false, message: `Hitilafu ya mtandao: ${err.message}` };
   }
 }
 
-/**
- * Send a WhatsApp message via Beem Africa API
- * @param {string} recipient  - Phone number e.g. "255712345678" (255 format)
- * @param {string} message    - WhatsApp message body text
- * @returns {Promise<{success: boolean, message: string, data?: any}>}
- */
 async function beemSendWhatsApp(recipient, message) {
-  // Normalize phone number to 255XXXXXXXXX format
-  let phone = recipient.toString().trim().replace(/\s+/g, '');
-  if (phone.startsWith('0'))       phone = '255' + phone.slice(1);
-  if (phone.startsWith('+255'))    phone = phone.slice(1);
-  if (!phone.startsWith('255'))    phone = '255' + phone;
-  if (phone.length !== 12)         return { success: false, message: `Namba si sahihi: ${recipient}` };
-
-  const payload = {
-    source_addr: BEEM_SENDER_ID,
-    message:     message,
-    recipients:  [{ recipient_id: 1, dest_addr: phone }]
-  };
-
-  const credentials = btoa(`${BEEM_API_KEY}:${BEEM_SECRET_KEY}`);
-  let lastError = null;
-
-  for (const url of BEEM_WHATSAPP_URLS) {
-    try {
-      const finalPayload = { ...payload };
-      if (url === BEEM_API_URL) finalPayload.channel = 'whatsapp';
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type':  'application/json',
-          'Authorization': `Basic ${credentials}`,
-          'Accept':        'application/json'
-        },
-        body: JSON.stringify(finalPayload)
-      });
-
-      let data;
-      let text;
-      try {
-        data = await response.json();
-      } catch (parseErr) {
-        text = await response.clone().text();
-        lastError = `Beem WhatsApp (${url}): invalid JSON response — ${text.trim().replace(/\s+/g, ' ').slice(0,200)}`;
-        continue;
-      }
-
-      if (response.ok && data.successful) {
-        return { success: true, message: 'WhatsApp imetumwa', data };
-      }
-
-      const errMsg = data.message || data.error || `HTTP ${response.status}`;
-      lastError = `Beem WhatsApp (${url}): ${errMsg}`;
-      // try the next endpoint in case this one is wrong
-    } catch (err) {
-      lastError = `Beem WhatsApp (${url}): ${err.message}`;
-      // try next endpoint if the URL does not resolve or fails
-    }
+  try {
+    const response = await fetch(BEEM_EDGE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${SK}`,
+      },
+      body: JSON.stringify({ recipient, message, sender_id: BEEM_SENDER_ID, channel: 'whatsapp' })
+    });
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    return { success: false, message: `Hitilafu ya mtandao: ${err.message}` };
   }
-
-  return { success: false, message: lastError || 'Beem WhatsApp: hitilafu isiyojulikana' };
 }
 
 /**
@@ -3091,9 +3006,6 @@ function beemResultHtml(result) {
 
 // ---------- SEND CARD TO ONE GUEST (Quick Action) ----------
 async function beemTumaKadiSMS(wid) {
-  if (BEEM_API_KEY === 'YOUR_BEEM_API_KEY_HERE') {
-    toastFn('⚠ Weka Beem credentials kwanza'); return;
-  }
   const mgeni = AW.find(w => w.id === wid);
   if (!mgeni) { toastFn('Mgeni haikupatikani'); return; }
   if (!mgeni.namba_simu || mgeni.namba_simu.length < 9) { toastFn('⚠ Mgeni hana namba ya simu'); return; }
@@ -3135,9 +3047,6 @@ async function beemConfirmSendOne(wid) {
 }
 
 async function beemTumaKadiWhatsApp(wid) {
-  if (BEEM_API_KEY === 'YOUR_BEEM_API_KEY_HERE') {
-    toastFn('⚠ Weka Beem credentials kwanza'); return;
-  }
   const mgeni = AW.find(w => w.id === wid);
   if (!mgeni) { toastFn('Mgeni haikupatikani'); return; }
   if (!mgeni.namba_simu || mgeni.namba_simu.length < 9) { toastFn('⚠ Mgeni hana namba ya simu'); return; }
@@ -3181,9 +3090,6 @@ async function beemConfirmSendOneWA(wid) {
 
 // ---------- BULK SMS — ALL GUESTS OF AN EVENT ----------
 function beemBulkSMSModal(tukioId) {
-  if (BEEM_API_KEY === 'YOUR_BEEM_API_KEY_HERE') {
-    toastFn('⚠ Weka Beem credentials kwanza'); return;
-  }
   const tid = parseInt(tukioId);
   const t = AM.find(x => x.id === tid);
   if (!t) { toastFn('Sherehe haikupatikani'); return; }
