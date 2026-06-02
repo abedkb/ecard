@@ -1092,7 +1092,8 @@ function buildSmsMsg(tukio, mgeni, url) {
   ujumbe += `Ukumbi: ${ukumbi}${locationLine}\n\n`;
   ujumbe += `Nambari ya Kadi: ${nambariKadiVal}${mezaNambari}\n`;
   ujumbe += `Aina ya Kadi: ${ainaKadiLabel}\n\n`;
-  ujumbe += `Angalia kadi yako hapa:\n${url}`;
+  ujumbe += `Angalia kadi yako hapa:\n${url}\n\n`;
+  ujumbe += `-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
   return ujumbe;
 }
 
@@ -3349,7 +3350,7 @@ function buildBeemReminderMsg(tukio, mgeni) {
   const tarehe = formatTarehe(tukio.tarehe);
   const jinaLaMgeni = mgeni.jina_kamili || '';
   const nenoKualika = mgeni.aina_kadi === 'Double' ? 'ninyi' : 'wewe';
-  return `Ukumbusho: ${jinaLaMgeni}, ${buildFamiliaLine(tukio)} wanakukumbusha sherehe yao ya ${tukio.aina||'Sherehe'} - ${tarehe}, Saa ${tukio.saa}, ${tukio.ukumbi}. Kadi yako: ${mgeni.nambari_kadi}. Karibu sana!\n-Powered by AbedTech ${ABEDTECH_PHONE}`;
+  return `Ukumbusho: ${jinaLaMgeni}, ${buildFamiliaLine(tukio)} wanakukumbusha sherehe yao ya ${tukio.aina||'Sherehe'} - ${tarehe}, Saa ${tukio.saa}, ${tukio.ukumbi}. Kadi yako: ${mgeni.nambari_kadi}. Karibu sana!\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
 }
 
 // ---------- BEEM SETTINGS PANEL ----------
