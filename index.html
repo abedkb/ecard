@@ -540,7 +540,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
             <button onclick="downloadAhadiList('admin')" class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;">📥 Pakua</button>
           </div>
         </div>
-        <div class="tw"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="ahadi-tbody"></tbody></table></div>
+        <div id="ahadi-bulk-bar"></div>
+        <div class="tw"><table><thead><tr><th style="width:32px;text-align:center;"><input type="checkbox" id="ahadi-tbl-sa" onclick="toggleAhTblAll('ahadi-tbody',this)"></th><th>#</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="ahadi-tbody"></tbody></table></div>
       </div>
     </div>
     <div id="at-mc" style="display:none;">
@@ -745,7 +746,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
       <div class="card">
         <div class="card-title">📋 Ahadi za Sherehe</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="font-size:11px;color:var(--mt);" id="sh-ahadi-refresh-info"></span><div style="display:flex;gap:6px;"><button onclick="manualRefreshShAhadi()" class="btn btn-sm btn-out">🔄 Refresh</button><button onclick="downloadAhadiList('sh')" class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;">📥 Pakua</button></div></div>
-        <div class="tw"><table><thead><tr><th>#</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="sh-ahadi-tbody"></tbody></table></div>
+        <div id="sh-ahadi-bulk-bar"></div>
+        <div class="tw"><table><thead><tr><th style="width:32px;text-align:center;"><input type="checkbox" id="sh-ahadi-tbl-sa" onclick="toggleAhTblAll('sh-ahadi-tbody',this)"></th><th>#</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="sh-ahadi-tbody"></tbody></table></div>
       </div>
     </div>
     <div id="sh-mc" style="display:none;">
@@ -1955,7 +1957,19 @@ function loadAhadi(){const tid=$('ah-tukio-sel').value;const list=tid?AA.filter(
 function loadShAhadi(){const list=AA.filter(a=>a.tukio_id===currentShereheId);renderAhadiStats(list,'sh-ah-stats');renderAhadiTable('sh-ahadi-tbody',list,true);}
 function renderAhadiStats(list,elId){const el=$(elId);if(!el)return;if(!list.length){el.style.display='none';return;}el.style.display='grid';const j=list.reduce((s,a)=>s+a.kiasi,0),lp=list.filter(a=>a.status==='imelipwa').reduce((s,a)=>s+a.kiasi,0);el.innerHTML=`<div class="sc"><div class="sn">${pesa(j)}</div><div class="sl">Jumla</div></div><div class="sc"><div class="sn" style="color:var(--gr)">${pesa(lp)}</div><div class="sl">Zilizolipwa</div></div><div class="sc"><div class="sn" style="color:var(--am)">${pesa(j-lp)}</div><div class="sl">Hazijalipiwa</div></div><div class="sc"><div class="sn">${list.length}</div><div class="sl">Watolewaji</div></div>`;}
 function renderAhadiTable(tbodyId,list,canEdit){
-  if(!list.length){$(tbodyId).innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;color:#888;">Hakuna ahadi</td></tr>';return;}
+  const bulkBarId=tbodyId.replace('-tbody','-bulk-bar');
+  const saId=tbodyId.replace('-tbody','-tbl-sa');
+  if(!list.length){
+    $(tbodyId).innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#888;">Hakuna ahadi</td></tr>';
+    const bb=$(bulkBarId);if(bb)bb.innerHTML='';
+    return;
+  }
+  const unpaidWithSimu=list.filter(a=>a.status!=='imelipwa'&&a.namba_simu&&a.namba_simu.length>=9);
+  const bb=$(bulkBarId);
+  if(bb){
+    bb.innerHTML=unpaidWithSimu.length?`<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:8px 10px;background:#F0FFF0;border:1px solid #A5D6A7;border-radius:8px;margin-bottom:8px;"><span id="${tbodyId}-cnt" style="font-size:12px;font-weight:600;color:#1B5E20;">📌 Hakuna aliyeteuliwa</span><button onclick="beemBulkAhadiTableModal('${tbodyId}')" class="btn btn-sm" style="background:#1B5E20;color:white;">📱 Tuma SMS Wengi</button></div>`:'';
+  }
+  const sa=$(saId);if(sa)sa.checked=false;
   $(tbodyId).innerHTML=list.map((a,i)=>{
     const hasSimu=a.namba_simu&&a.namba_simu.length>=9;
     const paid=a.status==='imelipwa';
@@ -1974,8 +1988,60 @@ function renderAhadiTable(tbodyId,list,canEdit){
         :`<button onclick="copyText(${JSON.stringify(smsMsg)})" class="btn btn-sm" style="background:#E3F2FD;color:#0077B6;">📋</button>`;
     }
     const thankuBtn=hasSimu&&paid&&tukio?`<button class="btn btn-sm" style="background:#25D366;color:white;" onclick="sendAhadiReminder(${a.id})" title="Tuma shukrani kwa malipo">🙏</button>`:'';
-    return`<tr style="${rowBg}"><td style="color:#888;font-size:11px;font-weight:700;">${i+1}</td><td><strong>${a.jina_mtoaji}</strong></td><td style="font-size:12px;">${a.namba_simu||'—'}</td><td><strong style="color:${paid?'#1B5E20':'#E65100'};">${pesa(a.kiasi)}</strong></td><td><span class="badge ${paid?'bg-gr':'bg-gold'}">${paid?'✅ Imelipwa':'⏳ Ahadi'}</span></td><td style="font-size:12px;color:#666;">${a.tarehe_ahadi||'—'}</td><td>${canEdit?`<div class="action-buttons">${!paid?`<button class="btn btn-gr btn-sm" onclick="lipaAhadi(${a.id})">✅ Lipa</button>`:''}${waBtnHtml}${smsBtnHtml}${thankuBtn}<button class="btn btn-r btn-sm" onclick="futaAhadi(${a.id})" style="margin-left:2px;">🗑</button></div>`:'—'}</td></tr>`;
+    const cbDisabled=paid||!hasSimu;
+    return`<tr style="${rowBg}">
+      <td style="text-align:center;padding:0 6px;"><input type="checkbox" class="ah-tbl-cb" data-tid="${tbodyId}" data-aid="${a.id}" ${cbDisabled?'disabled':''} onchange="updateAhTblCount('${tbodyId}')"></td>
+      <td style="color:#888;font-size:11px;font-weight:700;">${i+1}</td>
+      <td><strong>${a.jina_mtoaji}</strong></td>
+      <td style="font-size:12px;">${a.namba_simu||'—'}</td>
+      <td><strong style="color:${paid?'#1B5E20':'#E65100'};">${pesa(a.kiasi)}</strong></td>
+      <td><span class="badge ${paid?'bg-gr':'bg-gold'}">${paid?'✅ Imelipwa':'⏳ Ahadi'}</span></td>
+      <td style="font-size:12px;color:#666;">${a.tarehe_ahadi||'—'}</td>
+      <td>${canEdit?`<div class="action-buttons">${!paid?`<button class="btn btn-gr btn-sm" onclick="lipaAhadi(${a.id})">✅ Lipa</button>`:''}${waBtnHtml}${smsBtnHtml}${thankuBtn}<button class="btn btn-r btn-sm" onclick="futaAhadi(${a.id})" style="margin-left:2px;">🗑</button></div>`:'—'}</td>
+    </tr>`;
   }).join('');
+}
+function toggleAhTblAll(tbodyId,cb){
+  document.querySelectorAll(`.ah-tbl-cb[data-tid="${tbodyId}"]`).forEach(x=>{if(!x.disabled)x.checked=cb.checked;});
+  updateAhTblCount(tbodyId);
+}
+function updateAhTblCount(tbodyId){
+  const n=document.querySelectorAll(`.ah-tbl-cb[data-tid="${tbodyId}"]:checked`).length;
+  const el=$(tbodyId+'-cnt');if(el)el.textContent=n?`📌 Waliochaguliwa: ${n}`:'📌 Hakuna aliyeteuliwa';
+}
+function beemBulkAhadiTableModal(tbodyId){
+  const selected=Array.from(document.querySelectorAll(`.ah-tbl-cb[data-tid="${tbodyId}"]:checked`))
+    .map(cb=>AA.find(a=>a.id===parseInt(cb.dataset.aid))).filter(Boolean);
+  if(!selected.length){toastFn('⚠ Chagua watu kwanza');return;}
+  const firstAhadi=selected[0];
+  const tukio=AM.find(t=>t.id===firstAhadi.tukio_id);
+  if(!tukio){toastFn('Sherehe haikupatikana');return;}
+  const sampleMsg=buildAhadiReminderSmsMsg(tukio,firstAhadi);
+  openMod(`📱 Tuma Ukumbusho kwa Watu ${selected.length}`,`
+    <div>
+      <div class="al al-i" style="font-size:12px;">Ukumbusho wa ahadi utatumwa kwa watu <strong>${selected.length}</strong> waliochaguliwa kupitia Beem (<strong>${BEEM_SENDER_ID}</strong>).</div>
+      <div class="msg-preview-label" style="margin-top:10px;">Mfano — ${firstAhadi.jina_mtoaji}:</div>
+      <div class="msg-preview-box" style="max-height:140px;overflow-y:auto;font-size:11px;">${sampleMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:12px;">Herufi: ${sampleMsg.length} · ~${Math.ceil(sampleMsg.length/160)} SMS kwa kila mtu · Jumla: ~${selected.length*Math.ceil(sampleMsg.length/160)} SMS</div>
+      <div class="al al-w" style="font-size:11px;">⚠ Beem Africa itachaji kwa kila SMS iliyotumwa. Waliochaguliwa: wale wenye ahadi tu (waliolipa hawachaguliwi).</div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button onclick="beemExecuteBulkAhadiTable('${tbodyId}')" class="btn btn-gr btn-block">📤 Tuma SMS ${selected.length}</button>
+        <button onclick="closeModDirect()" class="btn btn-out btn-block">Ghairi</button>
+      </div>
+    </div>`);
+}
+async function beemExecuteBulkAhadiTable(tbodyId){
+  const selected=Array.from(document.querySelectorAll(`.ah-tbl-cb[data-tid="${tbodyId}"]:checked`))
+    .map(cb=>AA.find(a=>a.id===parseInt(cb.dataset.aid))).filter(Boolean);
+  if(!selected.length){toastFn('⚠ Hakuna waliochaguliwa');return;}
+  $('mod-body').innerHTML=beemProgressHtml(0,selected.length,'...');
+  const batch=selected.map(ahadi=>{
+    const tukio=AM.find(t=>t.id===ahadi.tukio_id);
+    return{phone:ahadi.namba_simu,message:tukio?buildAhadiReminderSmsMsg(tukio,ahadi):'',name:ahadi.jina_mtoaji};
+  }).filter(b=>b.message);
+  const result=await beemSendBatch(batch,(sent,total,name)=>{$('mod-body').innerHTML=beemProgressHtml(sent,total,name);});
+  $('mod-body').innerHTML=beemResultHtml(result);
+  toastFn(`✅ ${result.sent} SMS zimetumwa, ${result.failed} zimeshindwa`);
 }
 async function lipaAhadi(id){await fetch(`${SB}/rest/v1/ahadi?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify({status:'imelipwa',tarehe_lipa:leo()})});const a=AA.find(x=>x.id===id);if(a)a.status='imelipwa';toastFn('✅ Malipo yamethibitishwa!');if(currentRole==='admin'){loadAhadi();renderStats();}else if(currentRole==='msimamizi'){loadShAhadi();}}
 async function futaAhadi(id){if(!confirm('Futa ahadi hii?'))return;await fetch(`${SB}/rest/v1/ahadi?id=eq.${id}`,{method:'DELETE',headers:{'apikey':SK,'Authorization':'Bearer '+SK}});AA=AA.filter(a=>a.id!==id);if(currentRole==='admin'){loadAhadi();renderStats();}else if(currentRole==='msimamizi'){loadShAhadi();}toastFn('Imefutwa');}
@@ -2357,7 +2423,9 @@ function renderAhadiWageniOmbi(tukio, wageniList, containerId) {
     el.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">📋 Hakuna wageni bado</p>';
     return;
   }
-  el.innerHTML = wageniList.map(mgeni => {
+  const saId = 'aosa_' + containerId;
+  const cntId = 'aocnt_' + containerId;
+  const rows = wageniList.map(mgeni => {
     const hasSimu = mgeni.namba_simu && mgeni.namba_simu.length >= 9;
     const simuWa = hasSimu ? mgeni.namba_simu.replace(/^0/, '255') : '';
     const waMsg = buildPledgeMsgPersonalized(tukio, mgeni, 'wa');
@@ -2372,6 +2440,7 @@ function renderAhadiWageniOmbi(tukio, wageniList, containerId) {
       ? `<button onclick="beemTumaAhadiOmbi(${mgeni.id},${tukio.id})" class="btn btn-sm" style="background:#1B5E20;color:white;" title="Tuma SMS via Beem (${BEEM_SENDER_ID})">📱</button>`
       : '';
     return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0EDE8;">
+      <input type="checkbox" class="ao-cb" data-cid="${containerId}" data-mid="${mgeni.id}" ${!hasSimu ? 'disabled title="Hana namba"' : ''} onchange="updateAoCnt('${cntId}','${containerId}')">
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mgeni.jina_kamili}</div>
         <div style="font-size:11px;color:#888;">${mgeni.namba_simu || '—'} · ${mgeni.aina_kadi}</div>
@@ -2379,6 +2448,17 @@ function renderAhadiWageniOmbi(tukio, wageniList, containerId) {
       <div style="display:flex;gap:4px;flex-shrink:0;">${waBtn}${smsBtn}${beemBtn}</div>
     </div>`;
   }).join('');
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:8px 0 10px;border-bottom:2px solid #F0EDE8;margin-bottom:4px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--mt);">
+        <input type="checkbox" id="${saId}" onchange="toggleAoCb('${containerId}','${saId}','${cntId}')"> Chagua Wote
+      </label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="${cntId}" style="font-size:11px;color:#555;">📌 Hakuna aliyeteuliwa</span>
+        <button onclick="beemBulkAhadiOmbiModal('${containerId}',${tukio.id})" class="btn btn-sm" style="background:#1B5E20;color:white;">📱 Tuma SMS Wengi</button>
+      </div>
+    </div>
+    ${rows}`;
 }
 
 function renderMcWageniList(wageniList, containerId, role, tukio, mcData) {
@@ -2388,7 +2468,9 @@ function renderMcWageniList(wageniList, containerId, role, tukio, mcData) {
     el.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">📋 Hakuna wageni bado</p>';
     return;
   }
-  el.innerHTML = wageniList.map(mgeni => {
+  const saId = 'mcsa_' + containerId;
+  const cntId = 'mccnt_' + containerId;
+  const rows = wageniList.map(mgeni => {
     const hasSimu = mgeni.namba_simu && mgeni.namba_simu.length >= 9;
     const simuWa = hasSimu ? mgeni.namba_simu.replace(/^0/, '255') : '';
     let waBtnHtml = '', smsBtnHtml = '';
@@ -2406,6 +2488,7 @@ function renderMcWageniList(wageniList, containerId, role, tukio, mcData) {
       ? `<button onclick="beemTumaMchangoOmbi(${mgeni.id},'${role}')" class="btn btn-sm" style="background:#1B5E20;color:white;" title="Tuma SMS via Beem (${BEEM_SENDER_ID})">📱</button>`
       : '';
     return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F0EDE8;">
+      <input type="checkbox" class="mc-cb" data-cid="${containerId}" data-mid="${mgeni.id}" ${!hasSimu ? 'disabled title="Hana namba"' : ''} onchange="updateMcCnt('${cntId}','${containerId}')">
       <div style="flex:1;min-width:0;">
         <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${mgeni.jina_kamili}</div>
         <div style="font-size:11px;color:#888;">${mgeni.namba_simu || '—'} · ${mgeni.aina_kadi}</div>
@@ -2413,6 +2496,105 @@ function renderMcWageniList(wageniList, containerId, role, tukio, mcData) {
       <div style="display:flex;gap:4px;flex-shrink:0;">${waBtnHtml}${smsBtnHtml}${beemMcBtn}<button onclick="sendMchangoKwaWageni(${mgeni.id},'${role}')" class="btn btn-sm" style="background:var(--p);color:white;">📋 Kadi</button></div>
     </div>`;
   }).join('');
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:8px 0 10px;border-bottom:2px solid #F0EDE8;margin-bottom:4px;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--mt);">
+        <input type="checkbox" id="${saId}" onchange="toggleMcCb('${containerId}','${saId}','${cntId}')"> Chagua Wote
+      </label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="${cntId}" style="font-size:11px;color:#555;">📌 Hakuna aliyeteuliwa</span>
+        <button onclick="beemBulkMcWageniModal('${containerId}','${role}')" class="btn btn-sm" style="background:#1B5E20;color:white;">📱 Tuma SMS Wengi</button>
+      </div>
+    </div>
+    ${rows}`;
+}
+
+// ==================== BULK SMS — AHADI & MCHANGO OMBI ====================
+function toggleAoCb(cid, saId, cntId) {
+  const checked = $(saId) && $(saId).checked;
+  document.querySelectorAll(`.ao-cb[data-cid="${cid}"]`).forEach(x => { if (!x.disabled) x.checked = checked; });
+  updateAoCnt(cntId, cid);
+}
+function updateAoCnt(cntId, cid) {
+  const n = document.querySelectorAll(`.ao-cb[data-cid="${cid}"]:checked`).length;
+  const el = $(cntId); if (el) el.textContent = n ? `📌 Waliochaguliwa: ${n}` : '📌 Hakuna aliyeteuliwa';
+}
+function toggleMcCb(cid, saId, cntId) {
+  const checked = $(saId) && $(saId).checked;
+  document.querySelectorAll(`.mc-cb[data-cid="${cid}"]`).forEach(x => { if (!x.disabled) x.checked = checked; });
+  updateMcCnt(cntId, cid);
+}
+function updateMcCnt(cntId, cid) {
+  const n = document.querySelectorAll(`.mc-cb[data-cid="${cid}"]:checked`).length;
+  const el = $(cntId); if (el) el.textContent = n ? `📌 Waliochaguliwa: ${n}` : '📌 Hakuna aliyeteuliwa';
+}
+
+function beemBulkAhadiOmbiModal(containerId, tukioId) {
+  const tukio = AM.find(t => t.id === parseInt(tukioId));
+  if (!tukio) { toastFn('Sherehe haikupatikana'); return; }
+  const selected = Array.from(document.querySelectorAll(`.ao-cb[data-cid="${containerId}"]:checked`))
+    .map(cb => AW.find(w => w.id === parseInt(cb.dataset.mid))).filter(Boolean);
+  if (!selected.length) { toastFn('⚠ Chagua wageni kwanza'); return; }
+  const sampleMsg = buildPledgeMsgPersonalized(tukio, selected[0], 'sms');
+  openMod(`📱 Tuma SMS kwa Wageni ${selected.length}`, `
+    <div>
+      <div class="al al-i" style="font-size:12px;">Ombi la mchango litatumwa kwa wageni <strong>${selected.length}</strong> waliochaguliwa kupitia Beem (<strong>${BEEM_SENDER_ID}</strong>).</div>
+      <div class="msg-preview-label" style="margin-top:10px;">Mfano — ${selected[0].jina_kamili}:</div>
+      <div class="msg-preview-box" style="max-height:140px;overflow-y:auto;font-size:11px;">${sampleMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:12px;">Herufi: ${sampleMsg.length} · ~${Math.ceil(sampleMsg.length/160)} SMS kwa kila mtu · Jumla: ~${selected.length * Math.ceil(sampleMsg.length/160)} SMS</div>
+      <div class="al al-w" style="font-size:11px;">⚠ Beem Africa itachaji kwa kila SMS iliyotumwa.</div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button onclick="beemExecuteBulkAhadiOmbi('${containerId}',${tukioId})" class="btn btn-gr btn-block">📤 Tuma SMS ${selected.length}</button>
+        <button onclick="closeModDirect()" class="btn btn-out btn-block">Ghairi</button>
+      </div>
+    </div>`);
+}
+async function beemExecuteBulkAhadiOmbi(containerId, tukioId) {
+  const tukio = AM.find(t => t.id === parseInt(tukioId));
+  if (!tukio) return;
+  const selected = Array.from(document.querySelectorAll(`.ao-cb[data-cid="${containerId}"]:checked`))
+    .map(cb => AW.find(w => w.id === parseInt(cb.dataset.mid))).filter(Boolean);
+  if (!selected.length) { toastFn('⚠ Hakuna waliochaguliwa'); return; }
+  $('mod-body').innerHTML = beemProgressHtml(0, selected.length, '...');
+  const batch = selected.map(mgeni => ({ phone: mgeni.namba_simu, message: buildPledgeMsgPersonalized(tukio, mgeni, 'sms'), name: mgeni.jina_kamili }));
+  const result = await beemSendBatch(batch, (sent, total, name) => { $('mod-body').innerHTML = beemProgressHtml(sent, total, name); });
+  $('mod-body').innerHTML = beemResultHtml(result);
+  toastFn(`✅ ${result.sent} SMS zimetumwa, ${result.failed} zimeshindwa`);
+}
+
+function beemBulkMcWageniModal(containerId, role) {
+  const data = getMchangoData(role);
+  if (!data) { toastFn('Jaza taarifa za mchango kwanza'); return; }
+  const {tukio, single, double: double_, simu, benki, mwisho} = data;
+  const selected = Array.from(document.querySelectorAll(`.mc-cb[data-cid="${containerId}"]:checked`))
+    .map(cb => AW.find(w => w.id === parseInt(cb.dataset.mid))).filter(Boolean);
+  if (!selected.length) { toastFn('⚠ Chagua wageni kwanza'); return; }
+  const sampleMsg = buildMchangoSmsMsg(tukio, single, double_, simu, benki, mwisho, selected[0]);
+  openMod(`📱 Tuma SMS kwa Wageni ${selected.length}`, `
+    <div>
+      <div class="al al-i" style="font-size:12px;">Ujumbe wa Mchango utatumwa kwa wageni <strong>${selected.length}</strong> waliochaguliwa kupitia Beem (<strong>${BEEM_SENDER_ID}</strong>).</div>
+      <div class="msg-preview-label" style="margin-top:10px;">Mfano — ${selected[0].jina_kamili}:</div>
+      <div class="msg-preview-box" style="max-height:140px;overflow-y:auto;font-size:11px;">${sampleMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:12px;">Herufi: ${sampleMsg.length} · ~${Math.ceil(sampleMsg.length/160)} SMS kwa kila mtu · Jumla: ~${selected.length * Math.ceil(sampleMsg.length/160)} SMS</div>
+      <div class="al al-w" style="font-size:11px;">⚠ Beem Africa itachaji kwa kila SMS iliyotumwa.</div>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button onclick="beemExecuteBulkMcWageni('${containerId}','${role}')" class="btn btn-gr btn-block">📤 Tuma SMS ${selected.length}</button>
+        <button onclick="closeModDirect()" class="btn btn-out btn-block">Ghairi</button>
+      </div>
+    </div>`);
+}
+async function beemExecuteBulkMcWageni(containerId, role) {
+  const data = getMchangoData(role);
+  if (!data) { toastFn('Jaza taarifa za mchango kwanza'); return; }
+  const {tukio, single, double: double_, simu, benki, mwisho} = data;
+  const selected = Array.from(document.querySelectorAll(`.mc-cb[data-cid="${containerId}"]:checked`))
+    .map(cb => AW.find(w => w.id === parseInt(cb.dataset.mid))).filter(Boolean);
+  if (!selected.length) { toastFn('⚠ Hakuna waliochaguliwa'); return; }
+  $('mod-body').innerHTML = beemProgressHtml(0, selected.length, '...');
+  const batch = selected.map(mgeni => ({ phone: mgeni.namba_simu, message: buildMchangoSmsMsg(tukio, single, double_, simu, benki, mwisho, mgeni), name: mgeni.jina_kamili }));
+  const result = await beemSendBatch(batch, (sent, total, name) => { $('mod-body').innerHTML = beemProgressHtml(sent, total, name); });
+  $('mod-body').innerHTML = beemResultHtml(result);
+  toastFn(`✅ ${result.sent} SMS zimetumwa, ${result.failed} zimeshindwa`);
 }
 
 function loadAhadiWageniOmbi() {
@@ -2682,6 +2864,17 @@ async function beemTumaMchangoOmbi(mgeniId, role) {
 // Paste this entire block into the <script> section of your AbedCards HTML
 // Place it BEFORE the closing  tag
 // ====================================================================
+
+// ---------- SMS TEXT SANITIZER (strip Unicode for Beem GSM-7 compliance) ----------
+function sanitizeSmsText(t) {
+  if (!t) return '';
+  return t
+    .replace(/[—–‒]/g, '-')
+    .replace(/[''‛]/g, "'")
+    .replace(/[""„‟]/g, '"')
+    .replace(/…/g, '...')
+    .replace(/[^\x0A\x0D\x20-\x7E]/g, '');
+}
 
 // ---------- BEEM CONFIGURATION ----------
 // IMPORTANT: Replace with your actual Beem Africa credentials
@@ -3310,7 +3503,7 @@ async function beemTestSMS() {
 // This patches beemSendSMS to use session-set credentials if available
 const _origBeemSendSMS = beemSendSMS;
 window.beemSendSMS = async function(recipient, message) {
-  // Use session credentials if set
+  message = sanitizeSmsText(message);
   const apiKey    = (window._beemCredsSet && window._BEEM_API_KEY)    || BEEM_API_KEY;
   const secretKey = (window._beemCredsSet && window._BEEM_SECRET_KEY) || BEEM_SECRET_KEY;
   const senderId  = (window._beemCredsSet && window._BEEM_SENDER_ID)  || BEEM_SENDER_ID;
