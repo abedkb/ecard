@@ -1137,7 +1137,7 @@ function buildPledgeSmsMsg(tukio) {
   if(pay.simu&&pay.simu.length) njia+=pay.simu.map(s=>` ${getSimuLabel(s.platform)}:${s.nambari||''}`).join('');
   if(pay.benki&&pay.benki.length) njia+=pay.benki.map(b=>` ${getBenkiLabel(b.benki)}:${b.akaunti||''}`).join('');
   const mwisho=tukio.mwisho_mchango?` Mwisho: ${formatTarehe(tukio.mwisho_mchango)}.`:'';
-  return `MCHANGO: ${familiaLine} wa ${mahali} wanayo furaha kukualika kwenye ${maelezoSherehe}. Tarehe: ${tarehe}, ${tukio.saa}. Mahali: ${tukio.ukumbi}.${njia}${mwisho}\nAhadi: ${url}\n-Powered by AbedTech ${ABEDTECH_PHONE}`;
+  return `MCHANGO: ${familiaLine} wa ${mahali} wanayo furaha kukualika kwenye ${maelezoSherehe}. Tarehe: ${tarehe}, ${tukio.saa}. Mahali: ${tukio.ukumbi}.${njia}${mwisho}\nAhadi: ${url}\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
 }
 
 // ==================== SHUKRANI (THANKSGIVING) ====================
@@ -1232,7 +1232,7 @@ function buildAhadiReminderSmsMsg(tukio, ahadi) {
   msg += `Tarehe ya Ahadi: ${ahadi.tarehe_ahadi||'—'}${mwisho}\n`;
   msg += njiaSection;
   msg += `\n\nBonyeza kiungo hapa chini kuthibitisha au kufanya ahadi yako:\n${url}\n\n`;
-  msg += `Mungu akubariki!\n-AbedTech ${ABEDTECH_PHONE}`;
+  msg += `Mungu akubariki!\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
   return msg;
 }
 
@@ -2071,7 +2071,7 @@ function buildMchangoSmsMsg(tukio, single, double_, simu, benki, mwisho, mgeni) 
   msg += njiaSection;
   msg += mwishoLine;
   msg += `\n\nWeka Ahadi Yako:\n${url}\n\n`;
-  msg += `Karibuni Nyote!\n-AbedTech ${ABEDTECH_PHONE}`;
+  msg += `Karibuni Nyote!\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
   return msg;
 }
 
