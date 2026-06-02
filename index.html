@@ -3354,43 +3354,22 @@ function buildBeemReminderMsg(tukio, mgeni) {
 
 // ---------- BEEM SETTINGS PANEL ----------
 function openBeemSettings() {
-  openMod('⚙️ Mipangilio ya Beem Africa SMS na WhatsApp', `
+  openMod('⚙️ Hali ya Beem Africa SMS', `
     <div>
-      <div class="al al-i" style="font-size:12px;">Ingia Beem Africa kwenye <strong>apisms.beem.africa</strong> kupata API Key na Secret Key yako.</div>
-      <div class="fg"><label>API Key</label><input type="text" class="fi" id="beem-set-apikey" placeholder="Weka Beem API Key" value="${BEEM_API_KEY !== 'YOUR_BEEM_API_KEY_HERE' ? BEEM_API_KEY : ''}"/></div>
-      <div class="fg"><label>Secret Key</label><input type="password" class="fi" id="beem-set-secret" placeholder="Weka Beem Secret Key" value="${BEEM_SECRET_KEY !== 'YOUR_BEEM_SECRET_KEY_HERE' ? BEEM_SECRET_KEY : ''}"/></div>
-      <div class="fg"><label>Sender ID (max 11 herufi)</label><input type="text" class="fi" id="beem-set-sender" maxlength="11" placeholder="ECARD" value="${BEEM_SENDER_ID}"/></div>
-      <div class="fg">
-        <button onclick="beemSaveSettings()" class="btn btn-g btn-block">💾 Hifadhi Mipangilio</button>
+      <div class="al al-s" style="font-size:12px;">✅ Credentials za Beem zimehifadhiwa salama kwenye <strong>Supabase Secrets</strong>. Hazionekani hapa.</div>
+      <div class="cred-box" style="margin-top:14px;">
+        <div class="cred-title">📊 Hali ya Beem</div>
+        <div class="cred-row"><span class="cred-label">API Key:</span><span class="cred-value" style="font-size:11px;">✅ Imewekwa (Supabase Secret)</span></div>
+        <div class="cred-row"><span class="cred-label">Secret:</span><span class="cred-value" style="font-size:11px;">✅ Imewekwa (Supabase Secret)</span></div>
+        <div class="cred-row"><span class="cred-label">Sender ID:</span><span class="cred-value">${BEEM_SENDER_ID}</span></div>
       </div>
-      <div style="margin-top:10px;"><div style="font-weight:700;font-size:12px;margin-bottom:6px;">🧪 Jaribu SMS</div>
+      <div style="margin-top:14px;"><div style="font-weight:700;font-size:12px;margin-bottom:6px;">🧪 Jaribu SMS</div>
         <div class="fgrid">
           <div class="fg"><input type="tel" class="fi" id="beem-test-phone" placeholder="0712345678"/></div>
           <div class="fg"><button onclick="beemTestSMS()" class="btn btn-bl btn-block">📤 Tuma Jaribio</button></div>
         </div>
       </div>
-      <div class="cred-box" style="margin-top:14px;">
-        <div class="cred-title">📊 Hali ya Beem</div>
-        <div class="cred-row"><span class="cred-label">API Key:</span><span class="cred-value" style="font-size:11px;">${BEEM_API_KEY !== 'YOUR_BEEM_API_KEY_HERE' ? '✅ Imewekwa' : '❌ Haijawekwa'}</span></div>
-        <div class="cred-row"><span class="cred-label">Secret:</span><span class="cred-value" style="font-size:11px;">${BEEM_SECRET_KEY !== 'YOUR_BEEM_SECRET_KEY_HERE' ? '✅ Imewekwa' : '❌ Haijawekwa'}</span></div>
-        <div class="cred-row"><span class="cred-label">Sender ID:</span><span class="cred-value">${BEEM_SENDER_ID}</span></div>
-      </div>
     </div>`);
-}
-
-function beemSaveSettings() {
-  const key    = $('beem-set-apikey') ? $('beem-set-apikey').value.trim() : '';
-  const secret = $('beem-set-secret') ? $('beem-set-secret').value.trim() : '';
-  const sender = $('beem-set-sender') ? $('beem-set-sender').value.trim() : 'ECARD';
-  if (!key || !secret) { toastFn('⚠ Jaza API Key na Secret Key'); return; }
-  // Update runtime values (page session only — for permanent, edit the constants above)
-  window._BEEM_API_KEY    = key;
-  window._BEEM_SECRET_KEY = secret;
-  window._BEEM_SENDER_ID  = sender || 'ECARD';
-  // Patch the module-level send function to use session values
-  window._beemCredsSet = true;
-  toastFn('✅ Mipangilio imehifadhiwa (session hii)');
-  closeModDirect();
 }
 
 async function beemTestSMS() {
@@ -3405,67 +3384,6 @@ async function beemTestSMS() {
   }
 }
 
-// ---------- RUNTIME CREDENTIAL OVERRIDE ----------
-// This patches beemSendSMS to use session-set credentials if available
-const _origBeemSendSMS = beemSendSMS;
-window.beemSendSMS = async function(recipient, message) {
-  message = sanitizeSmsText(message);
-  const apiKey    = (window._beemCredsSet && window._BEEM_API_KEY)    || BEEM_API_KEY;
-  const secretKey = (window._beemCredsSet && window._BEEM_SECRET_KEY) || BEEM_SECRET_KEY;
-  const senderId  = (window._beemCredsSet && window._BEEM_SENDER_ID)  || BEEM_SENDER_ID;
-
-  let phone = recipient.toString().trim().replace(/\s+/g, '');
-  if (phone.startsWith('0'))       phone = '255' + phone.slice(1);
-  if (phone.startsWith('+255'))    phone = phone.slice(1);
-  if (!phone.startsWith('255'))    phone = '255' + phone;
-  if (phone.length !== 12)         return { success: false, message: `Namba si sahihi: ${recipient}` };
-
-  const payload = {
-    source_addr: senderId,
-    encoding:    0,
-    schedule_time: '',
-    message:     message,
-    recipients:  [{ recipient_id: 1, dest_addr: phone }]
-  };
-
-  const credentials = btoa(`${apiKey}:${secretKey}`);
-
-  try {
-    const response = await fetch(BEEM_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Basic ${credentials}`,
-        'Accept':        'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-    if (response.ok && data.successful) {
-      return { success: true, message: 'SMS imetumwa', data };
-    } else {
-      const errMsg = data.message || data.error || `HTTP ${response.status}`;
-      return { success: false, message: `Beem: ${errMsg}`, data };
-    }
-  } catch (err) {
-    return { success: false, message: `Hitilafu ya mtandao: ${err.message}` };
-  }
-};
-
-// Override beemSendBatch to use the patched function
-window.beemSendBatch = async function(batch, onProgress) {
-  let sent = 0, failed = 0;
-  const errors = [];
-  for (let i = 0; i < batch.length; i++) {
-    const { phone, message, name } = batch[i];
-    if (onProgress) onProgress(i, batch.length, name);
-    const result = await window.beemSendSMS(phone, message);
-    if (result.success) { sent++; } else { failed++; errors.push({ name, phone, reason: result.message }); }
-    if (i < batch.length - 1) await new Promise(r => setTimeout(r, 350));
-  }
-  return { sent, failed, errors };
-};
 
 // ==================== END OF BEEM INTEGRATION ====================
 // Now add the Beem buttons to the UI by patching key render functions.
