@@ -1012,7 +1012,7 @@ function buildMaelezoSherehe(tukio, includeNames = true) {
   if (ainaLower === 'send-off') {
     return mhusika ? `sherehe ya Kumuaga (Send-off) binti yao mpendwa ${mhusika}` : `sherehe ya Kumuaga (Send-off)`;
   } else if (ainaLower === 'harusi') {
-    return mhusika ? `sherehe ya Harusi ya ${mhusika}` : `sherehe ya Harusi`;
+    return mhusika ? `sherehe ya Harusi ya vijana wao wapendwa ${mhusika}` : `sherehe ya Harusi`;
   } else if (ainaLower === 'kitchen party') {
     return mhusika ? `sherehe ya Kitchen Party ya binti yao mpendwa ${mhusika}` : `sherehe ya Kitchen Party`;
   } else if (ainaLower === 'mkutano') {
@@ -1086,7 +1086,7 @@ function buildSmsMsg(tukio, mgeni, url) {
 
   let ujumbe = `MWALIKO WA SHEREHE\n\n`;
   ujumbe += `Ndugu ${jinaLaMgeni},\n\n`;
-  ujumbe += `${familiaLine} wa ${mahali} wanayo furaha ${nenoKualika} kwenye ${maelezoSherehe}.\n\n`;
+  ujumbe += `${familiaLine} wa ${mahali} wanayo furaha ${nenoKualika} ${ (tukio.aina||'').toLowerCase()==='harusi'?'katika':'kwenye'} ${maelezoSherehe}.\n\n`;
   ujumbe += `Tarehe: ${tarehe}\n`;
   ujumbe += `Saa: ${saa}\n`;
   ujumbe += `Ukumbi: ${ukumbi}${locationLine}\n\n`;
@@ -1754,7 +1754,7 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
         <!-- Guest name immediately after kukualika/kuwaalika -->
         <p style="font-family:'Great Vibes',cursive;font-size:44px;color:${G};line-height:1.05;text-shadow:0 2px 8px rgba(0,0,0,0.5);margin-top:2px;">${guestName}</p>
         <!-- Event context right after guest name -->
-        <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;font-style:italic;color:white;margin-top:6px;">Kwenye ${maelezoSherehe}</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;font-style:italic;color:white;margin-top:6px;">Kwenye ${maelezoSherehe}${(tukio.aina||'').toLowerCase()==='harusi'&&relativePhrase?' ya':''}</p>
         ${relativePhrase ? `<p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;font-style:italic;color:rgba(255,255,255,0.9);">${relativePhrase}</p>` : ''}
         ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:48px;color:white;line-height:1.05;text-shadow:0 3px 14px rgba(0,0,0,0.6);margin-top:2px;">${stripCheo(mhusika)}</p>` : ''}
       </div>
@@ -1833,7 +1833,7 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
       </div>
       <p style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:#333;margin-bottom:4px;">wanayo furaha ${nenoKualika}</p>
       <p style="font-family:'Great Vibes',cursive;font-size:44px;color:${R};line-height:1.1;margin-bottom:6px;">${guestName}</p>
-      <p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#444;margin-bottom:4px;">Kwenye ${maelezoSherehe}</p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#444;margin-bottom:4px;">Kwenye ${maelezoSherehe}${(tukio.aina||'').toLowerCase()==='harusi'&&relativePhrase?' ya':''}</p>
       ${relativePhrase ? `<p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#555;margin-bottom:4px;">${relativePhrase}</p>` : ''}
       ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:44px;color:${R};line-height:1.1;margin-top:2px;">${stripCheo(mhusika)}</p>` : ''}
       <div style="margin:10px 0 10px;">
@@ -2088,7 +2088,7 @@ function buildMchangoWaMsg(tukio, single, double_, simu, benki, mwisho, mgeni) {
   if (jina) msg += `*${jina}*\n`;
   msg += `kuwa ${relPhrase}\n`;
   if (mhusikaName) msg += `*${mhusikaName}*\n`;
-  msg += `anatarajia kufanya sherehe ya *${ainaTukio}*.\n\n`;
+  msg += `${ainaTukio.toLowerCase()==='harusi'?'wanatarajia':'anatarajia'} kufanya sherehe ya *${ainaTukio}*.\n\n`;
   msg += `📅 *Tarehe:* ${tarehe}\n`;
   msg += `⏰ *Saa:* ${saa}\n`;
   msg += `🏛 *Ukumbi:* ${tukio.ukumbi || ''}`;
@@ -2128,7 +2128,7 @@ function buildMchangoSmsMsg(tukio, single, double_, simu, benki, mwisho, mgeni) 
   if (jina) msg += `${jina}\n`;
   msg += `kuwa ${relPhrase}\n`;
   if (mhusikaName) msg += `${mhusikaName}\n`;
-  msg += `anatarajia kufanya sherehe ya ${ainaTukio}.\n\n`;
+  msg += `${ainaTukio.toLowerCase()==='harusi'?'wanatarajia':'anatarajia'} kufanya sherehe ya ${ainaTukio}.\n\n`;
   msg += `Tarehe: ${tarehe}\n`;
   msg += `Saa: ${saa}\n`;
   msg += `Ukumbi: ${tukio.ukumbi || ''}`;
@@ -2327,7 +2327,7 @@ function buildMchangoCardHTML(tukio, single, double_, simu, benki, mwisho, mgeni
 
         <!-- Event paragraph -->
         <p style="font-size:13px;font-weight:600;margin:0 0 4px;">
-          anatarajia kufanya sherehe ya <strong>${ainaTukio}</strong>
+          ${ainaTukio.toLowerCase()==='harusi'?'wanatarajia':'anatarajia'} kufanya sherehe ya <strong>${ainaTukio}</strong>
         </p>
         <p style="font-size:12px;line-height:1.7;margin:0 0 6px;">
           ${tarehe ? `📅 <strong>${tarehe}</strong>${tukio.saa ? ` &nbsp;⏰ ${tukio.saa}` : ''}` : ''}
