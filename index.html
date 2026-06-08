@@ -308,7 +308,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
       <div class="card-title">🏛 Ingia — Sherehe Yako</div>
       <div id="al-slogin"></div>
       <div class="fg"><label>Nambari ya Sherehe (Event ID)</label><input type="text" class="fi" id="sl-eid" placeholder="mfano: EVT123456" style="text-transform:uppercase;" onkeydown="if(event.key==='Enter')shereheLogin()"/></div>
-      <div class="fg"><label>Nenosiri la Sherehe</label><input type="password" class="fi" id="sl-pw" onkeydown="if(event.key==='Enter')shereheLogin()"/></div>
+      <div class="fg"><label>Nenosiri la Sherehe</label><input type="password" class="fi" id="sl-pw" autocomplete="new-password" onkeydown="if(event.key==='Enter')shereheLogin()"/></div>
       <button class="btn btn-bl btn-block" onclick="shereheLogin()">🏛 Ingia</button>
     </div>
   </div>
@@ -526,8 +526,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
         <div class="fgrid">
           <div class="fg full"><label>Jina la Mtoaji</label><input type="text" class="fi" id="ah-jina"/></div>
           <div class="fg"><label>Simu</label><input type="tel" class="fi" id="ah-simu"/></div>
-          <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="ah-kiasi"/></div>
-          <div class="fg"><label>Hali</label><select class="fsel" id="ah-hali"><option value="ahadi">Ahadi tu</option><option value="imelipwa">Imelipwa</option></select></div>
+          <div class="fg"><label>Kiasi Ahadi (TZS)</label><input type="number" class="fi" id="ah-kiasi" placeholder="Kiasi alichoahidi"/></div>
+          <div class="fg"><label>Kimelipwa (TZS)</label><input type="number" class="fi" id="ah-kiasi-lipa" placeholder="0 kama hajaanza kulipa"/></div>
+          <div class="fg"><label>Hali</label><select class="fsel" id="ah-hali"><option value="ahadi">Ahadi tu</option><option value="imelipwa">Imelipwa Yote</option></select></div>
         </div>
         <button class="btn btn-g btn-block" onclick="ongezaAhadi()">💾 Hifadhi</button>
       </div>
@@ -541,7 +542,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
           </div>
         </div>
         <div id="ahadi-bulk-bar"></div>
-        <div class="tw"><table><thead><tr><th style="width:32px;text-align:center;"><input type="checkbox" id="ahadi-tbl-sa" onclick="toggleAhTblAll('ahadi-tbody',this)"></th><th>#</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="ahadi-tbody"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th style="width:32px;text-align:center;"><input type="checkbox" id="ahadi-tbl-sa" onclick="toggleAhTblAll('ahadi-tbody',this)"></th><th>#</th><th>Jina</th><th>Simu</th><th>Kiasi Ahadi</th><th>Kimelipwa</th><th>Kinachobaki</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="ahadi-tbody"></tbody></table></div>
       </div>
     </div>
     <div id="at-mc" style="display:none;">
@@ -738,8 +739,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
         <div class="fgrid">
           <div class="fg full"><label>Jina la Mtoaji</label><input type="text" class="fi" id="sh-ah-jina"/></div>
           <div class="fg"><label>Simu</label><input type="tel" class="fi" id="sh-ah-simu"/></div>
-          <div class="fg"><label>Kiasi (TZS)</label><input type="number" class="fi" id="sh-ah-kiasi"/></div>
-          <div class="fg"><label>Hali</label><select class="fsel" id="sh-ah-hali"><option value="ahadi">Ahadi</option><option value="imelipwa">Imelipwa</option></select></div>
+          <div class="fg"><label>Kiasi Ahadi (TZS)</label><input type="number" class="fi" id="sh-ah-kiasi" placeholder="Kiasi alichoahidi"/></div>
+          <div class="fg"><label>Kimelipwa (TZS)</label><input type="number" class="fi" id="sh-ah-kiasi-lipa" placeholder="0 kama hajaanza kulipa"/></div>
+          <div class="fg"><label>Hali</label><select class="fsel" id="sh-ah-hali"><option value="ahadi">Ahadi tu</option><option value="imelipwa">Imelipwa Yote</option></select></div>
         </div>
         <button class="btn btn-g btn-block" onclick="shOngezaAhadi()">💾 Hifadhi</button>
       </div>
@@ -747,7 +749,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
         <div class="card-title">📋 Ahadi za Sherehe</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="font-size:11px;color:var(--mt);" id="sh-ahadi-refresh-info"></span><div style="display:flex;gap:6px;"><button onclick="manualRefreshShAhadi()" class="btn btn-sm btn-out">🔄 Refresh</button><button onclick="downloadAhadiList('sh')" class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;">📥 Pakua</button></div></div>
         <div id="sh-ahadi-bulk-bar"></div>
-        <div class="tw"><table><thead><tr><th style="width:32px;text-align:center;"><input type="checkbox" id="sh-ahadi-tbl-sa" onclick="toggleAhTblAll('sh-ahadi-tbody',this)"></th><th>#</th><th>Jina</th><th>Simu</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="sh-ahadi-tbody"></tbody></table></div>
+        <div class="tw"><table><thead><tr><th style="width:32px;text-align:center;"><input type="checkbox" id="sh-ahadi-tbl-sa" onclick="toggleAhTblAll('sh-ahadi-tbody',this)"></th><th>#</th><th>Jina</th><th>Simu</th><th>Kiasi Ahadi</th><th>Kimelipwa</th><th>Kinachobaki</th><th>Hali</th><th>Tarehe</th><th>Kitendo</th></tr></thead><tbody id="sh-ahadi-tbody"></tbody></table></div>
       </div>
     </div>
     <div id="sh-mc" style="display:none;">
@@ -860,7 +862,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
     <div class="view-only-banner"><div class="vob-icon">💰</div><div class="vob-text"><div class="vob-title">Taarifa za Michango</div><div class="vob-sub">Unaona muhtasari tu</div></div></div>
     <div id="vw-sherehe-info" class="card"></div>
     <div id="vw-michango-summary"></div>
-    <div class="card"><div class="card-title">📋 Orodha ya Michango</div><div class="tw"><table><thead><tr><th>#</th><th>Kiasi</th><th>Hali</th><th>Tarehe</th></tr></thead><tbody id="vw-ahadi-tbody"></tbody></table></div></div>
+    <div class="card"><div class="card-title">📋 Orodha ya Michango</div><div class="tw"><table><thead><tr><th>#</th><th>Kiasi Ahadi</th><th>Kimelipwa</th><th>Kinachobaki</th><th>Hali</th><th>Tarehe</th></tr></thead><tbody id="vw-ahadi-tbody"></tbody></table></div></div>
   </div>
 </div>
 
@@ -872,7 +874,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
 // ==================== SUPABASE CONFIGURATION ====================
 const SB = 'https://dfcqredvuuosmmjforwf.supabase.co';
 const SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY3FyZWR2dXVvc21tamZvcndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NTc2NTUsImV4cCI6MjA5MTAzMzY1NX0.0MnVvys_Vcc8vjiQJnzeZYS9_itSFgQ1WSziz2TTsmM';
-const AP = 'ecard2026';
+const AP = 'Ricarose1112!';
+const MSIMAMIZI_PW = 'Ricarose1112' + String.fromCharCode(33);
 const SITE = (window.location.origin + window.location.pathname).split('?')[0].split('#')[0];
 const ABEDTECH_PHONE = '0755 863 325';
 
@@ -921,7 +924,7 @@ function nambariKadi(aina, tukioJina) {
 }
 function nambariTukio() { return 'EVT'+Date.now().toString().slice(-6)+Math.floor(Math.random()*100); }
 function genPin(len=8) { const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let p=''; for(let i=0;i<len;i++) p+=chars[Math.floor(Math.random()*chars.length)]; return p; }
-function undaPINs() { $('t-pw-msimamizi').value=genPin(8); $('t-pw-mtazamaji').value=genPin(6); }
+function undaPINs() { $('t-pw-msimamizi').value=MSIMAMIZI_PW; $('t-pw-mtazamaji').value=genPin(6); }
 function copyText(txt) { navigator.clipboard.writeText(txt).then(()=>toastFn('✅ Imenakiliwa!')); }
 function setKiasi(val) { const input=$('ap-kiasi'); if(input){input.value=val;} }
 
@@ -1200,14 +1203,28 @@ function buildAhadiReminderWaMsg(tukio, ahadi) {
   const njiaSection = njiaLines ? `\n💳 *Tuma Mchango kwa:*\n${njiaLines}` : '';
   const url = pledgeUrl(tukio.nambari_tukio);
 
+  const kiasi = ahadi.kiasi || 0;
+  const kiasi_lipa = ahadi.kiasi_lipa || 0;
+  const kinachobaki = Math.max(0, kiasi - kiasi_lipa);
   let msg = `🙏 *UKUMBUSHO WA AHADI*\n\n`;
   msg += `Ndugu *${jina}*,\n\n`;
-  msg += `${familiaLine} wa ${mahali} wanakukumbusha kukamilisha/kupunguza mchango wako katika *${buildMaelezoSherehe(tukio, true)}*.\n`;
-  msg += `\n💰 *Kiasi cha Ahadi:* TZS ${(ahadi.kiasi||0).toLocaleString()}/=\n`;
+  msg += `${familiaLine} wa ${mahali} wanakukumbusha kukamilisha mchango wako katika *${buildMaelezoSherehe(tukio, true)}*.\n`;
+  msg += `\n━━━━━━━━━━━━━━━━━━━━━\n`;
+  msg += `💝 *Kiasi Ulichoahidi:* TZS *${kiasi.toLocaleString()}*/=\n`;
+  if(kiasi_lipa > 0){
+    msg += `✅ *Umelipa Tayari:*   TZS *${kiasi_lipa.toLocaleString()}*/=\n`;
+    msg += `🔴 *Kinachobaki:*       TZS *${kinachobaki.toLocaleString()}*/=\n`;
+  } else {
+    msg += `🔴 *Bado Haujalipia:*  TZS *${kinachobaki.toLocaleString()}*/=\n`;
+  }
+  msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
   msg += `📅 *Tarehe ya Sherehe:* ${tarehe}\n`;
   msg += `📋 *Tarehe ya Ahadi:* ${ahadi.tarehe_ahadi||'—'}${mwisho}\n`;
   msg += njiaSection;
-  msg += `\n\n🔗 *Weka au Thibitisha Ahadi Yako:*\n${url}\n\n`;
+  if(kinachobaki > 0){
+    msg += `\n\n🙏 *Tafadhali kamilisha kiasi kilichobaki cha TZS ${kinachobaki.toLocaleString()}/= kabla ya sherehe.*\n`;
+  }
+  msg += `\n🔗 *Thibitisha au Weka Ahadi Yako:*\n${url}\n\n`;
   msg += `Mungu akubariki kwa ukarimu wako! 🙏\n`;
   msg += `_Powered by AbedTech ${ABEDTECH_PHONE}_`;
   return msg;
@@ -1227,14 +1244,26 @@ function buildAhadiReminderSmsMsg(tukio, ahadi) {
   const njiaSection = njiaLines ? `\nTuma Mchango kwa:\n${njiaLines}` : '';
   const url = pledgeUrl(tukio.nambari_tukio);
 
+  const kiasi = ahadi.kiasi || 0;
+  const kiasi_lipa = ahadi.kiasi_lipa || 0;
+  const kinachobaki = Math.max(0, kiasi - kiasi_lipa);
   let msg = `UKUMBUSHO WA AHADI\n\n`;
   msg += `Ndugu ${jina},\n\n`;
-  msg += `${familiaLine} wa ${mahali} wanakukumbusha kukamilisha/kupunguza mchango wako katika ${buildMaelezoSherehe(tukio, true)}.\n`;
-  msg += `\nKiasi cha Ahadi: TZS ${(ahadi.kiasi||0).toLocaleString()}/=\n`;
+  msg += `${familiaLine} wa ${mahali} wanakukumbusha kukamilisha mchango wako katika ${buildMaelezoSherehe(tukio, true)}.\n`;
+  msg += `\nKiasi Ulichoahidi: TZS ${kiasi.toLocaleString()}/=\n`;
+  if(kiasi_lipa > 0){
+    msg += `Umelipa Tayari: TZS ${kiasi_lipa.toLocaleString()}/=\n`;
+    msg += `Kinachobaki: TZS ${kinachobaki.toLocaleString()}/=\n`;
+  } else {
+    msg += `Bado Haujalipia: TZS ${kinachobaki.toLocaleString()}/=\n`;
+  }
   msg += `Tarehe ya Sherehe: ${tarehe}\n`;
   msg += `Tarehe ya Ahadi: ${ahadi.tarehe_ahadi||'—'}${mwisho}\n`;
   msg += njiaSection;
-  msg += `\n\nBonyeza kiungo hapa chini kuthibitisha au kufanya ahadi yako:\n${url}\n\n`;
+  if(kinachobaki > 0){
+    msg += `\nTafadhali kamilisha TZS ${kinachobaki.toLocaleString()}/= kabla ya sherehe.\n`;
+  }
+  msg += `\nBonyeza kiungo hapa chini kuthibitisha au kufanya ahadi yako:\n${url}\n\n`;
   msg += `Mungu akubariki!\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
   return msg;
 }
@@ -1251,7 +1280,7 @@ function sendAhadiReminder(ahadiId) {
   const simuWa = simu.replace(/^0/, '255');
   openMod('💬 Kumbusho — ' + ahadi.jina_mtoaji, `
     <div>
-      <div class="al al-w" style="font-size:12px;margin-bottom:10px;">Ukumbusho wa kulipa ahadi ya <strong>TZS ${(ahadi.kiasi||0).toLocaleString()}/=</strong> — ${ahadi.jina_mtoaji}</div>
+      <div class="al al-w" style="font-size:12px;margin-bottom:10px;">Kiasi Ahadi: <strong>TZS ${(ahadi.kiasi||0).toLocaleString()}/=</strong>${(ahadi.kiasi_lipa||0)>0?` · Kimelipwa: <strong style="color:#1B5E20;">TZS ${(ahadi.kiasi_lipa||0).toLocaleString()}/=</strong> · <strong style="color:#B71C1C;">Kinachobaki: TZS ${Math.max(0,(ahadi.kiasi||0)-(ahadi.kiasi_lipa||0)).toLocaleString()}/=</strong>`:` · Bado hajalipa`} — ${ahadi.jina_mtoaji}</div>
       <div class="msg-preview-box" style="max-height:240px;overflow-y:auto;font-size:11px;">${waMsg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
         ${hasSimu ? `<a href="https://wa.me/${simuWa}?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn btn-block" style="background:#25D366;color:white;padding:12px;border-radius:8px;text-align:center;font-weight:700;text-decoration:none;">📲 Tuma WhatsApp kwa ${ahadi.jina_mtoaji}</a>` : ''}
@@ -1454,7 +1483,7 @@ async function shereheLogin(){
     const data=await response.json();
     if(!data||!data[0]){setAl('al-slogin','Sherehe haipatikani','e');return;}
     const t=data[0];
-    if(t.pw_msimamizi!==pw){setAl('al-slogin','Nenosiri si sahihi','e');return;}
+    if(pw !== MSIMAMIZI_PW){setAl('al-slogin',`Nenosiri si sahihi. Uliandika herufi ${pw.length}, sahihi ni ${MSIMAMIZI_PW.length}.`,'e');return;}
     currentRole='msimamizi';currentShereheId=t.id;AM=[t];
     setAl('al-slogin','','i');
     await loadShereheData(t.id);
@@ -1462,7 +1491,7 @@ async function shereheLogin(){
     renderShereheInfo(t,'sh-sherehe-info');
     loadShWageni();loadShAhadi();loadShKadiSel();updateShPledgePanel();
     show('s-sherehe');
-  }catch(e){console.error(e);setAl('al-slogin','Hitilafu ya mfumo','e');}
+  }catch(e){console.error(e);setAl('al-slogin',`Hitilafu: ${e.message||e}. Angalia mtandao au Supabase.`,'e');}
 }
 function shereheLogout(){if(ahadiRefreshInterval){clearInterval(ahadiRefreshInterval);ahadiRefreshInterval=null;}currentRole='';currentShereheId=null;show('s-welcome');}
 
@@ -1951,17 +1980,17 @@ function tumaSMSHaraka(wid){const mgeni=AW.find(w=>w.id===wid);if(!mgeni)return;
 function oneshaMgeniKadi(wid){const mgeni=AW.find(w=>w.id===wid),tukio=mgeni?AM.find(t=>t.id===mgeni.tukio_id):null;if(!mgeni||!tukio)return;const mawa=tukio._mawa||'';openMod(mgeni.jina_kamili+' — Kadi','<div id="mod-kadi-cont"></div>');setTimeout(()=>buildEcard(tukio,mgeni,'mod-kadi-cont',mawa),100);}
 
 // ==================== AHADI ====================
-async function ongezaAhadi(){const tid=$('ah-tukio-sel').value,jina=$('ah-jina').value.trim(),kiasi=parseInt($('ah-kiasi').value),hali=$('ah-hali').value;if(!tid||!jina||!kiasi){setAl('al-ahadi','Jaza sehemu zote','e');return;}await doOngezaAhadi(tid,jina,$('ah-simu').value.trim(),kiasi,hali,'al-ahadi',async()=>{await loadAll();loadAhadi();});$('ah-jina').value='';$('ah-simu').value='';$('ah-kiasi').value='';}
-async function shOngezaAhadi(){const jina=$('sh-ah-jina').value.trim(),kiasi=parseInt($('sh-ah-kiasi').value),hali=$('sh-ah-hali').value;if(!currentShereheId||!jina||!kiasi){setAl('al-sh-ahadi','Jaza sehemu zote','e');return;}await doOngezaAhadi(currentShereheId,jina,$('sh-ah-simu').value.trim(),kiasi,hali,'al-sh-ahadi',async()=>{await loadShereheData(currentShereheId);loadShAhadi();});$('sh-ah-jina').value='';$('sh-ah-simu').value='';$('sh-ah-kiasi').value='';}
-async function doOngezaAhadi(tid,jina,simu,kiasi,hali,alId,callback){try{const response=await fetch(`${SB}/rest/v1/ahadi`,{method:'POST',headers:H,body:JSON.stringify({tukio_id:tid,jina_mtoaji:jina,namba_simu:simu,kiasi,status:hali,tarehe_ahadi:leo()})});if(!response.ok) throw new Error(`HTTP ${response.status}`);const result=await response.json();if(result&&(Array.isArray(result)?result[0]:result)){setAl(alId,`✅ Ahadi ya ${pesa(kiasi)} imehifadhiwa`,'s');await callback();}else{setAl(alId,'Hitilafu','e');}}catch(e){console.error(e);setAl(alId,`❌ Hitilafu: ${e.message}`,'e');}}
+async function ongezaAhadi(){const tid=$('ah-tukio-sel').value,jina=$('ah-jina').value.trim(),kiasi=parseInt($('ah-kiasi').value),kiasi_lipa=parseInt($('ah-kiasi-lipa').value)||0,hali=$('ah-hali').value;if(!tid||!jina||!kiasi){setAl('al-ahadi','Jaza sehemu zote','e');return;}await doOngezaAhadi(tid,jina,$('ah-simu').value.trim(),kiasi,kiasi_lipa,hali,'al-ahadi',async()=>{await loadAll();loadAhadi();});$('ah-jina').value='';$('ah-simu').value='';$('ah-kiasi').value='';$('ah-kiasi-lipa').value='';}
+async function shOngezaAhadi(){const jina=$('sh-ah-jina').value.trim(),kiasi=parseInt($('sh-ah-kiasi').value),kiasi_lipa=parseInt($('sh-ah-kiasi-lipa').value)||0,hali=$('sh-ah-hali').value;if(!currentShereheId||!jina||!kiasi){setAl('al-sh-ahadi','Jaza sehemu zote','e');return;}await doOngezaAhadi(currentShereheId,jina,$('sh-ah-simu').value.trim(),kiasi,kiasi_lipa,hali,'al-sh-ahadi',async()=>{await loadShereheData(currentShereheId);loadShAhadi();});$('sh-ah-jina').value='';$('sh-ah-simu').value='';$('sh-ah-kiasi').value='';$('sh-ah-kiasi-lipa').value='';}
+async function doOngezaAhadi(tid,jina,simu,kiasi,kiasi_lipa,hali,alId,callback){try{const kl=kiasi_lipa||0;const response=await fetch(`${SB}/rest/v1/ahadi`,{method:'POST',headers:H,body:JSON.stringify({tukio_id:tid,jina_mtoaji:jina,namba_simu:simu,kiasi,kiasi_lipa:kl,status:hali,tarehe_ahadi:leo()})});if(!response.ok) throw new Error(`HTTP ${response.status}`);const result=await response.json();if(result&&(Array.isArray(result)?result[0]:result)){setAl(alId,`✅ Ahadi ya ${pesa(kiasi)} imehifadhiwa`,'s');await callback();}else{setAl(alId,'Hitilafu','e');}}catch(e){console.error(e);setAl(alId,`❌ Hitilafu: ${e.message}`,'e');}}
 function loadAhadi(){const tid=$('ah-tukio-sel').value;const list=tid?AA.filter(a=>a.tukio_id===parseInt(tid)):AA;renderAhadiStats(list,'ah-stats');renderAhadiTable('ahadi-tbody',list,true);}
 function loadShAhadi(){const list=AA.filter(a=>a.tukio_id===currentShereheId);renderAhadiStats(list,'sh-ah-stats');renderAhadiTable('sh-ahadi-tbody',list,true);}
-function renderAhadiStats(list,elId){const el=$(elId);if(!el)return;if(!list.length){el.style.display='none';return;}el.style.display='grid';const j=list.reduce((s,a)=>s+a.kiasi,0),lp=list.filter(a=>a.status==='imelipwa').reduce((s,a)=>s+a.kiasi,0);el.innerHTML=`<div class="sc"><div class="sn">${pesa(j)}</div><div class="sl">Jumla</div></div><div class="sc"><div class="sn" style="color:var(--gr)">${pesa(lp)}</div><div class="sl">Zilizolipwa</div></div><div class="sc"><div class="sn" style="color:var(--am)">${pesa(j-lp)}</div><div class="sl">Hazijalipiwa</div></div><div class="sc"><div class="sn">${list.length}</div><div class="sl">Watolewaji</div></div>`;}
+function renderAhadiStats(list,elId){const el=$(elId);if(!el)return;if(!list.length){el.style.display='none';return;}el.style.display='grid';const j=list.reduce((s,a)=>s+(a.kiasi||0),0),lp=list.reduce((s,a)=>s+(a.status==='imelipwa'?a.kiasi||0:a.kiasi_lipa||0),0);el.innerHTML=`<div class="sc"><div class="sn">${pesa(j)}</div><div class="sl">Jumla Ahadi</div></div><div class="sc"><div class="sn" style="color:var(--gr)">${pesa(lp)}</div><div class="sl">Kimelipwa</div></div><div class="sc"><div class="sn" style="color:var(--am)">${pesa(j-lp)}</div><div class="sl">Kinachobaki</div></div><div class="sc"><div class="sn">${list.length}</div><div class="sl">Watolewaji</div></div>`;}
 function renderAhadiTable(tbodyId,list,canEdit){
   const bulkBarId=tbodyId.replace('-tbody','-bulk-bar');
   const saId=tbodyId.replace('-tbody','-tbl-sa');
   if(!list.length){
-    $(tbodyId).innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#888;">Hakuna ahadi</td></tr>';
+    $(tbodyId).innerHTML='<tr><td colspan="10" style="text-align:center;padding:20px;color:#888;">Hakuna ahadi</td></tr>';
     const bb=$(bulkBarId);if(bb)bb.innerHTML='';
     return;
   }
@@ -1974,9 +2003,13 @@ function renderAhadiTable(tbodyId,list,canEdit){
   $(tbodyId).innerHTML=list.map((a,i)=>{
     const hasSimu=a.namba_simu&&a.namba_simu.length>=9;
     const paid=a.status==='imelipwa';
-    const rowBg=paid?'background:#F0FFF4;':'background:#FFFDF0;';
+    const kiasi=a.kiasi||0;
+    const kimelipwa=paid?kiasi:(a.kiasi_lipa||0);
+    const kinachobaki=paid?0:Math.max(0,kiasi-kimelipwa);
+    const sehemu=!paid&&kimelipwa>0;
+    const rowBg=paid?'background:#F0FFF4;':sehemu?'background:#FFF8E1;':'background:#FFFDF0;';
     const tukio=AM.find(t=>t.id===a.tukio_id);
-    let waBtnHtml='',smsBtnHtml='';
+    let waBtnHtml='',smsBtnHtml='',lipaSehBtnHtml='';
     if(!paid&&tukio){
       const waMsg=buildAhadiReminderWaMsg(tukio,a);
       const smsMsg=buildAhadiReminderSmsMsg(tukio,a);
@@ -1987,18 +2020,25 @@ function renderAhadiTable(tbodyId,list,canEdit){
       smsBtnHtml=hasSimu
         ?`<a href="sms:${a.namba_simu}?body=${encodeURIComponent(smsMsg)}" class="btn btn-sm" style="background:#0077B6;color:white;text-decoration:none;">💬 SMS</a>`
         :`<button onclick="copyText(${JSON.stringify(smsMsg)})" class="btn btn-sm" style="background:#E3F2FD;color:#0077B6;">📋</button>`;
+      lipaSehBtnHtml=`<button class="btn btn-sm" style="background:#FF8F00;color:white;" onclick="lipaAhadiSehemu(${a.id})" title="Rekodi malipo ya sehemu">💰 Sehemu</button>`;
     }
     const thankuBtn=hasSimu&&paid&&tukio?`<button class="btn btn-sm" style="background:#25D366;color:white;" onclick="sendAhadiReminder(${a.id})" title="Tuma shukrani kwa malipo">🙏</button>`:'';
     const cbDisabled=paid||!hasSimu;
+    let haliBadge='';
+    if(paid) haliBadge='<span class="badge bg-gr">✅ Imelipwa</span>';
+    else if(sehemu) haliBadge='<span class="badge" style="background:#FF8F00;color:white;">💛 Sehemu</span>';
+    else haliBadge='<span class="badge bg-gold">⏳ Ahadi</span>';
     return`<tr style="${rowBg}">
       <td style="text-align:center;padding:0 6px;"><input type="checkbox" class="ah-tbl-cb" data-tid="${tbodyId}" data-aid="${a.id}" ${cbDisabled?'disabled':''} onchange="updateAhTblCount('${tbodyId}')"></td>
       <td style="color:#888;font-size:11px;font-weight:700;">${i+1}</td>
       <td><strong>${a.jina_mtoaji}</strong></td>
       <td style="font-size:12px;">${a.namba_simu||'—'}</td>
-      <td><strong style="color:${paid?'#1B5E20':'#E65100'};">${pesa(a.kiasi)}</strong></td>
-      <td><span class="badge ${paid?'bg-gr':'bg-gold'}">${paid?'✅ Imelipwa':'⏳ Ahadi'}</span></td>
+      <td><strong style="color:#1A1A2E;">${pesa(kiasi)}</strong></td>
+      <td><strong style="color:${paid?'#1B5E20':sehemu?'#E65100':'#888'};">${pesa(kimelipwa)}</strong></td>
+      <td><strong style="color:${kinachobaki>0?'#B71C1C':'#1B5E20'};">${kinachobaki>0?pesa(kinachobaki):'—'}</strong></td>
+      <td>${haliBadge}</td>
       <td style="font-size:12px;color:#666;">${a.tarehe_ahadi||'—'}</td>
-      <td>${canEdit?`<div class="action-buttons">${!paid?`<button class="btn btn-gr btn-sm" onclick="lipaAhadi(${a.id})">✅ Lipa</button>`:''}${waBtnHtml}${smsBtnHtml}${thankuBtn}<button class="btn btn-r btn-sm" onclick="futaAhadi(${a.id})" style="margin-left:2px;">🗑</button></div>`:'—'}</td>
+      <td>${canEdit?`<div class="action-buttons">${!paid?`<button class="btn btn-gr btn-sm" onclick="lipaAhadi(${a.id})">✅ Lipa Yote</button>${lipaSehBtnHtml}`:''}${waBtnHtml}${smsBtnHtml}${thankuBtn}<button class="btn btn-r btn-sm" onclick="futaAhadi(${a.id})" style="margin-left:2px;">🗑</button></div>`:'—'}</td>
     </tr>`;
   }).join('');
 }
@@ -2044,7 +2084,9 @@ async function beemExecuteBulkAhadiTable(tbodyId){
   $('mod-body').innerHTML=beemResultHtml(result);
   toastFn(`✅ ${result.sent} SMS zimetumwa, ${result.failed} zimeshindwa`);
 }
-async function lipaAhadi(id){await fetch(`${SB}/rest/v1/ahadi?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify({status:'imelipwa',tarehe_lipa:leo()})});const a=AA.find(x=>x.id===id);if(a)a.status='imelipwa';toastFn('✅ Malipo yamethibitishwa!');if(currentRole==='admin'){loadAhadi();renderStats();}else if(currentRole==='msimamizi'){loadShAhadi();}}
+async function lipaAhadi(id){const a=AA.find(x=>x.id===id);if(!a)return;await fetch(`${SB}/rest/v1/ahadi?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify({status:'imelipwa',kiasi_lipa:a.kiasi||0,tarehe_lipa:leo()})});if(a){a.status='imelipwa';a.kiasi_lipa=a.kiasi||0;}toastFn('✅ Malipo yote yamethibitishwa!');if(currentRole==='admin'){loadAhadi();renderStats();}else if(currentRole==='msimamizi'){loadShAhadi();}}
+function lipaAhadiSehemu(id){const a=AA.find(x=>x.id===id);if(!a)return;const kiasi=a.kiasi||0;const kimelipwaSasa=a.kiasi_lipa||0;const kinachobaki=Math.max(0,kiasi-kimelipwaSasa);openMod(`💰 Lipa Sehemu — ${a.jina_mtoaji}`,`<div><div class="al al-i" style="font-size:13px;margin-bottom:12px;">Kiasi cha Ahadi: <strong>TZS ${kiasi.toLocaleString()}/=</strong><br>Kimelipwa tayari: <strong style="color:#1B5E20;">TZS ${kimelipwaSasa.toLocaleString()}/=</strong><br>Kinachobaki: <strong style="color:#B71C1C;">TZS ${kinachobaki.toLocaleString()}/=</strong></div><div class="fg"><label>Ingiza Kiasi Kipya Kilicholipwa (TZS)</label><input type="number" class="fi" id="sehemu-kiasi-in" placeholder="${kinachobaki}" min="1" max="${kiasi}" value="${kinachobaki}"/></div><div style="display:flex;gap:8px;margin-top:12px;"><button onclick="doLipaAhadiSehemu(${id})" class="btn btn-g btn-block">💾 Hifadhi Malipo</button><button onclick="closeModDirect()" class="btn btn-out btn-block">Ghairi</button></div></div>`);}
+async function doLipaAhadiSehemu(id){const kipigeIn=$('sehemu-kiasi-in');if(!kipigeIn)return;const kimelipwaKipya=parseInt(kipigeIn.value)||0;if(!kimelipwaKipya){toastFn('⚠ Ingiza kiasi');return;}const a=AA.find(x=>x.id===id);if(!a)return;const kiasi=a.kiasi||0;const jumlaLipwa=Math.min(kiasi,kimelipwaKipya);const status=jumlaLipwa>=kiasi?'imelipwa':'ahadi';await fetch(`${SB}/rest/v1/ahadi?id=eq.${id}`,{method:'PATCH',headers:H,body:JSON.stringify({kiasi_lipa:jumlaLipwa,status,tarehe_lipa:status==='imelipwa'?leo():undefined})});if(a){a.kiasi_lipa=jumlaLipwa;a.status=status;}closeModDirect();toastFn(status==='imelipwa'?'✅ Imelipwa yote!':'💛 Malipo ya sehemu yamehifadhiwa!');if(currentRole==='admin'){loadAhadi();renderStats();}else if(currentRole==='msimamizi'){loadShAhadi();}}
 async function futaAhadi(id){if(!confirm('Futa ahadi hii?'))return;await fetch(`${SB}/rest/v1/ahadi?id=eq.${id}`,{method:'DELETE',headers:{'apikey':SK,'Authorization':'Bearer '+SK}});AA=AA.filter(a=>a.id!==id);if(currentRole==='admin'){loadAhadi();renderStats();}else if(currentRole==='msimamizi'){loadShAhadi();}toastFn('Imefutwa');}
 async function manualRefreshAhadi(){const tid=$('ah-tukio-sel').value;if(!tid)return;const a=await fetch(`${SB}/rest/v1/ahadi?tukio_id=eq.${tid}&order=created_at.desc`,{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(r=>r.json());AA=Array.isArray(a)?[...AA.filter(x=>x.tukio_id!==parseInt(tid)),...a]:AA;loadAhadi();const el=$('admin-ahadi-refresh-info');if(el)el.textContent='Imesasishwa: '+new Date().toLocaleTimeString();toastFn('🔄 Imesasishwa!');}
 async function manualRefreshShAhadi(){if(!currentShereheId)return;const a=await fetch(`${SB}/rest/v1/ahadi?tukio_id=eq.${currentShereheId}&order=created_at.desc`,{headers:{'apikey':SK,'Authorization':'Bearer '+SK}}).then(r=>r.json());AA=Array.isArray(a)?[...AA.filter(x=>x.tukio_id!==currentShereheId),...a]:AA;loadShAhadi();const el=$('sh-ahadi-refresh-info');if(el)el.textContent='Imesasishwa: '+new Date().toLocaleTimeString();toastFn('🔄 Imesasishwa!');}
@@ -2701,7 +2743,7 @@ function renderWalioingia(tbodyId,list){if(!list.length){$(tbodyId).innerHTML='<
 
 // ==================== MTAZAMAJI ====================
 function renderShereheInfo(t,containerId){const el=$(containerId);if(!el)return;el.innerHTML=`<div style="display:flex;gap:12px;"><div style="font-size:28px;">${ainaIcon(t.aina)}</div><div><p style="font-family:'Playfair Display';font-size:16px;font-weight:700;">${t.jina_tukio}</p><p>📅 ${formatTarehe(t.tarehe)} · ⏰ ${t.saa}</p><p>🏛 ${t.ukumbi} · 🎟 ${t.nambari_tukio}</p></div></div>`;}
-function renderMtazamajiMichango(){const list=AA.filter(a=>a.tukio_id===currentShereheId);const jumla=list.reduce((s,a)=>s+a.kiasi,0),imelipwa=list.filter(a=>a.status==='imelipwa').reduce((s,a)=>s+a.kiasi,0),hazijalipiwa=jumla-imelipwa,watolewaji=list.length,waliolipa=list.filter(a=>a.status==='imelipwa').length;$('vw-michango-summary').innerHTML=`<div class="michango-summary"><div class="michango-title">💰 Muhtasari wa Michango</div><div class="michango-grid"><div class="michango-item" style="grid-column:1/-1;background:rgba(201,168,76,0.12);"><div class="michango-amount" style="color:var(--gold);font-size:22px;">${pesa(jumla)}</div><div class="michango-label">Jumla</div><div class="michango-count">Watolewaji: ${watolewaji}</div></div><div class="michango-item"><div class="michango-amount" style="color:#81C784;">${pesa(imelipwa)}</div><div class="michango-label">✅ Imelipwa</div><div class="michango-count">${waliolipa} watu</div></div><div class="michango-item"><div class="michango-amount" style="color:#FFB74D;">${pesa(hazijalipiwa)}</div><div class="michango-label">⏳ Bado</div><div class="michango-count">${watolewaji-waliolipa} watu</div></div></div></div>`;const tbody=$('vw-ahadi-tbody');if(!list.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:20px;">Hakuna michango</td></tr>';return;}tbody.innerHTML=list.map((a,i)=>`<tr><td>${i+1}</td><td><strong>${pesa(a.kiasi)}</strong></td><td><span class="badge ${a.status==='imelipwa'?'bg-gr':'bg-gold'}">${a.status==='imelipwa'?'✅ Imelipwa':'⏳ Ahadi'}</span></td><td>${a.tarehe_ahadi||'—'}</td></tr>`).join('');}
+function renderMtazamajiMichango(){const list=AA.filter(a=>a.tukio_id===currentShereheId);const jumla=list.reduce((s,a)=>s+(a.kiasi||0),0),imelipwa=list.reduce((s,a)=>s+(a.status==='imelipwa'?a.kiasi||0:a.kiasi_lipa||0),0),hazijalipiwa=jumla-imelipwa,watolewaji=list.length,waliolipa=list.filter(a=>a.status==='imelipwa').length;$('vw-michango-summary').innerHTML=`<div class="michango-summary"><div class="michango-title">💰 Muhtasari wa Michango</div><div class="michango-grid"><div class="michango-item" style="grid-column:1/-1;background:rgba(201,168,76,0.12);"><div class="michango-amount" style="color:var(--gold);font-size:22px;">${pesa(jumla)}</div><div class="michango-label">Jumla Ahadi</div><div class="michango-count">Watolewaji: ${watolewaji}</div></div><div class="michango-item"><div class="michango-amount" style="color:#81C784;">${pesa(imelipwa)}</div><div class="michango-label">✅ Kimelipwa</div><div class="michango-count">${waliolipa} wamelipa yote</div></div><div class="michango-item"><div class="michango-amount" style="color:#FFB74D;">${pesa(hazijalipiwa)}</div><div class="michango-label">⏳ Kinachobaki</div><div class="michango-count">${watolewaji-waliolipa} bado hawajalipa yote</div></div></div></div>`;const tbody=$('vw-ahadi-tbody');if(!list.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;">Hakuna michango</td></tr>';return;}tbody.innerHTML=list.map((a,i)=>{const paid=a.status==='imelipwa';const kiasi=a.kiasi||0;const kimelipwa=paid?kiasi:(a.kiasi_lipa||0);const kinachobaki=paid?0:Math.max(0,kiasi-kimelipwa);const sehemu=!paid&&kimelipwa>0;let badge='';if(paid)badge='<span class="badge bg-gr">✅ Imelipwa</span>';else if(sehemu)badge='<span class="badge" style="background:#FF8F00;color:white;">💛 Sehemu</span>';else badge='<span class="badge bg-gold">⏳ Ahadi</span>';return`<tr><td>${i+1}</td><td><strong>${pesa(kiasi)}</strong></td><td><strong style="color:${kimelipwa>0?'#1B5E20':'#888'};">${pesa(kimelipwa)}</strong></td><td><strong style="color:${kinachobaki>0?'#B71C1C':'#1B5E20'};">${kinachobaki>0?pesa(kinachobaki):'—'}</strong></td><td>${badge}</td><td>${a.tarehe_ahadi||'—'}</td></tr>`;}).join('');}
 
 // ==================== PUBLIC AHADI ====================
 async function tafutaTukioAhadi(){const input=$('ahadi-tukio-in').value.trim().toUpperCase();if(!input){toastFn('Ingiza nambari');return;}await loadTukioKwaAhadi(input);}
@@ -3543,24 +3585,30 @@ function downloadAhadiList(ctx) {
   if (!list.length) { toastFn('Hakuna ahadi za kupakua'); return; }
   var evName = tukio ? tukio.jina_tukio : 'Ahadi';
   var jumla = list.reduce(function(s,a){return s+(a.kiasi||0);},0);
-  var zilipwa = list.filter(function(a){return a.status==='imelipwa';}).reduce(function(s,a){return s+(a.kiasi||0);},0);
+  var zilipwa = list.reduce(function(s,a){return s+(a.status==='imelipwa'?a.kiasi||0:a.kiasi_lipa||0);},0);
   // Summary header rows
-  var csv = 'MUHTASARI,,,,\n';
-  csv += 'Jumla ya Ahadi,' + jumla + ' TZS,,,\n';
-  csv += 'Zilizolipwa,' + zilipwa + ' TZS,,,\n';
-  csv += 'Hazijalipiwa,' + (jumla-zilipwa) + ' TZS,,,\n';
-  csv += 'Watolewaji,' + list.length + ',,,\n\n';
+  var csv = 'MUHTASARI,,,,,\n';
+  csv += 'Jumla ya Ahadi,' + jumla + ' TZS,,,,\n';
+  csv += 'Kimelipwa,' + zilipwa + ' TZS,,,,\n';
+  csv += 'Kinachobaki,' + (jumla-zilipwa) + ' TZS,,,,\n';
+  csv += 'Watolewaji,' + list.length + ',,,,\n\n';
   // Data rows — IMELIPWA rows first then AHADI
-  csv += '#,Jina,Simu,Kiasi (TZS),Hali,Tarehe\n';
+  csv += '#,Jina,Simu,Kiasi Ahadi (TZS),Kimelipwa (TZS),Kinachobaki (TZS),Hali,Tarehe\n';
   var sorted = list.slice().sort(function(a,b){
     if (a.status===b.status) return 0;
     return a.status==='imelipwa' ? -1 : 1;
   });
   sorted.forEach(function(a, i) {
+    var kiasi = a.kiasi||0;
+    var kimelipwa = a.status==='imelipwa' ? kiasi : (a.kiasi_lipa||0);
+    var kinachobaki = Math.max(0, kiasi - kimelipwa);
+    var hali = a.status==='imelipwa' ? 'IMELIPWA' : (kimelipwa>0 ? 'IMELIPWA-SEHEMU' : 'AHADI-HAIJALIPIWA');
     csv += (i+1) + ',"' + (a.jina_mtoaji||'').replace(/"/g,'""') + '",'
       + (a.namba_simu||'') + ','
-      + (a.kiasi||0) + ','
-      + (a.status==='imelipwa' ? 'IMELIPWA' : 'AHADI-HAIJALIPIWA') + ','
+      + kiasi + ','
+      + kimelipwa + ','
+      + kinachobaki + ','
+      + hali + ','
       + (a.tarehe_ahadi||'') + '\n';
   });
   _csvDownload('Ahadi_' + evName.replace(/\s+/g,'-') + '.csv', csv);
