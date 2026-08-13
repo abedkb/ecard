@@ -430,8 +430,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
           <textarea class="fi" id="t-mawasiliano" rows="3" placeholder="mfano:&#10;0712 345 678&#10;0756 789 012&#10;0757 949 610" style="resize:vertical;"></textarea>
           <p style="font-size:10px;color:var(--mt);margin-top:4px;">💡 Andika kila namba kwenye mstari wake. Zitaonekana kwenye kadi ya mwaliko na kadi ya mchango.</p>
         </div>
-        <p style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px;">🎨 Rangi za Kadi</p>
-        <div class="fgrid">
+        <p style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px;">🎨 Mtindo na Rangi za Kadi</p>
+        <div class="fg full">
+          <label>Mtindo wa Kadi (Kadi Design)</label>
+          <select class="fi" id="t-kadi-theme" onchange="onKadiThemeChange()">
+            <option value="classic">Kawaida — Rangi Zilizochaguliwa</option>
+            <option value="cha_panela">🌸 Chá de Panela — Pink &amp; Gold (bila picha)</option>
+          </select>
+          <p style="font-size:10px;color:var(--mt);margin-top:4px;">💡 "Chá de Panela" ni mtindo wa kadi wenye rangi ya pink laini na dhahabu, fremu ya mapambo, na maandishi ya script — inafaa kwa Kitchen Party na sherehe za kike.</p>
+        </div>
+        <div class="fgrid" id="t-rangi-wrap">
           <div class="fg"><label>Rangi Kuu</label><input type="color" class="fi" id="t-rangi" value="#8B1A1A" style="height:44px;padding:4px;"/></div>
           <div class="fg"><label>Rangi ya Dhahabu</label><input type="color" class="fi" id="t-rangi2" value="#C9A84C" style="height:44px;padding:4px;"/></div>
         </div>
@@ -896,6 +904,40 @@ let pubTukioId = null, pubTukioData = null;
 let currentPhotoDataUrl = null;
 const usedCardNumbers = new Set();
 let isCreatingEvent = false;
+
+// "Chá de Panela" card theme — blush pink + gold, bordered frame with script typography
+const CHA_PANELA_THEME = {
+  bg1:'#FCEEF1', bg2:'#F8DFE6', bg3:'#FBEFE9',
+  panel:'#FFF9F1',
+  gold:'#C9A227', gold2:'#B8935A', goldLight:'#E7CD8E',
+  brownDark:'#4A3728', brownBody:'#5C4433',
+  pink:'#E8A6B4'
+};
+
+// Original SVG rose+hydrangea+ribbon bouquet (vector art, not a photo) for the Chá de Panela corner decoration
+function chaPanelaBouquetSVG(size) {
+  const rose = (cx, cy, scale, fill, fillCore) => `
+    <g transform="translate(${cx},${cy}) scale(${scale})">
+      ${[0,60,120,180,240,300].map(a=>`<ellipse cx="0" cy="-11" rx="8" ry="12" fill="${fill}" transform="rotate(${a})"/>`).join('')}
+      <circle r="5" fill="${fillCore}"/>
+    </g>`;
+  return `
+<svg width="${size}" height="${size}" viewBox="0 0 86 86" style="position:absolute;pointer-events:none;">
+  <ellipse cx="18" cy="60" rx="6" ry="17" fill="#9CAF6E" opacity="0.85" transform="rotate(-32 18 60)"/>
+  <ellipse cx="11" cy="47" rx="5" ry="14" fill="#B7C98A" opacity="0.85" transform="rotate(-62 11 47)"/>
+  <g fill="#8FC1E3">
+    <circle cx="13" cy="67" r="3.4"/><circle cx="20" cy="71" r="3.1"/><circle cx="8" cy="72" r="2.9"/>
+    <circle cx="16" cy="75" r="2.7"/><circle cx="24" cy="66" r="2.7"/><circle cx="18" cy="63" r="2.6"/>
+  </g>
+  ${rose(31, 30, 1, '#D6357E', '#B8215F')}
+  ${rose(15, 15, 0.72, '#F2A8C9', '#E080AE')}
+  <g transform="translate(11,53)">
+    <path d="M0,0 L-11,-6 L-11,6 Z" fill="#7FB2DE"/>
+    <path d="M0,0 L11,-6 L11,6 Z" fill="#6FA3D1"/>
+    <rect x="-3.5" y="-3.5" width="7" height="7" rx="1.5" fill="#578FC2"/>
+  </g>
+</svg>`;
+}
 
 const $ = id => document.getElementById(id);
 const show = id => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0,0); };
@@ -1447,6 +1489,17 @@ function getBenkiLabel(key){return(BENKI_LIST.find(b=>b.key===key)||{label:key})
 function getSimuIcon(key){return(SIMU_PLATFORMS.find(p=>p.key===key)||{icon:'📲'}).icon;}
 function getSimuColor(key){return(SIMU_PLATFORMS.find(p=>p.key===key)||{color:'#555'}).color;}
 function getBenkiColor(key){return(BENKI_LIST.find(b=>b.key===key)||{color:'#555'}).color;}
+function onKadiThemeChange(){
+  const theme=$('t-kadi-theme').value;
+  const wrap=$('t-rangi-wrap');
+  if(theme==='cha_panela'){
+    $('t-rangi').value=CHA_PANELA_THEME.gold;
+    $('t-rangi2').value=CHA_PANELA_THEME.gold2;
+    if(wrap){wrap.style.opacity='0.4';wrap.style.pointerEvents='none';}
+  }else{
+    if(wrap){wrap.style.opacity='1';wrap.style.pointerEvents='auto';}
+  }
+}
 function serializePayments(simu,benki){return JSON.stringify({simu:simu||[],benki:benki||[]});}
 function deserializePayments(str){if(!str) return{simu:[],benki:[]};try{return JSON.parse(str);}catch(e){return{simu:[],benki:[]};}}
 function hexToRgb(hex){
@@ -1576,6 +1629,7 @@ async function undaSherehe(){
     katibu_jina:$('t-kt-jina').value.trim()||null,katibu_simu:$('t-kt-simu').value.trim()||null,
     hazina_jina:$('t-hz-jina').value.trim()||null,hazina_simu:$('t-hz-simu').value.trim()||null,
     rangi_kuu:$('t-rangi').value||'#8B1A1A',rangi_dhahabu:$('t-rangi2').value||'#C9A84C',
+    kadi_theme:$('t-kadi-theme').value||'classic',
     pw_msimamizi:pwMsimamizi,pw_mtazamaji:pwMtazamaji,
     mwisho_mchango:$('t-mwisho').value||null,single_amount:$('t-single-amount').value.trim()||null,
     double_amount:$('t-double-amount').value.trim()||null,
@@ -1606,6 +1660,7 @@ async function undaSherehe(){
       setAl('al-tukio',`<div class="al al-s"><strong>✅ Sherehe imeundwa kikamilifu!</strong><br><br>📌 Nambari ya Sherehe: <strong style="font-size:16px;">${newEvent.nambari_tukio}</strong><br>🔐 Nenosiri la Msimamizi: <strong>${newEvent.pw_msimamizi}</strong><br>👁 Nenosiri la Mtazamaji: <strong>${newEvent.pw_mtazamaji}</strong><br><br>${photoToSave?'🖼 Picha imehifadhiwa ✅':'⚠️ Hakuna picha'}<br><br><span style="font-size:12px;">💡 Hifadhi taarifa hizi kwa usalama!</span></div>`,'s');
       ['t-jina','t-mhusika','t-mhusika-cheo','t-mwenyeji','t-mahali','t-saa','t-ukumbi','t-loc','t-dress','t-ujumbe','t-maelezo','t-mw-jina','t-mw-simu','t-kt-jina','t-kt-simu','t-hz-jina','t-hz-simu','t-single-amount','t-double-amount','t-mawasiliano'].forEach(id=>{const e=$(id);if(e)e.value='';});
       if($('t-mwisho'))$('t-mwisho').value='';
+      if($('t-kadi-theme')){$('t-kadi-theme').value='classic';onKadiThemeChange();}
       tSimuNjia=[];tBenkiNjia=[];renderSimuNjia('t-simu-njia-list',tSimuNjia,'t');renderBenkiNjia('t-benki-njia-list',tBenkiNjia,'t');
       clearPhotoPreview();undaPINs();await loadAll();
       setTimeout(()=>{const el=$('matukio-list');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},500);
@@ -1746,7 +1801,106 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
       ? `<span style="display:inline-flex;padding:6px 18px;border-radius:30px;font-size:11px;font-weight:800;border:2px solid ${R};color:${R};background:rgba(${hexToRgb(R)},0.08);letter-spacing:1px;">👫 DOUBLE</span>`
       : `<span style="display:inline-flex;padding:6px 18px;border-radius:30px;font-size:11px;font-weight:800;border:2px solid ${R};color:${R};background:rgba(${hexToRgb(R)},0.08);letter-spacing:1px;">🧑 SINGLE</span>`);
 
-  if (hasPhoto) {
+  const isChaPanela = tukio.kadi_theme === 'cha_panela';
+
+  if (isChaPanela) {
+    // ── "Chá de Panela" theme: blush pink + gold bordered frame with script typography ──
+    const T = CHA_PANELA_THEME;
+    const ainaBadgeChaPanela = mgeni.aina_kadi === 'VIP'
+      ? `<span style="display:inline-flex;padding:5px 16px;border-radius:30px;font-size:10px;font-weight:800;background:linear-gradient(90deg,${T.gold},${T.goldLight});color:#3A2A1D;letter-spacing:1px;">⭐ VIP GUEST</span>`
+      : (mgeni.aina_kadi === 'Double'
+        ? `<span style="display:inline-flex;padding:5px 16px;border-radius:30px;font-size:10px;font-weight:800;border:1.5px solid ${T.gold2};color:${T.gold2};background:rgba(${hexToRgb(T.gold)},0.08);letter-spacing:1px;">👫 DOUBLE</span>`
+        : `<span style="display:inline-flex;padding:5px 16px;border-radius:30px;font-size:10px;font-weight:800;border:1.5px solid ${T.gold2};color:${T.gold2};background:rgba(${hexToRgb(T.gold)},0.08);letter-spacing:1px;">🧑 SINGLE</span>`);
+
+    container.innerHTML = `
+  <div class="ecard-outer">
+  <div class="ecard" style="width:100%;max-width:420px;border-radius:26px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;background:linear-gradient(160deg,${T.bg1} 0%,${T.bg2} 55%,${T.bg3} 100%);box-shadow:0 24px 64px rgba(74,55,40,0.25),0 4px 16px rgba(74,55,40,0.12);">
+
+    <!-- decorative bouquet corners (original vector art) — kept in the top margin so they never sit over the QR/footer panel below -->
+    <div style="position:absolute;top:-8px;left:-8px;z-index:1;filter:drop-shadow(0 2px 4px rgba(74,55,40,0.18));">${chaPanelaBouquetSVG(96)}</div>
+    <div style="position:absolute;top:-8px;right:-8px;transform:scaleX(-1);z-index:1;filter:drop-shadow(0 2px 4px rgba(74,55,40,0.18));">${chaPanelaBouquetSVG(68)}</div>
+
+    <div style="margin:14px;border:1.5px solid ${T.gold};border-radius:18px;padding:2px;position:relative;z-index:2;">
+    <div style="border:1px solid ${T.goldLight};border-radius:15px;padding:22px 20px 18px;position:relative;">
+
+      <div style="text-align:center;font-size:20px;color:${T.pink};margin-bottom:6px;">♡</div>
+      <div style="text-align:center;margin-bottom:10px;">${ainaBadgeChaPanela}</div>
+      <div style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${T.gold2};margin-bottom:2px;">${ainaIcon(tukio.aina)} ${tukio.aina || 'Sherehe'}</div>
+
+      <div style="text-align:center;">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;font-style:italic;color:${T.brownBody};margin:6px 0 0;">Familia ya</p>
+        <p style="font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:${T.brownDark};line-height:1.25;margin:2px 0;">${mwenyeji}</p>
+        ${mahali ? `<p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;color:${T.brownBody};margin:0;">wa ${mahali}</p>` : ''}
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin:14px 0;">
+        <div style="height:1px;flex:1;background:linear-gradient(to right,transparent,${T.gold});"></div>
+        <span style="font-size:13px;color:${T.gold};">✦ ❤ ✦</span>
+        <div style="height:1px;flex:1;background:linear-gradient(to left,transparent,${T.gold});"></div>
+      </div>
+
+      <div style="text-align:center;">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:${T.brownDark};margin-bottom:4px;">wanayo furaha ${nenoKualika}</p>
+        <p style="font-family:'Great Vibes',cursive;font-size:48px;color:${T.gold};line-height:1.1;margin:2px 0 8px;">${guestName}</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;font-style:italic;color:${T.brownDark};margin-bottom:2px;">Kwenye ${maelezoSherehe}${(tukio.aina||'').toLowerCase()==='harusi'&&relativePhrase?' ya':''}</p>
+        ${relativePhrase ? `<p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;font-style:italic;color:${T.brownBody};margin-bottom:2px;">${relativePhrase}</p>` : ''}
+        ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:42px;color:${T.gold2};line-height:1.1;margin-top:4px;">${stripCheo(mhusika)}</p>` : ''}
+      </div>
+
+      <div style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;font-weight:600;color:${T.pink};margin:12px 0 4px;">Uwepo wako ni zawadi kubwa kwetu! 🤍</div>
+
+      <div style="height:1px;background:linear-gradient(to right,transparent,${T.gold},transparent);margin:12px 0;"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:${tukio.location_link?'4px':'12px'};">
+        <div style="background:${T.panel};border:1px solid ${T.goldLight};border-radius:12px;padding:10px 8px;text-align:center;">
+          <div style="font-size:18px;">📅</div>
+          <div style="font-size:9px;font-weight:800;color:${T.gold2};text-transform:uppercase;letter-spacing:1px;margin:4px 0 2px;">Tarehe</div>
+          <div style="font-size:13px;font-weight:700;color:${T.brownDark};">${tarehe}</div>
+          <div style="font-size:11px;color:${T.brownBody};margin-top:2px;">⏰ ${tukio.saa}</div>
+        </div>
+        <div style="background:${T.panel};border:1px solid ${T.goldLight};border-radius:12px;padding:10px 8px;text-align:center;">
+          <div style="font-size:18px;">📍</div>
+          <div style="font-size:9px;font-weight:800;color:${T.gold2};text-transform:uppercase;letter-spacing:1px;margin:4px 0 2px;">Mahali</div>
+          <div style="font-size:12px;font-weight:700;color:${T.brownDark};line-height:1.3;">${tukio.ukumbi}</div>
+          ${tukio.dress_code ? `<div style="font-size:10px;color:${T.brownBody};margin-top:2px;">👗 ${tukio.dress_code}</div>` : ''}
+        </div>
+      </div>
+      ${tukio.location_link ? `<div style="text-align:center;margin:0 0 12px;"><a href="${tukio.location_link}" target="_blank" style="font-size:11px;color:${T.gold2};font-weight:700;text-decoration:none;">📍 Bonyeza kuelekea →</a></div>` : ''}
+
+      ${mawasiliano ? `<div style="background:${T.panel};border:1px solid ${T.goldLight};border-radius:12px;padding:10px 12px;margin-bottom:12px;text-align:center;">
+        <div style="font-size:9px;font-weight:800;color:${T.gold2};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">📞 Mawasiliano</div>
+        ${mawasiliano.split('\n').filter(l=>l.trim()).map(l=>`<div style="font-size:12px;font-weight:700;color:${T.brownDark};line-height:1.8;">${l.trim()}</div>`).join('')}
+      </div>` : ''}
+
+      <div style="display:flex;gap:8px;margin-bottom:4px;">
+        <button style="flex:1;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,${T.gold},${T.gold2});color:#fff;cursor:pointer;font-weight:700;font-family:'Inter',sans-serif;font-size:12px;box-shadow:0 3px 10px rgba(${hexToRgb(T.gold2)},0.35);" onclick="rsvp(${mgeni.id},'nakuja')">✅ Asante, Nitafika</button>
+        <button style="flex:1;padding:11px;border:1px solid ${T.goldLight};border-radius:10px;background:${T.panel};color:${T.brownDark};cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;" onclick="rsvp(${mgeni.id},'sitakuja')">🙏 Sitoweza Kufika</button>
+      </div>
+
+    </div>
+    </div>
+
+    <div style="margin:0 14px 12px;background:${T.panel};border:1px solid ${T.goldLight};border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:9px;color:${T.brownBody};text-transform:uppercase;letter-spacing:0.5px;opacity:0.8;">Nambari ya Kadi</div>
+        <div style="color:${T.gold2};font-family:monospace;font-size:16px;font-weight:800;letter-spacing:2px;">${mgeni.nambari_kadi}</div>
+        ${mgeni.nambari_meza ? `<div style="font-size:10px;color:${T.brownBody};margin-top:2px;">Meza: <strong style="color:${T.brownDark};">${mgeni.nambari_meza}</strong></div>` : ''}
+        <div style="margin-top:6px;"><svg id="bc_${qid}" style="max-width:130px;"></svg></div>
+      </div>
+      <div style="text-align:center;">
+        <canvas id="${qid}" width="72" height="72" style="border-radius:8px;background:white;padding:4px;border:1px solid ${T.goldLight};display:block;"></canvas>
+        <div style="font-size:9px;margin-top:4px;color:${T.brownBody};">Scan QR</div>
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(90deg,${T.gold2},${T.gold},${T.gold2});padding:10px 20px;text-align:center;">
+      <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#3A2A1D;">🌸 AbedCards · A.A.K. CARDS</span>
+    </div>
+
+  </div>
+  </div>`;
+
+  } else if (hasPhoto) {
     // ── EzyCard-style: full photo background with overlaid text ──
     container.innerHTML = `
   <div class="ecard-outer">
@@ -1915,12 +2069,12 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
   setTimeout(()=>{
     const canvas=$(qid);
     if(canvas){
-      const qrColor = hasPhoto ? '#000000' : R;
-      try{QRCode.toCanvas(canvas,kadiUrl,{width:hasPhoto?78:90,margin:1,color:{dark:qrColor,light:'#FFFFFF'}});}
+      const qrColor = isChaPanela ? CHA_PANELA_THEME.brownDark : (hasPhoto ? '#000000' : R);
+      try{QRCode.toCanvas(canvas,kadiUrl,{width:hasPhoto&&!isChaPanela?78:72,margin:1,color:{dark:qrColor,light:'#FFFFFF'}});}
       catch(e){console.error('QR error:',e);}
     }
-    const bcColor = hasPhoto ? '#FFFFFF' : R;
-    try{JsBarcode('#bc_'+qid,mgeni.nambari_kadi,{format:'CODE128',width:1.6,height:34,fontSize:10,lineColor:bcColor,background:hasPhoto?'transparent':'white'});}
+    const bcColor = isChaPanela ? CHA_PANELA_THEME.gold2 : (hasPhoto ? '#FFFFFF' : R);
+    try{JsBarcode('#bc_'+qid,mgeni.nambari_kadi,{format:'CODE128',width:1.6,height:34,fontSize:10,lineColor:bcColor,background:(hasPhoto&&!isChaPanela)?'transparent':'white'});}
     catch(e){console.error('Barcode error:',e);}
   },400);
 }
