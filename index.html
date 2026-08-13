@@ -436,8 +436,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
           <select class="fi" id="t-kadi-theme" onchange="onKadiThemeChange()">
             <option value="classic">Kawaida — Rangi Zilizochaguliwa</option>
             <option value="cha_panela">🌸 Chá de Panela — Pink &amp; Gold (bila picha)</option>
+            <option value="wreath">🌿 Duara ya Maua — Wreath (na picha)</option>
           </select>
-          <p style="font-size:10px;color:var(--mt);margin-top:4px;">💡 "Chá de Panela" ni mtindo wa kadi wenye rangi ya pink laini na dhahabu, fremu ya mapambo, na maandishi ya script — inafaa kwa Kitchen Party na sherehe za kike.</p>
+          <p style="font-size:10px;color:var(--mt);margin-top:4px;">💡 "Chá de Panela" ni mtindo wa kadi wenye rangi ya pink laini na dhahabu, fremu ya mapambo, na maandishi ya script — inafaa kwa Kitchen Party na sherehe za kike. "Duara ya Maua" huonyesha picha yako ndani ya duara lenye mapambo ya majani na maua — inafaa kwa Harusi.</p>
         </div>
         <div class="fgrid" id="t-rangi-wrap">
           <div class="fg"><label>Rangi Kuu</label><input type="color" class="fi" id="t-rangi" value="#8B1A1A" style="height:44px;padding:4px;"/></div>
@@ -913,6 +914,40 @@ const CHA_PANELA_THEME = {
   brownDark:'#4A3728', brownBody:'#5C4433',
   pink:'#E8A6B4'
 };
+
+// "Wreath" card theme — sage green, circular wreath-framed photo with a date bar + icon row
+const WREATH_THEME = {
+  bg:'#FDFCF7', panel:'#F5F3EA', panelBorder:'#E2E0D0',
+  sage:'#6B7F5E', sageLight:'#A9B896', sageDark:'#4E5E45',
+  gold:'#C9A227',
+  textDark:'#3A3F32', textBody:'#5C6355'
+};
+
+// Original SVG leaf+flower wreath ring (vector art, not a photo) — frames the guest's own uploaded photo
+function weddingWreathSVG(size) {
+  const N = 28;
+  const leaves = [];
+  for (let i = 0; i < N; i++) {
+    const angle = (360 / N) * i;
+    leaves.push(`<ellipse cx="100" cy="15" rx="5" ry="11" fill="${i % 3 === 0 ? '#7A9169' : '#8FA87C'}" transform="rotate(${angle} 100 100)"/>`);
+  }
+  const flowerAt = (angle) => {
+    const rad = angle * Math.PI / 180;
+    const cx = (100 + 85 * Math.sin(rad)).toFixed(1);
+    const cy = (100 - 85 * Math.cos(rad)).toFixed(1);
+    return `<g transform="translate(${cx},${cy})">
+      <circle cx="-5" cy="0" r="5.5" fill="#FFFFFF" stroke="#EADFC8" stroke-width="0.6"/>
+      <circle cx="5" cy="-2" r="5" fill="#FFFFFF" stroke="#EADFC8" stroke-width="0.6"/>
+      <circle cx="0" cy="5" r="4.5" fill="#FFFFFF" stroke="#EADFC8" stroke-width="0.6"/>
+      <circle cx="0" cy="0" r="2.5" fill="${WREATH_THEME.gold}"/>
+    </g>`;
+  };
+  return `
+<svg width="${size}" height="${size}" viewBox="0 0 200 200" style="display:block;">
+  <g>${leaves.join('')}</g>
+  ${flowerAt(0)}${flowerAt(90)}${flowerAt(180)}${flowerAt(270)}
+</svg>`;
+}
 
 const $ = id => document.getElementById(id);
 const show = id => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); $(id).classList.add('active'); window.scrollTo(0,0); };
@@ -1471,6 +1506,10 @@ function onKadiThemeChange(){
     $('t-rangi').value=CHA_PANELA_THEME.gold;
     $('t-rangi2').value=CHA_PANELA_THEME.gold2;
     if(wrap){wrap.style.opacity='0.4';wrap.style.pointerEvents='none';}
+  }else if(theme==='wreath'){
+    $('t-rangi').value=WREATH_THEME.sage;
+    $('t-rangi2').value=WREATH_THEME.gold;
+    if(wrap){wrap.style.opacity='0.4';wrap.style.pointerEvents='none';}
   }else{
     if(wrap){wrap.style.opacity='1';wrap.style.pointerEvents='auto';}
   }
@@ -1777,6 +1816,7 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
       : `<span style="display:inline-flex;padding:6px 18px;border-radius:30px;font-size:11px;font-weight:800;border:2px solid ${R};color:${R};background:rgba(${hexToRgb(R)},0.08);letter-spacing:1px;">🧑 SINGLE</span>`);
 
   const isChaPanela = tukio.kadi_theme === 'cha_panela';
+  const isWreath = tukio.kadi_theme === 'wreath';
 
   if (isChaPanela) {
     // ── "Chá de Panela" theme: blush pink + gold bordered frame with script typography ──
@@ -1866,6 +1906,105 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
 
     <div style="background:linear-gradient(90deg,${T.gold2},${T.gold},${T.gold2});padding:10px 20px;text-align:center;">
       <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#3A2A1D;">🌸 AbedCards · A.A.K. CARDS</span>
+    </div>
+
+  </div>
+  </div>`;
+
+  } else if (isWreath) {
+    // ── "Wreath" theme: circular wreath-framed photo, sage green, date bar + icon row ──
+    const W = WREATH_THEME;
+    const mawaId = 'mawa_' + qid;
+    const footId = 'foot_' + qid;
+    const ainaBadgeWreath = mgeni.aina_kadi === 'VIP'
+      ? `<span style="display:inline-flex;padding:5px 16px;border-radius:30px;font-size:10px;font-weight:800;background:linear-gradient(90deg,${W.gold},#E7CD8E);color:#3A2A1D;letter-spacing:1px;">⭐ VIP GUEST</span>`
+      : (mgeni.aina_kadi === 'Double'
+        ? `<span style="display:inline-flex;padding:5px 16px;border-radius:30px;font-size:10px;font-weight:800;border:1.5px solid ${W.sage};color:${W.sage};background:rgba(${hexToRgb(W.sage)},0.08);letter-spacing:1px;">👫 DOUBLE</span>`
+        : `<span style="display:inline-flex;padding:5px 16px;border-radius:30px;font-size:10px;font-weight:800;border:1.5px solid ${W.sage};color:${W.sage};background:rgba(${hexToRgb(W.sage)},0.08);letter-spacing:1px;">🧑 SINGLE</span>`);
+
+    container.innerHTML = `
+  <div class="ecard-outer">
+  <div class="ecard" style="width:100%;max-width:420px;border-radius:22px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;background:${W.bg};box-shadow:0 20px 56px rgba(74,90,60,0.22),0 4px 14px rgba(0,0,0,0.1);">
+
+    <div style="padding:20px 20px 0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-size:10px;font-weight:800;color:${W.sage};letter-spacing:1px;">A.A.K. CARDS</span>
+        ${ainaBadgeWreath}
+      </div>
+
+      <div style="position:relative;width:264px;height:264px;margin:0 auto 14px;max-width:100%;">
+        <div style="position:absolute;inset:22px;border-radius:50%;overflow:hidden;background:linear-gradient(160deg,${W.sageLight},${W.sage});display:flex;align-items:center;justify-content:center;">
+          ${hasPhoto ? `<img src="${tukio.photo_data}" style="width:100%;height:100%;object-fit:cover;object-position:center top;" onerror="this.style.display='none';"/>` : `<span style="font-size:64px;">💐</span>`}
+        </div>
+        <div style="position:absolute;inset:0;">${weddingWreathSVG(264)}</div>
+      </div>
+
+      <div style="text-align:center;">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;font-style:italic;color:${W.textBody};margin-bottom:0;">Familia ya</p>
+        <p style="font-family:'Great Vibes',cursive;font-size:42px;color:${W.sage};line-height:1.1;margin-bottom:4px;">${mwenyeji}</p>
+        ${mahali ? `<p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;font-style:italic;color:${W.textBody};margin-bottom:14px;">wa ${mahali}</p>` : ''}
+      </div>
+
+      <div style="height:1px;background:linear-gradient(to right,transparent,${W.gold},transparent);margin-bottom:14px;"></div>
+
+      <div style="text-align:center;">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:${W.textDark};margin-bottom:4px;">wanayo furaha ${nenoKualika}</p>
+        <p style="font-family:'Great Vibes',cursive;font-size:34px;color:${W.sage};line-height:1.1;margin-bottom:6px;">${guestName}</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:${W.textDark};margin-bottom:4px;">Kwenye ${maelezoSherehe}${['harusi','kitchen party'].includes((tukio.aina||'').toLowerCase())&&relativePhrase?' ya':''}</p>
+        ${relativePhrase ? `<p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;font-style:italic;color:${W.textBody};margin-bottom:2px;">${relativePhrase}</p>` : ''}
+        ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:34px;color:${W.sage};line-height:1.1;margin-top:4px;">${stripCheo(mhusika)}</p>` : ''}
+      </div>
+
+      <div style="margin:16px 0 4px;text-align:center;">
+        <p style="font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:${W.sage};margin-bottom:8px;">· ${siku} ·</p>
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;border-top:1px solid ${W.panelBorder};border-bottom:1px solid ${W.panelBorder};padding:10px 0;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${W.textDark};">${mweziMwaka.split(' ')[0]||''}</div>
+          <div style="font-size:34px;font-weight:900;color:${W.sage};line-height:1;padding:0 10px;">${nambariSiku}</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${W.textDark};">${mweziMwaka.split(' ')[1]||''}</div>
+        </div>
+        <p style="font-size:13px;font-weight:600;color:${W.textBody};margin-top:8px;">⏰ ${tukio.saa}</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;">
+        ${tukio.location_link ? `<a href="${tukio.location_link}" target="_blank" style="text-decoration:none;text-align:center;">
+          <div style="width:42px;height:42px;margin:0 auto 4px;border-radius:50%;background:${W.sage};border:2px solid ${W.gold};display:flex;align-items:center;justify-content:center;font-size:17px;">📍</div>
+          <div style="font-size:9px;color:${W.textBody};font-weight:600;">Ramani</div>
+        </a>` : `<div style="text-align:center;opacity:0.35;">
+          <div style="width:42px;height:42px;margin:0 auto 4px;border-radius:50%;background:${W.sage};border:2px solid ${W.gold};display:flex;align-items:center;justify-content:center;font-size:17px;">📍</div>
+          <div style="font-size:9px;color:${W.textBody};font-weight:600;">Ramani</div>
+        </div>`}
+        <button onclick="rsvp(${mgeni.id},'nakuja')" style="background:none;border:none;cursor:pointer;text-align:center;padding:0;">
+          <div style="width:42px;height:42px;margin:0 auto 4px;border-radius:50%;background:${W.sage};border:2px solid ${W.gold};display:flex;align-items:center;justify-content:center;font-size:17px;">✅</div>
+          <div style="font-size:9px;color:${W.textBody};font-weight:600;">Thibitisha</div>
+        </button>
+        <div onclick="document.getElementById('${mawaId}')?.scrollIntoView({behavior:'smooth',block:'center'})" style="text-align:center;cursor:pointer;">
+          <div style="width:42px;height:42px;margin:0 auto 4px;border-radius:50%;background:${W.sage};border:2px solid ${W.gold};display:flex;align-items:center;justify-content:center;font-size:17px;">📞</div>
+          <div style="font-size:9px;color:${W.textBody};font-weight:600;">Mawasiliano</div>
+        </div>
+      </div>
+
+      ${tukio.dress_code ? `<p style="text-align:center;font-size:11px;color:${W.textBody};margin-bottom:10px;">👗 Dress Code: ${tukio.dress_code}</p>` : ''}
+
+      ${mawasiliano ? `<div id="${mawaId}" style="background:${W.panel};border:1px solid ${W.panelBorder};border-radius:12px;padding:10px 12px;margin-bottom:16px;text-align:center;">
+        <div style="font-size:9px;font-weight:800;color:${W.sage};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">📞 Mawasiliano</div>
+        ${mawasiliano.split('\n').filter(l=>l.trim()).map(l=>`<div style="font-size:12px;font-weight:700;color:${W.textDark};line-height:1.8;">${l.trim()}</div>`).join('')}
+      </div>` : ''}
+    </div>
+
+    <div id="${footId}" style="margin:0 20px 16px;background:${W.panel};border:1px solid ${W.panelBorder};border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:9px;color:${W.textBody};text-transform:uppercase;letter-spacing:0.5px;opacity:0.8;">Nambari ya Kadi</div>
+        <div style="color:${W.sageDark};font-family:monospace;font-size:16px;font-weight:800;letter-spacing:2px;">${mgeni.nambari_kadi}</div>
+        ${mgeni.nambari_meza ? `<div style="font-size:10px;color:${W.textBody};margin-top:2px;">Meza: <strong style="color:${W.textDark};">${mgeni.nambari_meza}</strong></div>` : ''}
+        <div style="margin-top:6px;"><svg id="bc_${qid}" style="max-width:130px;"></svg></div>
+      </div>
+      <div style="text-align:center;">
+        <canvas id="${qid}" width="72" height="72" style="border-radius:8px;background:white;padding:4px;border:1px solid ${W.panelBorder};display:block;"></canvas>
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(90deg,${W.sageDark},${W.sage},${W.sageDark});padding:10px 20px;text-align:center;">
+      <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#fff;">🌿 AbedCards · A.A.K. CARDS</span>
     </div>
 
   </div>
@@ -2040,12 +2179,14 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
   setTimeout(()=>{
     const canvas=$(qid);
     if(canvas){
-      const qrColor = isChaPanela ? CHA_PANELA_THEME.brownDark : (hasPhoto ? '#000000' : R);
-      try{QRCode.toCanvas(canvas,kadiUrl,{width:hasPhoto&&!isChaPanela?78:72,margin:1,color:{dark:qrColor,light:'#FFFFFF'}});}
+      const overlayPhoto = hasPhoto && !isChaPanela && !isWreath;
+      const qrColor = isChaPanela ? CHA_PANELA_THEME.brownDark : (isWreath ? WREATH_THEME.sageDark : (overlayPhoto ? '#000000' : R));
+      try{QRCode.toCanvas(canvas,kadiUrl,{width:overlayPhoto?78:72,margin:1,color:{dark:qrColor,light:'#FFFFFF'}});}
       catch(e){console.error('QR error:',e);}
     }
-    const bcColor = isChaPanela ? CHA_PANELA_THEME.gold2 : (hasPhoto ? '#FFFFFF' : R);
-    try{JsBarcode('#bc_'+qid,mgeni.nambari_kadi,{format:'CODE128',width:1.6,height:34,fontSize:10,lineColor:bcColor,background:(hasPhoto&&!isChaPanela)?'transparent':'white'});}
+    const overlayPhotoBc = hasPhoto && !isChaPanela && !isWreath;
+    const bcColor = isChaPanela ? CHA_PANELA_THEME.gold2 : (isWreath ? WREATH_THEME.sageDark : (overlayPhotoBc ? '#FFFFFF' : R));
+    try{JsBarcode('#bc_'+qid,mgeni.nambari_kadi,{format:'CODE128',width:1.6,height:34,fontSize:10,lineColor:bcColor,background:overlayPhotoBc?'transparent':'white'});}
     catch(e){console.error('Barcode error:',e);}
   },400);
 }
