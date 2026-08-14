@@ -917,10 +917,10 @@ const CHA_PANELA_THEME = {
 
 // "Wreath" card theme — sage green, circular wreath-framed photo with a date bar + icon row
 const WREATH_THEME = {
-  bg:'#FDFCF7', panel:'#F5F3EA', panelBorder:'#E2E0D0',
-  sage:'#6B7F5E', sageLight:'#A9B896', sageDark:'#4E5E45',
+  bg:'#FFF8FA', panel:'#FDEEF3', panelBorder:'#F6D6E0',
+  sage:'#D98CA3', sageLight:'#F6C9D5', sageDark:'#B85C7A',
   gold:'#C9A227',
-  textDark:'#3A3F32', textBody:'#5C6355'
+  textDark:'#4A3540', textBody:'#7A5C68'
 };
 
 // Original SVG leaf+flower wreath ring (vector art, not a photo) — frames the guest's own uploaded photo
@@ -929,7 +929,7 @@ function weddingWreathSVG(size) {
   const leaves = [];
   for (let i = 0; i < N; i++) {
     const angle = (360 / N) * i;
-    leaves.push(`<ellipse cx="100" cy="15" rx="5" ry="11" fill="${i % 3 === 0 ? '#7A9169' : '#8FA87C'}" transform="rotate(${angle} 100 100)"/>`);
+    leaves.push(`<ellipse cx="100" cy="15" rx="5" ry="11" fill="${i % 3 === 0 ? WREATH_THEME.sageDark : WREATH_THEME.sage}" transform="rotate(${angle} 100 100)"/>`);
   }
   const flowerAt = (angle) => {
     const rad = angle * Math.PI / 180;
@@ -1205,6 +1205,8 @@ function buildShukraniMsg(tukio, mgeni, mode) {
   const mahali = tukio.mahali_mwenyeji || '';
   const mhusika = tukio.jina_mhusika || '';
   const aina = (tukio.aina || '').toLowerCase();
+  const isDouble = mgeni.aina_kadi === 'Double' || mgeni.aina_kadi === 'VIP';
+  const mungubariki = isDouble ? 'awabariki' : 'akubariki';
 
   // Event-specific "kushiriki nasi katika..." phrase
   let sherehe = '';
@@ -1228,7 +1230,7 @@ function buildShukraniMsg(tukio, mgeni, mode) {
     sherehe = tukio.jina_tukio || 'sherehe yetu';
   }
 
-  const closing = 'Asante kwa upendo wako mkuu.Mwenyezi Mungu akubariki sana na akuzidishie pale ulipotoa. Baraka tele kwako na familia!';
+  const closing = `Asante kwa upendo wako mkuu.Mwenyezi Mungu ${mungubariki} sana na akuzidishie pale ulipotoa. Baraka tele kwako na familia!`;
 
   if (mode === 'wa') {
     let msg = `🙏 *SHUKRANI YA DHATI*\n\n`;
@@ -1347,6 +1349,8 @@ function buildShukraniCard(tukio, mgeni, containerId) {
   const container = $(containerId);
   if (!container) return;
   const hasPhoto = checkPhotoValid(tukio.photo_data);
+  const R = tukio.rangi_kuu || '#8B1A1A';
+  const G = tukio.rangi_dhahabu || '#C9A84C';
   const mwenyeji = tukio.jina_mwenyeji || '';
   const mahali = tukio.mahali_mwenyeji || '';
   const mhusika = tukio.jina_mhusika || mwenyeji;
@@ -1356,6 +1360,7 @@ function buildShukraniCard(tukio, mgeni, containerId) {
   const pronoun = isDouble ? 'kwenu' : 'kwako';
   const asanteKuu = isDouble ? 'Asanteni Sana!' : 'Asante Sana!';
   const umefanyika = isDouble ? 'Mmefanyika baraka sana kwetu.' : 'Umefanyika baraka sana kwetu.';
+  const mungubariki = isDouble ? 'awabariki' : 'akubariki';
 
   let tukioDesc = 'kufanikisha sherehe yetu';
   if (aina === 'harusi') tukioDesc = 'kufanikisha sherehe yetu ya harusi';
@@ -1369,14 +1374,14 @@ function buildShukraniCard(tukio, mgeni, containerId) {
 
   const photoSection = hasPhoto ? `
     <div style="height:265px;position:relative;overflow:hidden;">
-      <img src="${tukio.photo_data}" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(160deg,#4A90D9,#A8D1F5)';" />
+      <img src="${tukio.photo_data}" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(160deg,${R},${G})';" />
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.08) 0%,transparent 35%,transparent 65%,rgba(255,255,255,0.85) 100%);"></div>
       <div style="position:absolute;top:16px;left:18px;">
         <p style="font-family:'Inter',sans-serif;font-size:24px;font-weight:900;color:#1A1A2E;letter-spacing:3px;line-height:1;text-shadow:0 1px 3px rgba(255,255,255,0.6);">SHUKRANI</p>
       </div>
     </div>` : `
-    <div style="height:120px;background:linear-gradient(160deg,#4A90D9 0%,#7BB3E0 50%,#A8D1F5 100%);position:relative;display:flex;align-items:flex-start;padding:16px 18px;">
-      <p style="font-family:'Inter',sans-serif;font-size:24px;font-weight:900;color:#1A1A2E;letter-spacing:3px;">SHUKRANI</p>
+    <div style="height:120px;background:linear-gradient(160deg,${R} 0%,${G} 100%);position:relative;display:flex;align-items:flex-start;padding:16px 18px;">
+      <p style="font-family:'Inter',sans-serif;font-size:24px;font-weight:900;color:#fff;letter-spacing:3px;text-shadow:0 1px 4px rgba(0,0,0,0.35);">SHUKRANI</p>
     </div>`;
 
   container.innerHTML = `
@@ -1391,23 +1396,23 @@ function buildShukraniCard(tukio, mgeni, containerId) {
           <!-- Guest name -->
           <p style="font-family:'Inter',sans-serif;font-size:16px;font-weight:800;color:#1A1A1A;letter-spacing:3px;margin-bottom:12px;">${guestNameDisplay}</p>
           <!-- Divider -->
-          <div style="width:100%;height:1px;background:linear-gradient(to right,transparent,#999,transparent);margin-bottom:16px;"></div>
+          <div style="width:100%;height:1px;background:linear-gradient(to right,transparent,${G},transparent);margin-bottom:16px;"></div>
           <!-- Main shukrani message -->
           <p style="font-family:'Cormorant Garamond',serif;font-size:15px;color:#333;line-height:1.75;margin-bottom:16px;">Tunapenda kutoa Shukrani za dhati kwa kujitoa ${pronoun} katika ${tukioDesc}</p>
           <!-- Mhusika name in cursive -->
-          ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:36px;color:#1A1A2E;margin-bottom:14px;line-height:1.2;">${mhusika}</p>` : ''}
+          ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:36px;color:${R};margin-bottom:14px;line-height:1.2;">${mhusika}</p>` : ''}
           <!-- Blessing line -->
-          <p style="font-family:'Cormorant Garamond',serif;font-size:14px;color:#444;margin-bottom:18px;line-height:1.7;">${umefanyika}<br>Mwenyezi Mungu awabariki sana.</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:14px;color:#444;margin-bottom:18px;line-height:1.7;">${umefanyika}<br>Mwenyezi Mungu ${mungubariki} sana.</p>
           <!-- Big closing cursive -->
-          <p style="font-family:'Great Vibes',cursive;font-size:40px;color:#1A1A2E;line-height:1.2;">${asanteKuu}</p>
+          <p style="font-family:'Great Vibes',cursive;font-size:40px;color:${R};line-height:1.2;">${asanteKuu}</p>
         </div>
       </div>
-      <!-- Dark footer — bible verse -->
-      <div style="background:#1A1A2E;padding:16px 22px;text-align:center;">
-        <p style="font-family:'Inter',sans-serif;font-size:12px;font-weight:800;color:#C9A84C;letter-spacing:1.5px;margin-bottom:8px;">Waefeso 1:16</p>
+      <!-- Footer — bible verse (colored to match the event's theme) -->
+      <div style="background:${R};padding:16px 22px;text-align:center;">
+        <p style="font-family:'Inter',sans-serif;font-size:12px;font-weight:800;color:${G};letter-spacing:1.5px;margin-bottom:8px;">Waefeso 1:16</p>
         <p style="font-family:'Cormorant Garamond',serif;font-size:13px;color:rgba(255,255,255,0.78);font-style:italic;line-height:1.7;margin-bottom:12px;">Sijaacha kumshukuru Mungu kwa ajili yenu,<br>na kuwakumbuka katika sala zangu.</p>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
-          <div><span style="font-weight:800;color:#C9A84C;font-size:13px;">Abed</span><span style="color:white;font-weight:800;font-size:13px;">Cards</span></div>
+          <div><span style="font-weight:800;color:${G};font-size:13px;">Abed</span><span style="color:white;font-weight:800;font-size:13px;">Cards</span></div>
           <div style="font-size:10px;color:rgba(255,255,255,0.45);">📞 ${ABEDTECH_PHONE}</div>
         </div>
       </div>
@@ -1442,7 +1447,6 @@ function renderShukraniWageniList(list, tukio) {
     const hasSimu = w.namba_simu && w.namba_simu.length >= 9;
     const simuWa = (w.namba_simu || '').replace(/^0/, '255');
     const waMsg = buildShukraniMsg(tukio, w, 'wa');
-    const smsMsg = buildShukraniMsg(tukio, w, 'sms');
     const waBadge = w.aina_kadi === 'VIP' ? 'bg-vip' : w.aina_kadi === 'Double' ? 'bg-bl' : 'bg-gray';
     return `<tr>
       <td style="font-weight:600;">${w.jina_kamili}</td>
@@ -1450,14 +1454,14 @@ function renderShukraniWageniList(list, tukio) {
       <td><span class="badge ${waBadge}">${w.aina_kadi}</span></td>
       <td>${hasSimu ? `<a href="https://wa.me/${simuWa}?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn btn-sm" style="background:#25D366;color:white;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">💬 WA</a>` : '<span style="color:#ccc;font-size:11px;">—</span>'}</td>
       <td><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;border:1px solid #C9A84C;" onclick="skShowKadi(${w.id})">📥 Kadi</button></td>
-      <td>${hasSimu ? `<a href="sms:${w.namba_simu}?body=${encodeURIComponent(smsMsg)}" class="btn btn-sm" style="background:#0077B6;color:white;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">📱 SMS</a>` : '<span style="color:#ccc;font-size:11px;">—</span>'}</td>
+      <td>${hasSimu ? `<button class="btn btn-sm" style="background:#1B5E20;color:white;" title="Tuma SMS via Beem (${BEEM_SENDER_ID})" onclick="beemTumaShukraniSMS(${w.id})">📱 SMS</button>` : '<span style="color:#ccc;font-size:11px;">—</span>'}</td>
     </tr>`;
   }).join('');
   return `<div class="card">
     <div class="card-title">👥 Wageni (${list.length}) — Chagua Mgeni Kutuma Shukrani</div>
     <div class="wageni-table-wrapper">
       <table class="wageni-table" style="min-width:550px;">
-        <thead><tr><th>👤 Jina</th><th>🎫 Kadi</th><th>🏷 Aina</th><th>💬 WhatsApp</th><th>📥 Pakua Kadi</th><th>📱 SMS</th></tr></thead>
+        <thead><tr><th>👤 Jina</th><th>🎫 Kadi</th><th>🏷 Aina</th><th>💬 WhatsApp</th><th>📥 Pakua Kadi</th><th>📱 SMS (Beem)</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -1470,7 +1474,6 @@ function skShowKadi(wid) {
   const tukio = AM.find(t => t.id === mgeni.tukio_id) || AM.find(t => t.id === currentShereheId);
   if (!tukio) { toastFn('Sherehe haikupatikana'); return; }
   const waMsg = buildShukraniMsg(tukio, mgeni, 'wa');
-  const smsMsg = buildShukraniMsg(tukio, mgeni, 'sms');
   const simuRaw = mgeni.namba_simu || '';
   const simuWa = simuRaw.replace(/^0/, '255');
   const hasSimu = simuRaw.length >= 9;
@@ -1484,10 +1487,43 @@ function skShowKadi(wid) {
       <button onclick="pakulaPicha('mod-sk-card','${fname}')" class="btn btn-block" style="background:linear-gradient(135deg,#1A1A2E,#2D2D4E);color:#C9A84C;font-weight:700;">📥 Pakua Kadi ya Shukrani</button>
       ${hasSimu ? `<a href="https://wa.me/${simuWa}?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn btn-block" style="background:#25D366;color:white;text-decoration:none;text-align:center;font-weight:700;">📲 Tuma WhatsApp kwa ${mgeni.jina_kamili}</a>` : ''}
       <a href="https://wa.me/?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn btn-block" style="background:#128C7E;color:white;text-decoration:none;text-align:center;font-weight:700;">💬 WhatsApp (Chagua Mwenyewe)</a>
-      ${hasSimu ? `<a href="sms:${simuRaw}?body=${encodeURIComponent(smsMsg)}" class="btn btn-block" style="background:#0077B6;color:white;text-decoration:none;text-align:center;font-weight:700;">📱 Tuma SMS</a>` : ''}
+      ${hasSimu ? `<button onclick="beemTumaShukraniSMS(${mgeni.id})" class="btn btn-block" style="background:#1B5E20;color:white;font-weight:700;">📱 Tuma SMS (Beem — ${BEEM_SENDER_ID})</button>` : ''}
       <button onclick="copyText(${JSON.stringify(waMsg)})" class="btn btn-out btn-block">📋 Nakili Ujumbe</button>
     </div>`;
   }, 350);
+}
+
+async function beemTumaShukraniSMS(wid) {
+  const mgeni = AW.find(w => w.id === wid);
+  if (!mgeni) { toastFn('Mgeni haikupatikani'); return; }
+  if (!mgeni.namba_simu || mgeni.namba_simu.length < 9) { toastFn('⚠ Mgeni hana namba ya simu'); return; }
+  const tukio = AM.find(t => t.id === mgeni.tukio_id) || AM.find(t => t.id === currentShereheId);
+  if (!tukio) { toastFn('Sherehe haikupatikana'); return; }
+  const msg = buildShukraniMsg(tukio, mgeni, 'sms');
+  openMod('📤 Tuma SMS ya Shukrani — ' + mgeni.jina_kamili, `
+    <div>
+      <div class="al al-i" style="font-size:12px;">Ujumbe wa shukrani utatumwa kwa ${mgeni.jina_kamili} (${mgeni.namba_simu}) kupitia Beem (${BEEM_SENDER_ID}):</div>
+      <div class="msg-preview-box" style="max-height:200px;overflow-y:auto;font-size:11px;">${msg.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:14px;">Herufi: ${msg.length} | ~${Math.ceil(msg.length/160)} SMS</div>
+      <button onclick="beemConfirmSendShukrani(${wid})" class="btn btn-gr btn-block">📤 Tuma Sasa</button>
+      <button onclick="closeModDirect()" class="btn btn-out btn-block" style="margin-top:8px;">Ghairi</button>
+    </div>`);
+}
+
+async function beemConfirmSendShukrani(wid) {
+  const mgeni = AW.find(w => w.id === wid);
+  const tukio = mgeni ? (AM.find(t => t.id === mgeni.tukio_id) || AM.find(t => t.id === currentShereheId)) : null;
+  if (!mgeni || !tukio) return;
+  $('mod-body').innerHTML = '<div style="text-align:center;padding:20px;"><span class="loading-spinner"></span> Inatuma...</div>';
+  const msg = buildShukraniMsg(tukio, mgeni, 'sms');
+  const result = await beemSendSMS(mgeni.namba_simu, msg);
+  if (result.success) {
+    $('mod-body').innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:40px;">✅</div><div style="font-weight:700;margin:10px 0;">SMS ya Shukrani Imetumwa!</div><div style="font-size:13px;color:#555;">${mgeni.jina_kamili} amepata shukrani yako kupitia ${BEEM_SENDER_ID}</div><button onclick="closeModDirect()" class="btn btn-g btn-block" style="margin-top:16px;">Sawa</button></div>`;
+    toastFn('✅ SMS ya shukrani imetumwa kwa ' + mgeni.jina_kamili);
+  } else {
+    $('mod-body').innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:40px;">❌</div><div style="font-weight:700;margin:10px 0;color:#B71C1C;">Imeshindwa!</div><div style="font-size:12px;color:#B71C1C;">${result.message}</div><button onclick="closeModDirect()" class="btn btn-r btn-block" style="margin-top:16px;">Funga</button></div>`;
+    toastFn('❌ Imeshindwa: ' + result.message);
+  }
 }
 
 // ==================== PAYMENT OPTIONS HELPERS ====================
@@ -1927,8 +1963,7 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
   <div class="ecard" style="width:100%;max-width:420px;border-radius:22px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;background:${W.bg};box-shadow:0 20px 56px rgba(74,90,60,0.22),0 4px 14px rgba(0,0,0,0.1);">
 
     <div style="padding:20px 20px 0;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <span style="font-size:10px;font-weight:800;color:${W.sage};letter-spacing:1px;">A.A.K. CARDS</span>
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:14px;">
         ${ainaBadgeWreath}
       </div>
 
@@ -1963,6 +1998,7 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
           <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${W.textDark};">${mweziMwaka.split(' ')[1]||''}</div>
         </div>
         <p style="font-size:13px;font-weight:600;color:${W.textBody};margin-top:8px;">⏰ ${tukio.saa}</p>
+        <p style="font-size:13px;font-weight:700;color:${W.textDark};margin-top:4px;">🏛 ${tukio.ukumbi}</p>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;">
@@ -2001,10 +2037,6 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
       <div style="text-align:center;">
         <canvas id="${qid}" width="72" height="72" style="border-radius:8px;background:white;padding:4px;border:1px solid ${W.panelBorder};display:block;"></canvas>
       </div>
-    </div>
-
-    <div style="background:linear-gradient(90deg,${W.sageDark},${W.sage},${W.sageDark});padding:10px 20px;text-align:center;">
-      <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#fff;">🌿 AbedCards · A.A.K. CARDS</span>
     </div>
 
   </div>
