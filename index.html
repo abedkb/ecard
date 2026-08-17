@@ -1147,8 +1147,7 @@ function buildSmsMsg(tukio, mgeni, url) {
   ujumbe += `Ukumbi: ${ukumbi}${locationLine}\n\n`;
   ujumbe += `Nambari ya Kadi: ${nambariKadiVal}${mezaNambari}\n`;
   ujumbe += `Aina ya Kadi: ${ainaKadiLabel}\n\n`;
-  ujumbe += `Angalia kadi yako hapa:\n${url}\n\n`;
-  ujumbe += `-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
+  ujumbe += `Angalia kadi yako hapa:\n${url}`;
   return ujumbe;
 }
 
@@ -1195,7 +1194,7 @@ function buildPledgeSmsMsg(tukio) {
   if(pay.simu&&pay.simu.length) njia+=pay.simu.map(s=>` ${getSimuLabel(s.platform)}:${s.nambari||''}`).join('');
   if(pay.benki&&pay.benki.length) njia+=pay.benki.map(b=>` ${getBenkiLabel(b.benki)}:${b.akaunti||''}`).join('');
   const mwisho=tukio.mwisho_mchango?` Mwisho: ${formatTarehe(tukio.mwisho_mchango)}.`:'';
-  return `MCHANGO: ${familiaLine} wa ${mahali} wanayo furaha kukualika kwenye ${maelezoSherehe}. Tarehe: ${tarehe}, ${tukio.saa}. Mahali: ${tukio.ukumbi}.${njia}${mwisho}\nAhadi: ${url}\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
+  return `MCHANGO: ${familiaLine} wa ${mahali} wanayo furaha kukualika kwenye ${maelezoSherehe}. Tarehe: ${tarehe}, ${tukio.saa}. Mahali: ${tukio.ukumbi}.${njia}${mwisho}\nAhadi: ${url}`;
 }
 
 // ==================== SHUKRANI (THANKSGIVING) ====================
@@ -1318,7 +1317,7 @@ function buildAhadiReminderSmsMsg(tukio, ahadi) {
     msg += `\nTafadhali kamilisha TZS ${kinachobaki.toLocaleString()}/= kabla ya sherehe.\n`;
   }
   msg += `\nBonyeza kiungo hapa chini kuthibitisha au kufanya ahadi yako:\n${url}\n\n`;
-  msg += `Mungu akubariki!\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
+  msg += `Mungu akubariki!`;
   return msg;
 }
 
@@ -2482,7 +2481,7 @@ function buildMchangoSmsMsg(tukio, single, double_, simu, benki, mwisho, mgeni) 
   msg += njiaSection;
   msg += mwishoLine;
   msg += `\n\nWeka Ahadi Yako:\n${url}\n\n`;
-  msg += `Karibuni Nyote!\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
+  msg += `Karibuni Nyote!`;
   return msg;
 }
 
@@ -3694,7 +3693,7 @@ function buildBeemReminderMsg(tukio, mgeni) {
   const tarehe = formatTarehe(tukio.tarehe);
   const jinaLaMgeni = mgeni.jina_kamili || '';
   const nenoKualika = mgeni.aina_kadi === 'Double' ? 'ninyi' : 'wewe';
-  return `Ukumbusho: ${jinaLaMgeni}, ${buildFamiliaLine(tukio)} wanakukumbusha sherehe yao ya ${tukio.aina||'Sherehe'} - ${tarehe}, Saa ${tukio.saa}, ${tukio.ukumbi}. Kadi yako: ${mgeni.nambari_kadi}. Karibu sana!\n-A.A.K.CARDS | AbedTech ${ABEDTECH_PHONE}`;
+  return `Ukumbusho: ${jinaLaMgeni}, ${buildFamiliaLine(tukio)} wanakukumbusha sherehe yao ya ${tukio.aina||'Sherehe'} - ${tarehe}, Saa ${tukio.saa}, ${tukio.ukumbi}. Kadi yako: ${mgeni.nambari_kadi}. Karibu sana!`;
 }
 
 // ---------- BEEM SETTINGS PANEL ----------
@@ -4001,8 +4000,7 @@ function buildKamatiSmsMsg(tukio, m) {
   msg += 'katika ' + buildMaelezoSherehe(tukio, true) + '\n';
   msg += 'Tarehe: ' + tarehe + '\n';
   msg += 'Mahali: ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n';
-  msg += '\n' + familiaLine + ' wanakushukuru.\n';
-  msg += '-AbedTech ' + ABEDTECH_PHONE;
+  msg += '\n' + familiaLine + ' wanakushukuru.';
   return msg;
 }
 
@@ -4173,8 +4171,7 @@ function buildBajetiSmsMsg(tukio, b) {
   msg += 'Tukio: ' + buildMaelezoSherehe(tukio, true) + '\n';
   msg += 'Tarehe: ' + tarehe + '\n';
   msg += 'Mahali: ' + (tukio.ukumbi||'') + (tukio.mahali_mwenyeji ? ', ' + tukio.mahali_mwenyeji : '') + '\n';
-  msg += '\n' + familiaLine + ' wanakushukuru.\n';
-  msg += '-AbedTech ' + ABEDTECH_PHONE;
+  msg += '\n' + familiaLine + ' wanakushukuru.';
   return msg;
 }
 
