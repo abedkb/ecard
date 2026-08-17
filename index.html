@@ -884,9 +884,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
 const SB = 'https://dfcqredvuuosmmjforwf.supabase.co';
 const SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY3FyZWR2dXVvc21tamZvcndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NTc2NTUsImV4cCI6MjA5MTAzMzY1NX0.0MnVvys_Vcc8vjiQJnzeZYS9_itSFgQ1WSziz2TTsmM';
 const AP = 'Ricarose1112!';
-const MSIMAMIZI_PW = 'Ricarose1112' + String.fromCharCode(33);
 const SITE = (window.location.origin + window.location.pathname).split('?')[0].split('#')[0];
 const ABEDTECH_PHONE = '0755 863 325';
+const HESHIMA_ZOTE = 'Mr &amp; Mrs / Ps / Ev / Prof / Dr / Mr / Ms';
 
 const H = {
   'apikey': SK,
@@ -976,7 +976,7 @@ function nambariKadi(aina, tukioJina) {
 }
 function nambariTukio() { return 'EVT'+Date.now().toString().slice(-6)+Math.floor(Math.random()*100); }
 function genPin(len=8) { const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let p=''; for(let i=0;i<len;i++) p+=chars[Math.floor(Math.random()*chars.length)]; return p; }
-function undaPINs() { $('t-pw-msimamizi').value=MSIMAMIZI_PW; $('t-pw-mtazamaji').value=genPin(6); }
+function undaPINs() { $('t-pw-msimamizi').value=genPin(8); $('t-pw-mtazamaji').value=genPin(6); }
 function copyText(txt) { navigator.clipboard.writeText(txt).then(()=>toastFn('✅ Imenakiliwa!')); }
 function setKiasi(val) { const input=$('ap-kiasi'); if(input){input.value=val;} }
 
@@ -1586,7 +1586,7 @@ async function shereheLogin(){
     const data=await response.json();
     if(!data||!data[0]){setAl('al-slogin','Sherehe haipatikani','e');return;}
     const t=data[0];
-    if(pw !== MSIMAMIZI_PW){setAl('al-slogin',`Nenosiri si sahihi. Uliandika herufi ${pw.length}, sahihi ni ${MSIMAMIZI_PW.length}.`,'e');return;}
+    if(t.pw_msimamizi !== pw){setAl('al-slogin','Nenosiri si sahihi','e');return;}
     currentRole='msimamizi';currentShereheId=t.id;AM=[t];
     setAl('al-slogin','','i');
     await loadShereheData(t.id);
@@ -1888,10 +1888,11 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
 
       <div style="text-align:center;">
         <p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:${T.brownDark};margin-bottom:4px;">wanayo furaha ${nenoKualika}</p>
+        <p style="font-family:'Inter',sans-serif;font-style:normal;font-size:11px;font-weight:700;letter-spacing:0.5px;color:${T.gold2};opacity:0.85;margin-bottom:2px;">${HESHIMA_ZOTE}</p>
         <p style="font-family:'Great Vibes',cursive;font-size:48px;color:${T.gold};line-height:1.1;margin:2px 0 8px;">${guestName}</p>
         <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;font-style:italic;color:${T.brownDark};margin-bottom:2px;">Kwenye ${maelezoSherehe}${['harusi','kitchen party'].includes((tukio.aina||'').toLowerCase())&&relativePhrase?' ya':''}</p>
         ${relativePhrase ? `<p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;font-style:italic;color:${T.brownBody};margin-bottom:2px;">${relativePhrase}</p>` : ''}
-        ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:42px;color:${T.gold2};line-height:1.1;margin-top:4px;">${stripCheo(mhusika)}</p>` : ''}
+        ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:56px;font-weight:700;color:${T.gold2};line-height:1.1;margin-top:4px;">${stripCheo(mhusika)}</p>` : ''}
       </div>
 
       <div style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;font-weight:600;color:${T.pink};margin:12px 0 4px;">Uwepo wako ni zawadi kubwa kwetu! 🤍</div>
@@ -1984,10 +1985,11 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
 
       <div style="text-align:center;">
         <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:${W.textDark};margin-bottom:4px;">wanayo furaha ${nenoKualika}</p>
+        <p style="font-family:'Inter',sans-serif;font-style:normal;font-size:11px;font-weight:700;letter-spacing:0.5px;color:${W.sageDark};opacity:0.85;margin-bottom:2px;">${HESHIMA_ZOTE}</p>
         <p style="font-family:'Great Vibes',cursive;font-size:34px;color:${W.sage};line-height:1.1;margin-bottom:6px;">${guestName}</p>
         <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:${W.textDark};margin-bottom:4px;">Kwenye ${maelezoSherehe}${['harusi','kitchen party'].includes((tukio.aina||'').toLowerCase())&&relativePhrase?' ya':''}</p>
         ${relativePhrase ? `<p style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;font-style:italic;color:${W.textBody};margin-bottom:2px;">${relativePhrase}</p>` : ''}
-        ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:34px;color:${W.sage};line-height:1.1;margin-top:4px;">${stripCheo(mhusika)}</p>` : ''}
+        ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:50px;font-weight:700;color:${W.sage};line-height:1.1;margin-top:4px;">${stripCheo(mhusika)}</p>` : ''}
       </div>
 
       <div style="margin:16px 0 4px;text-align:center;">
@@ -2076,12 +2078,13 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
         <p style="font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:white;line-height:1.3;text-shadow:0 2px 6px rgba(0,0,0,0.6);">${mwenyeji}</p>
         ${mahali ? `<p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;color:rgba(255,255,255,0.85);">wa ${mahali}</p>` : ''}
         <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:white;margin-top:4px;">wanayo furaha ${nenoKualika}</p>
-        <!-- Guest name immediately after kukualika/kuwaalika -->
+        <!-- Honorific titles line, then guest name immediately after kukualika/kuwaalika -->
+        <p style="font-family:'Inter',sans-serif;font-style:normal;font-size:11px;font-weight:700;letter-spacing:0.5px;color:${G};opacity:0.9;margin-top:2px;">${HESHIMA_ZOTE}</p>
         <p style="font-family:'Great Vibes',cursive;font-size:44px;color:${G};line-height:1.05;text-shadow:0 2px 8px rgba(0,0,0,0.5);margin-top:2px;">${guestName}</p>
         <!-- Event context right after guest name -->
         <p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;font-style:italic;color:white;margin-top:6px;">Kwenye ${maelezoSherehe}${['harusi','kitchen party'].includes((tukio.aina||'').toLowerCase())&&relativePhrase?' ya':''}</p>
         ${relativePhrase ? `<p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;font-style:italic;color:rgba(255,255,255,0.9);">${relativePhrase}</p>` : ''}
-        ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:48px;color:white;line-height:1.05;text-shadow:0 3px 14px rgba(0,0,0,0.6);margin-top:2px;">${stripCheo(mhusika)}</p>` : ''}
+        ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:56px;font-weight:700;color:white;line-height:1.05;text-shadow:0 3px 14px rgba(0,0,0,0.6);margin-top:2px;">${stripCheo(mhusika)}</p>` : ''}
       </div>
 
       <!-- SPACER pushes bottom content down -->
@@ -2157,10 +2160,11 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
         <div style="height:1px;flex:1;background:linear-gradient(to left,transparent,${G});"></div>
       </div>
       <p style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;color:#333;margin-bottom:4px;">wanayo furaha ${nenoKualika}</p>
+      <p style="font-family:'Inter',sans-serif;font-style:normal;font-size:11px;font-weight:700;letter-spacing:0.5px;color:${R};opacity:0.85;margin-bottom:2px;">${HESHIMA_ZOTE}</p>
       <p style="font-family:'Great Vibes',cursive;font-size:44px;color:${R};line-height:1.1;margin-bottom:6px;">${guestName}</p>
       <p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#444;margin-bottom:4px;">Kwenye ${maelezoSherehe}${['harusi','kitchen party'].includes((tukio.aina||'').toLowerCase())&&relativePhrase?' ya':''}</p>
       ${relativePhrase ? `<p style="font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#555;margin-bottom:4px;">${relativePhrase}</p>` : ''}
-      ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:44px;color:${R};line-height:1.1;margin-top:2px;">${stripCheo(mhusika)}</p>` : ''}
+      ${mhusika ? `<p style="font-family:'Great Vibes',cursive;font-size:52px;font-weight:700;color:${R};line-height:1.1;margin-top:2px;">${stripCheo(mhusika)}</p>` : ''}
       <div style="margin:10px 0 10px;">
         <div style="height:1px;background:linear-gradient(to right,transparent,${G},transparent);"></div>
       </div>
