@@ -3101,25 +3101,6 @@ async function angaliaKadi(){
     setAl('al-search','');AM=[tukio];AW=[mgeni];
     $('kadi-pub-display').innerHTML='<div id="pub-kadi-cont"></div>';
     setTimeout(()=>buildEcard(tukio,mgeni,'pub-kadi-cont'),100);
-    const url=mgeni.kadi_url||SITE+'?kadi='+mgeni.nambari_kadi;
-    const waMsg=buildWaMsg(tukio,mgeni,url);
-    const smsMsg=buildSmsMsg(tukio,mgeni,url);
-    const simu=mgeni.namba_simu?mgeni.namba_simu.replace(/^0/,'255'):'';
-    const hasSimu=mgeni.namba_simu&&mgeni.namba_simu.length>=9;
-    setTimeout(()=>{
-      $('kadi-pub-display').innerHTML+=`
-        <div class="card">
-          <div class="card-title">📲 Shiriki Kadi</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <a href="https://wa.me/${simu}?text=${encodeURIComponent(waMsg)}" target="_blank" class="share-channel-btn" style="background:#25D366;color:white;">💬 WhatsApp</a>
-            ${hasSimu
-              ?`<a href="sms:${mgeni.namba_simu}?body=${encodeURIComponent(smsMsg)}" class="share-channel-btn" style="background:#0077B6;color:white;">💬 SMS</a>`
-              :`<button onclick="copyText(${JSON.stringify(smsMsg)})" class="share-channel-btn" style="background:#E3F2FD;color:#0077B6;">📋 Nakili SMS</button>`}
-            <div class="link-box"><code>${url}</code><button onclick="copyText('${url}')" class="link-box-copy">📋</button></div>
-            <button onclick="shareNativeLink('${url}','${mgeni.jina_kamili}')" class="share-channel-btn" style="background:var(--p);color:white;">↗ Share Link</button>
-          </div>
-        </div>`;
-    },500);
   }catch(e){setAl('al-search','Hitilafu: '+e.message,'e');}
 }
 
