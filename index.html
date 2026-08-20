@@ -12,6 +12,9 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- PDF list export (Wageni / Ahadi) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{
   --p:#1A1A2E;--pl:#16213E;--gold:#C9A84C;--gl:#FDF6E3;
@@ -493,7 +496,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
         <button class="btn btn-g btn-block" onclick="ongezaMgeni()">➕ Ongeza Mgeni</button>
       </div>
       <div class="card">
-        <div class="card-title">📋 Orodha ya Wageni <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm btn-out" onclick="refreshGuests()" style="font-size:10px;">🔄 Refresh</button><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadWageniList('admin')">📥 Pakua</button><button class="btn btn-r btn-sm" style="font-size:10px;" onclick="futaWageniWote('admin')">🗑 Futa Wote</button></span></div>
+        <div class="card-title">📋 Orodha ya Wageni <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm btn-out" onclick="refreshGuests()" style="font-size:10px;">🔄 Refresh</button><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadWageniList('admin')">📥 CSV</button><button class="btn btn-sm" style="background:#B71C1C;color:white;font-size:10px;" onclick="downloadWageniListPDF('admin')">📄 PDF</button><button class="btn btn-r btn-sm" style="font-size:10px;" onclick="futaWageniWote('admin')">🗑 Futa Wote</button></span></div>
         <div class="fg" style="margin-bottom:10px;">
           <label>🔎 Tafuta kwa Jina</label>
           <input type="text" class="fi" id="wa-jina-search" placeholder="Anza kuandika jina la mgeni..." oninput="tafutaMgeniKwaJina('wa')"/>
@@ -738,7 +741,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);font-s
         <button class="btn btn-g btn-block" onclick="shOngezaMgeni()">➕ Ongeza Mgeni</button>
       </div>
       <div class="card">
-        <div class="card-title">📋 Wageni wa Sherehe Hii <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm btn-out" onclick="refreshShGuests()" style="font-size:10px;">🔄 Refresh</button><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadWageniList('sh')">📥 Pakua</button><button class="btn btn-sm" style="background:#1B5E20;color:white;font-size:10px;" onclick="beemSelectedSMSModal()">📱 Chagua SMS</button><button class="btn btn-sm" style="background:#25D366;color:white;font-size:10px;" onclick="beemSelectedWhatsAppModal()">💬 Chagua WA</button><button class="btn btn-r btn-sm" style="font-size:10px;" onclick="futaWageniWote('sh')">🗑 Futa Wote</button></span></div>
+        <div class="card-title">📋 Wageni wa Sherehe Hii <span style="display:inline-flex;gap:6px;"><button class="btn btn-sm btn-out" onclick="refreshShGuests()" style="font-size:10px;">🔄 Refresh</button><button class="btn btn-sm" style="background:#1A1A2E;color:#C9A84C;font-size:10px;" onclick="downloadWageniList('sh')">📥 CSV</button><button class="btn btn-sm" style="background:#B71C1C;color:white;font-size:10px;" onclick="downloadWageniListPDF('sh')">📄 PDF</button><button class="btn btn-sm" style="background:#1B5E20;color:white;font-size:10px;" onclick="beemSelectedSMSModal()">📱 Chagua SMS</button><button class="btn btn-sm" style="background:#25D366;color:white;font-size:10px;" onclick="beemSelectedWhatsAppModal()">💬 Chagua WA</button><button class="btn btn-r btn-sm" style="font-size:10px;" onclick="futaWageniWote('sh')">🗑 Futa Wote</button></span></div>
         <div id="beem-selected-count" style="font-size:11px;color:#555;margin-top:8px;">📌 Hakuna aliyeteuliwa</div>
         <div class="fg" style="margin-top:10px;margin-bottom:10px;">
           <label>🔎 Tafuta kwa Jina</label>
@@ -4574,6 +4577,91 @@ function downloadWageniList(ctx) {
       + (w.ameingia ? 'Ndiyo' : 'Hapana') + '\n';
   });
   _csvDownload('Wageni_' + evName.replace(/\s+/g,'-') + '.csv', csv);
+}
+
+function downloadWageniListPDF(ctx) {
+  var tid = ctx === 'sh' ? currentShereheId : (parseInt((($('wa-tukio-sel')||{}).value)||'') || null);
+  var tukio = tid ? AM.find(function(t){return t.id===tid;}) : null;
+  var list = tid ? AW.filter(function(w){return w.tukio_id===tid;}) : AW;
+  if (!list.length) { toastFn('Hakuna wageni wa kupakua'); return; }
+  if (!window.jspdf || !window.jspdf.jsPDF) { toastFn('❌ Sehemu ya kutengeneza PDF haijapakia — angalia mtandao wako kisha jaribu tena'); return; }
+  var evName = tukio ? tukio.jina_tukio : 'Wageni';
+  var jsPDFCtor = window.jspdf.jsPDF;
+  var doc = new jsPDFCtor({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+
+  var nakuja = list.filter(function(w){return w.rsvp==='nakuja';}).length;
+  var sitakuja = list.filter(function(w){return w.rsvp==='sitakuja';}).length;
+  var bado = list.length - nakuja - sitakuja;
+  var ameingia = list.filter(function(w){return w.ameingia;}).length;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.setTextColor(26, 26, 46);
+  doc.text('Orodha ya Wageni — ' + evName, 40, 40);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(90, 90, 90);
+  var subParts = [];
+  if (tukio && tukio.tarehe) subParts.push('Tarehe: ' + formatTarehe(tukio.tarehe));
+  if (tukio && tukio.ukumbi) subParts.push('Ukumbi: ' + tukio.ukumbi);
+  subParts.push('Jumla ya Wageni: ' + list.length);
+  subParts.push('Nakuja: ' + nakuja);
+  subParts.push('Sitakuja: ' + sitakuja);
+  subParts.push('Bado: ' + bado);
+  subParts.push('Ameingia: ' + ameingia);
+  doc.text(subParts.join('    |    '), 40, 58);
+
+  var rows = list.map(function(w, i) {
+    var rsvp = w.rsvp==='nakuja' ? 'Nakuja' : (w.rsvp==='sitakuja' ? 'Sitakuja' : 'Bado');
+    return [
+      i + 1,
+      w.jina_kamili || '',
+      w.nambari_kadi || '',
+      w.aina_kadi || '',
+      w.namba_simu || '',
+      rsvp,
+      w.ameingia ? 'Ndiyo' : 'Hapana'
+    ];
+  });
+
+  doc.autoTable({
+    startY: 72,
+    head: [['#', 'Jina', 'Nambari Kadi', 'Aina', 'Simu', 'RSVP', 'Ameingia']],
+    body: rows,
+    styles: { font: 'helvetica', fontSize: 9, cellPadding: 5, overflow: 'linebreak' },
+    headStyles: { fillColor: [26, 26, 46], textColor: [201, 168, 76], fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [248, 245, 240] },
+    columnStyles: {
+      0: { cellWidth: 28, halign: 'center' },
+      1: { cellWidth: 160 },
+      2: { cellWidth: 90 },
+      3: { cellWidth: 60 },
+      4: { cellWidth: 80 },
+      5: { cellWidth: 60, halign: 'center' },
+      6: { cellWidth: 60, halign: 'center' }
+    },
+    margin: { left: 40, right: 40 },
+    didParseCell: function(data) {
+      if (data.section === 'body') {
+        if (data.column.index === 5) {
+          var v = data.cell.raw;
+          if (v === 'Nakuja') { data.cell.styles.textColor = [27, 94, 32]; data.cell.styles.fontStyle = 'bold'; }
+          else if (v === 'Sitakuja') { data.cell.styles.textColor = [183, 28, 28]; data.cell.styles.fontStyle = 'bold'; }
+        }
+        if (data.column.index === 6 && data.cell.raw === 'Ndiyo') { data.cell.styles.textColor = [27, 94, 32]; data.cell.styles.fontStyle = 'bold'; }
+      }
+    },
+    didDrawPage: function(data) {
+      var pageCount = doc.internal.getNumberOfPages();
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Ukurasa ' + doc.internal.getCurrentPageInfo().pageNumber + ' / ' + pageCount, doc.internal.pageSize.getWidth() - 90, doc.internal.pageSize.getHeight() - 20);
+      doc.text('Imetengenezwa na AbedCards', 40, doc.internal.pageSize.getHeight() - 20);
+    }
+  });
+
+  doc.save('Wageni_' + evName.replace(/\s+/g, '-') + '.pdf');
+  toastFn('✅ PDF imepakuliwa');
 }
 
 function downloadAhadiList(ctx) {
