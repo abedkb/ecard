@@ -13,8 +13,8 @@
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <!-- PDF list export (Wageni / Ahadi) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{
   --p:#1A1A2E;--pl:#16213E;--gold:#C9A84C;--gl:#FDF6E3;
@@ -4584,11 +4584,13 @@ function downloadWageniListPDF(ctx) {
   var tukio = tid ? AM.find(function(t){return t.id===tid;}) : null;
   var list = tid ? AW.filter(function(w){return w.tukio_id===tid;}) : AW;
   if (!list.length) { toastFn('Hakuna wageni wa kupakua'); return; }
-  if (!window.jspdf || !window.jspdf.jsPDF) { toastFn('❌ Sehemu ya kutengeneza PDF haijapakia — angalia mtandao wako kisha jaribu tena'); return; }
+  if (!window.jspdf || !window.jspdf.jsPDF) { toastFn('❌ Maktaba ya PDF haijapakia — hakikisha una mtandao kisha "Refresh" ukurasa mzima (si tu bonyeza tena)'); return; }
   var evName = tukio ? tukio.jina_tukio : 'Wageni';
   var jsPDFCtor = window.jspdf.jsPDF;
   var doc = new jsPDFCtor({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+  if (typeof doc.autoTable !== 'function') { toastFn('❌ Sehemu ya jedwali la PDF haijapakia — hakikisha una mtandao kisha "Refresh" ukurasa mzima (si tu bonyeza tena)'); return; }
 
+  try {
   var nakuja = list.filter(function(w){return w.rsvp==='nakuja';}).length;
   var sitakuja = list.filter(function(w){return w.rsvp==='sitakuja';}).length;
   var bado = list.length - nakuja - sitakuja;
@@ -4662,6 +4664,10 @@ function downloadWageniListPDF(ctx) {
 
   doc.save('Wageni_' + evName.replace(/\s+/g, '-') + '.pdf');
   toastFn('✅ PDF imepakuliwa');
+  } catch (e) {
+    console.error('PDF generation error:', e);
+    toastFn('❌ Imeshindwa kutengeneza PDF: ' + (e && e.message ? e.message : 'hitilafu isiyojulikana'));
+  }
 }
 
 function downloadAhadiList(ctx) {
