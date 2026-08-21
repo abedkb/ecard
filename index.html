@@ -1219,9 +1219,15 @@ function buildWaMsg(tukio, mgeni, url) {
 function buildSmsMsg(tukio, mgeni, url) {
   const mahali = tukio.mahali_mwenyeji || 'Dar Es Salaam';
   if(tukio.kadi_theme === 'mercy_floral'){
-    const guest = mgeni.jina_kamili || '';
-    const tareheMfupi = formatTarehe(tukio.tarehe);
-    return `MWALIKO WA SHEREHE\n\nFamilia ya Ndugu Manase wanayo furaha kuwakaribisha ${guest} kwenye sherehe ya kumuaga (send off) binti yetu mpendwa Mercy Silas Munuo itakayofanyika siku ya ${tareheMfupi} katika ukumbi wa ${tukio.ukumbi || 'Mirado Hall, Sinza, Igesa Road, Shekilango Rd, Dar es Salaam'} kuanzia ${tukio.saa || 'saa 12 jioni'}.\n\nNambari ya Kadi: ${mgeni.nambari_kadi || ''}\nAngalia kadi yako hapa:\n${url}`;
+    // Mirrors the wording on the designed card exactly. NOTE: the date/venue/time printed on the card artwork are baked into the picture itself (not read from tukio.tarehe), so this SMS deliberately uses the same fixed wording as the artwork instead of the live event fields — this guarantees the SMS a guest receives always matches what's printed on the card they'll see, even if the tarehe field in the event record is ever edited or was saved differently.
+    const guest = mgeni.jina_kamili || 'Mgeni Wetu';
+    const familiaLine = buildFamiliaLine(tukio);
+    const nenoKualika = mgeni.aina_kadi === 'Double' ? 'kuwaalika' : 'kukualika';
+    const honoree = tukio.jina_mhusika || 'Mercy Silas Munuo';
+    const tareheFixed = 'Jumatano, 26 Agosti 2026';
+    const ukumbi = tukio.ukumbi || 'Mirado Hall, Sinza, Igesa Road, Shekilango Rd, Dar es Salaam';
+    const saa = tukio.saa || 'saa 12 jioni';
+    return `MWALIKO WA SHEREHE\n\n${familiaLine} wa ${mahali}, wanayo furaha ${nenoKualika} ${guest}\n\nkwenye sherehe ya kumuaga (Send Off) binti yao mpendwa ${honoree}, itakayofanyika siku ya ${tareheFixed} katika ukumbi wa ${ukumbi} kuanzia ${saa}.\n\nRangi za Sherehe: Emerald Green, Champagne, White\n\nNambari ya Kadi: ${mgeni.nambari_kadi || ''}\nAngalia kadi yako hapa:\n${url}`;
   }
   const jinaLaMgeni = mgeni.jina_kamili || '';
   const nenoKualika = mgeni.aina_kadi === 'Double' ? 'kuwaalika' : 'kukualika';
