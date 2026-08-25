@@ -2891,7 +2891,7 @@ async function tumaKadiPichaHaraka(role){
   $(previewWrapId).innerHTML=`<div id="${buildId}"></div>`;
   buildEcard(tukio,mgeni,buildId,tukio._mawa);
   showShareOptions(tukio,mgeni,shareWrapId,shareContentId,buildId);
-  await new Promise(r=>setTimeout(r,350));
+  await new Promise(r=>setTimeout(r,700));
   await tumaKadiPichaMojaKwaMoja(buildId,mgeni.jina_kamili+'_'+mgeni.nambari_kadi,mgeni.jina_kamili,mgeni.namba_simu||'');
 }
 
