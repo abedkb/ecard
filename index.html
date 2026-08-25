@@ -1935,7 +1935,7 @@ function tafutaMgeniKwaJina(role){
       <div class="cred-title">👤 ${w.jina_kamili}</div>
       <div class="cred-row"><span class="cred-label">🎫 Nambari Kadi:</span><span class="cred-value">${w.nambari_kadi||'—'}</span><button class="cred-copy" onclick="copyText('${w.nambari_kadi||''}')">Nakili</button></div>
       <div class="cred-row"><span class="cred-label">📞 Simu:</span><span class="cred-value">${w.namba_simu||'—'}</span>${simuOk?`<button class="cred-copy" onclick="copyText('${w.namba_simu}')">Nakili</button>`:''}</div>
-      <div class="cred-row"><span class="cred-label">🔗 Kiungo cha Kadi:</span><span class="cred-value" style="word-break:break-all;">${w.kadi_url||'—'}</span>${w.kadi_url?`<button class="cred-copy" onclick="copyText('${w.kadi_url}')">Nakili</button>`:''}</div>
+      <div class="cred-row"><span class="cred-label">🔗 Kiungo cha Kadi:</span><span class="cred-value" style="word-break:break-all;">${SITE+'?kadi='+w.nambari_kadi}</span><button class="cred-copy" onclick="copyText('${SITE+'?kadi='+w.nambari_kadi}')">Nakili</button></div>
       <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
         <button class="btn btn-g btn-sm" onclick="oneshaMgeniKadi(${w.id})">💌 Kadi</button>
         ${simuOk?`<button class="btn btn-sm" style="background:#25D366;color:white;" onclick="tumaWaHaraka(${w.id})">📲 WhatsApp</button>`:''}
@@ -2283,7 +2283,7 @@ function buildEcard(tukio, mgeni, containerId, mawasiliano = '') {
   mawasiliano = mawasiliano || tukio.mawasiliano || '';
   const R = tukio.rangi_kuu || '#8B1A1A';
   const G = tukio.rangi_dhahabu || '#C9A84C';
-  const kadiUrl = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+  const kadiUrl = SITE + '?kadi=' + mgeni.nambari_kadi;
   const qid = 'qr_' + String(mgeni.id).replace(/-/g,'').substring(0,8);
   const container = $(containerId);
   if (!container) return;
@@ -2896,7 +2896,7 @@ async function tumaKadiPichaHaraka(role){
 }
 
 function showShareOptions(tukio,mgeni,wrapId,contentId,buildContainerId){
-  const kadiUrl=mgeni.kadi_url||SITE+'?kadi='+mgeni.nambari_kadi;
+  const kadiUrl=SITE+'?kadi='+mgeni.nambari_kadi;
   const waMsg=buildWaMsg(tukio,mgeni,kadiUrl);
   const smsMsg=buildSmsMsg(tukio,mgeni,kadiUrl);
   const simuRaw=mgeni.namba_simu||'';
@@ -3011,8 +3011,8 @@ async function tumaKadiPichaMojaKwaMoja(containerId,filename,jina,simu){
     : '📥 Kivinjari hiki hakiwezi kutuma moja kwa moja — picha imepakuliwa, sasa iambatanishe kwenye WhatsApp/SMS.');
 }
 async function tumaWaPichaHaraka(wid){const mgeni=AW.find(w=>w.id===wid);if(!mgeni)return;const tukio=AM.find(t=>t.id===mgeni.tukio_id);if(!tukio)return;const tempDiv=document.createElement('div');tempDiv.id='temp_kadi_'+wid;tempDiv.style.cssText='position:fixed;left:-9999px;top:0;width:450px;';document.body.appendChild(tempDiv);buildEcard(tukio,mgeni,tempDiv.id);await new Promise(r=>setTimeout(r,900));await tumaKadiPichaMojaKwaMoja(tempDiv.id,mgeni.jina_kamili+'_'+mgeni.nambari_kadi,mgeni.jina_kamili,mgeni.namba_simu||'');setTimeout(()=>document.body.removeChild(tempDiv),2000);}
-function tumaWaHaraka(wid){const mgeni=AW.find(w=>w.id===wid);if(!mgeni)return;const tukio=AM.find(t=>t.id===mgeni.tukio_id);if(!tukio)return;if(!mgeni.namba_simu||mgeni.namba_simu.length<9){toastFn('⚠ Mgeni hana namba');return;}const kadiUrl=mgeni.kadi_url||SITE+'?kadi='+mgeni.nambari_kadi;window.open('https://wa.me/'+mgeni.namba_simu.replace(/^0/,'255')+'?text='+encodeURIComponent(buildWaMsg(tukio,mgeni,kadiUrl)),'_blank');}
-function tumaSMSHaraka(wid){const mgeni=AW.find(w=>w.id===wid);if(!mgeni)return;const tukio=AM.find(t=>t.id===mgeni.tukio_id);if(!tukio)return;const kadiUrl=mgeni.kadi_url||SITE+'?kadi='+mgeni.nambari_kadi;const msg=buildSmsMsg(tukio,mgeni,kadiUrl);if(mgeni.namba_simu&&mgeni.namba_simu.length>=9){window.open(`sms:${mgeni.namba_simu}?body=${encodeURIComponent(msg)}`,'_self');}else{copyText(msg);}}
+function tumaWaHaraka(wid){const mgeni=AW.find(w=>w.id===wid);if(!mgeni)return;const tukio=AM.find(t=>t.id===mgeni.tukio_id);if(!tukio)return;if(!mgeni.namba_simu||mgeni.namba_simu.length<9){toastFn('⚠ Mgeni hana namba');return;}const kadiUrl=SITE+'?kadi='+mgeni.nambari_kadi;window.open('https://wa.me/'+mgeni.namba_simu.replace(/^0/,'255')+'?text='+encodeURIComponent(buildWaMsg(tukio,mgeni,kadiUrl)),'_blank');}
+function tumaSMSHaraka(wid){const mgeni=AW.find(w=>w.id===wid);if(!mgeni)return;const tukio=AM.find(t=>t.id===mgeni.tukio_id);if(!tukio)return;const kadiUrl=SITE+'?kadi='+mgeni.nambari_kadi;const msg=buildSmsMsg(tukio,mgeni,kadiUrl);if(mgeni.namba_simu&&mgeni.namba_simu.length>=9){window.open(`sms:${mgeni.namba_simu}?body=${encodeURIComponent(msg)}`,'_self');}else{copyText(msg);}}
 function oneshaMgeniKadi(wid){const mgeni=AW.find(w=>w.id===wid),tukio=mgeni?AM.find(t=>t.id===mgeni.tukio_id):null;if(!mgeni||!tukio)return;const mawa=tukio._mawa||'';openMod(mgeni.jina_kamili+' — Kadi','<div id="mod-kadi-cont"></div>');setTimeout(()=>buildEcard(tukio,mgeni,'mod-kadi-cont',mawa),100);}
 
 // ==================== AHADI ====================
@@ -4128,7 +4128,7 @@ async function beemTumaKadiSMS(wid) {
   const tukio = AM.find(t => t.id === mgeni.tukio_id);
   if (!tukio) { toastFn('Sherehe haikupatikani'); return; }
 
-  const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+  const url = SITE + '?kadi=' + mgeni.nambari_kadi;
   const msg = buildSmsMsg(tukio, mgeni, url);
 
   openMod('📤 Tuma SMS — ' + mgeni.jina_kamili, `
@@ -4148,7 +4148,7 @@ async function beemConfirmSendOne(wid) {
 
   $('mod-body').innerHTML = '<div style="text-align:center;padding:20px;"><span class="loading-spinner"></span> Inatuma...</div>';
 
-  const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+  const url = SITE + '?kadi=' + mgeni.nambari_kadi;
   const msg = buildSmsMsg(tukio, mgeni, url);
   const result = await beemSendSMS(mgeni.namba_simu, msg);
 
@@ -4169,7 +4169,7 @@ async function beemTumaKadiWhatsApp(wid) {
   const tukio = AM.find(t => t.id === mgeni.tukio_id);
   if (!tukio) { toastFn('Sherehe haikupatikani'); return; }
 
-  const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+  const url = SITE + '?kadi=' + mgeni.nambari_kadi;
   const msg = buildSmsMsg(tukio, mgeni, url); // Use same message builder, or create separate for WA
 
   openMod('📤 Tuma WhatsApp — ' + mgeni.jina_kamili, `
@@ -4189,7 +4189,7 @@ async function beemConfirmSendOneWA(wid) {
 
   $('mod-body').innerHTML = '<div style="text-align:center;padding:20px;"><span class="loading-spinner"></span> Inatuma...</div>';
 
-  const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+  const url = SITE + '?kadi=' + mgeni.nambari_kadi;
   const baseMsg = buildSmsMsg(tukio, mgeni, url);
   const msg = `*From ${BEEM_SENDER_ID}:*\n\n${baseMsg}`;
   const result = await beemSendWhatsApp(mgeni.namba_simu, msg);
@@ -4326,7 +4326,7 @@ async function beemExecuteBulk(tukioId) {
   const batch = guests.map(mgeni => {
     let msg;
     if (msgType === 'mwaliko') {
-      const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+      const url = SITE + '?kadi=' + mgeni.nambari_kadi;
       msg = buildSmsMsg(t, mgeni, url);
     } else if (msgType === 'reminder') {
       msg = buildBeemReminderMsg(t, mgeni);
@@ -4440,7 +4440,7 @@ async function beemExecuteSelected(channel) {
     const tukio = AM.find(t => t.id === mgeni.tukio_id);
     let msg;
     if (msgType === 'mwaliko') {
-      const url = mgeni.kadi_url || SITE + '?kadi=' + mgeni.nambari_kadi;
+      const url = SITE + '?kadi=' + mgeni.nambari_kadi;
       msg = buildSmsMsg(tukio, mgeni, url);
     } else if (msgType === 'reminder') {
       msg = buildBeemReminderMsg(tukio, mgeni);
