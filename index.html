@@ -16,6 +16,8 @@
 <!-- PDF list export (Wageni / Ahadi) -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<!-- Styled Excel export (Ahadi) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
 :root{
   --p:#1A1A2E;--pl:#16213E;--gold:#C9A84C;--gl:#FDF6E3;
@@ -1067,6 +1069,7 @@ const MIEZI = ['Januari','Februari','Machi','Aprili','Mei','Juni','Julai','Agost
 
 function parseTarehe(d) { if(!d) return null; try { return new Date(d+'T00:00:00'); } catch(e) { return null; } }
 function formatTarehe(d) { const date=parseTarehe(d); if(!date) return d||'—'; return `${SIKU_ZA_WIKI[date.getDay()]}, ${date.getDate()} ${MIEZI[date.getMonth()]} ${date.getFullYear()}`; }
+function formatTareheDMY(d) { const date=parseTarehe(d); if(!date) return d||''; const dd=String(date.getDate()).padStart(2,'0'),mm=String(date.getMonth()+1).padStart(2,'0'); return `${dd}/${mm}/${date.getFullYear()}`; }
 
 function nambariKadi(aina, tukioJina) {
   let prefix = tukioJina.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase();
@@ -4695,40 +4698,182 @@ function downloadWageniListPDF(ctx) {
   }
 }
 
-function downloadAhadiList(ctx) {
+async function downloadAhadiList(ctx) {
   var tid = ctx === 'sh' ? currentShereheId : (parseInt((($('ah-tukio-sel')||{}).value)||'') || null);
   var tukio = tid ? AM.find(function(t){return t.id===tid;}) : null;
   var list = tukio ? AA.filter(function(a){return a.tukio_id===tukio.id;}) : AA;
   if (!list.length) { toastFn('Hakuna ahadi za kupakua'); return; }
+  if (!window.ExcelJS) { toastFn('❌ Maktaba ya Excel haijapakia — hakikisha una mtandao kisha "Refresh" ukurasa mzima (si tu bonyeza tena)'); return; }
+
+  if (!tukio) {
+    var uniqueTids = Array.from(new Set(list.map(function(a){ return a.tukio_id; })));
+    if (uniqueTids.length === 1) tukio = AM.find(function(t){ return t.id === uniqueTids[0]; }) || null;
+  }
+
   var evName = tukio ? tukio.jina_tukio : 'Ahadi';
-  var jumla = list.reduce(function(s,a){return s+(a.kiasi||0);},0);
-  var zilipwa = list.reduce(function(s,a){return s+(a.status==='imelipwa'?a.kiasi||0:a.kiasi_lipa||0);},0);
-  // Summary header rows
-  var csv = 'MUHTASARI,,,,,\n';
-  csv += 'Jumla ya Ahadi,' + jumla + ' TZS,,,,\n';
-  csv += 'Kimelipwa,' + zilipwa + ' TZS,,,,\n';
-  csv += 'Kinachobaki,' + (jumla-zilipwa) + ' TZS,,,,\n';
-  csv += 'Watolewaji,' + list.length + ',,,,\n\n';
-  // Data rows — IMELIPWA rows first then AHADI
-  csv += '#,Jina,Simu,Kiasi Ahadi (TZS),Kimelipwa (TZS),Kinachobaki (TZS),Hali,Tarehe\n';
   var sorted = list.slice().sort(function(a,b){
     if (a.status===b.status) return 0;
     return a.status==='imelipwa' ? -1 : 1;
   });
-  sorted.forEach(function(a, i) {
-    var kiasi = a.kiasi||0;
-    var kimelipwa = a.status==='imelipwa' ? kiasi : (a.kiasi_lipa||0);
-    var kinachobaki = Math.max(0, kiasi - kimelipwa);
-    var hali = a.status==='imelipwa' ? 'IMELIPWA' : (kimelipwa>0 ? 'IMELIPWA-SEHEMU' : 'AHADI-HAIJALIPIWA');
-    csv += (i+1) + ',"' + (a.jina_mtoaji||'').replace(/"/g,'""') + '",'
-      + (a.namba_simu||'') + ','
-      + kiasi + ','
-      + kimelipwa + ','
-      + kinachobaki + ','
-      + hali + ','
-      + (a.tarehe_ahadi||'') + '\n';
-  });
-  _csvDownload('Ahadi_' + evName.replace(/\s+/g,'-') + '.csv', csv);
+
+  try {
+    var wb = new ExcelJS.Workbook();
+    var ws = wb.addWorksheet('Ahadi');
+    var COL = 5;
+    ws.columns = [ { width: 6 }, { width: 34 }, { width: 18 }, { width: 18 }, { width: 18 } ];
+
+    function bannerRow(text, bgHex, fontHex, size) {
+      var rowIdx = ws.lastRow ? ws.lastRow.number + 1 : 1;
+      ws.mergeCells(rowIdx, 1, rowIdx, COL);
+      var cell = ws.getCell(rowIdx, 1);
+      cell.value = text;
+      cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      cell.font = { bold: true, color: { argb: fontHex || 'FFFFFFFF' }, size: size || 12 };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgHex } };
+      ws.getRow(rowIdx).height = 22;
+      return rowIdx;
+    }
+
+    var titleText;
+    if (tukio) {
+      var aina = tukio.aina || 'Sherehe';
+      var mhusika = tukio.jina_mhusika || tukio.jina_tukio || '';
+      titleText = 'MICHANGO YA ' + aina.toUpperCase() + (mhusika ? (' YA ' + mhusika.toUpperCase()) : '');
+    } else {
+      titleText = 'MICHANGO — WATOA WOTE';
+    }
+    bannerRow(titleText, 'FF0D0D1A', 'FF4DD0E1', 13);
+    if (tukio) {
+      bannerRow('TAREHE YA TUKIO: ' + formatTareheDMY(tukio.tarehe), 'FFF2994A', 'FF1A1A2E', 11);
+      if (tukio.mwisho_mchango) bannerRow('MWISHO WA MCHANGO: ' + formatTareheDMY(tukio.mwisho_mchango), 'FFF2994A', 'FF1A1A2E', 11);
+      var pay = deserializePayments(tukio.payment_options);
+      (pay.benki || []).forEach(function(b) {
+        bannerRow('CHANGIA KUPITIA ' + getBenkiLabel(b.benki).toUpperCase() + '; ' + (b.akaunti || '') + (b.jina ? (' (' + b.jina.toUpperCase() + ')') : ''), 'FF2E7D32', 'FFFFFFFF', 11);
+      });
+      (pay.simu || []).forEach(function(s) {
+        bannerRow('AU SIMU ; ' + (s.nambari || '') + (s.jina ? (' (' + s.jina.toUpperCase() + ')') : ''), 'FF1565C0', 'FFFFFFFF', 11);
+      });
+    }
+
+    var hdrRow1 = ws.lastRow.number + 1, hdrRow2 = hdrRow1 + 1;
+    ws.mergeCells(hdrRow1, 1, hdrRow2, 1);
+    ws.mergeCells(hdrRow1, 2, hdrRow2, 2);
+    ws.mergeCells(hdrRow1, 3, hdrRow1, 5);
+    var naC = ws.getCell(hdrRow1, 1); naC.value = 'NA';
+    var jinaC = ws.getCell(hdrRow1, 2); jinaC.value = 'JINA';
+    [naC, jinaC].forEach(function(c) {
+      c.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1565C0' } };
+      c.alignment = { horizontal: 'center', vertical: 'middle' };
+    });
+    var kiasiC = ws.getCell(hdrRow1, 3); kiasiC.value = 'KIASI (TSHS)';
+    kiasiC.font = { bold: true, color: { argb: 'FF1A1A2E' } };
+    kiasiC.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFD600' } };
+    kiasiC.alignment = { horizontal: 'center', vertical: 'middle' };
+    ['AHADI', 'ALICHOTOA', 'KILICHOBAKI'].forEach(function(txt, i) {
+      var c = ws.getCell(hdrRow2, 3 + i);
+      c.value = txt;
+      c.font = { bold: true, color: { argb: 'FF1A1A2E' } };
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFD600' } };
+      c.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    });
+    ws.getRow(hdrRow1).height = 20;
+    ws.getRow(hdrRow2).height = 20;
+
+    var startData = hdrRow2 + 1;
+    var totalAhadi = 0, totalAlichotoa = 0, totalBaki = 0;
+    sorted.forEach(function(a, i) {
+      var rowIdx = startData + i;
+      var kiasi = a.kiasi || 0;
+      var kimelipwa = a.status === 'imelipwa' ? kiasi : (a.kiasi_lipa || 0);
+      var kinachobaki = Math.max(0, kiasi - kimelipwa);
+      totalAhadi += kiasi; totalAlichotoa += kimelipwa; totalBaki += kinachobaki;
+
+      var naC2 = ws.getCell(rowIdx, 1);
+      naC2.value = i + 1;
+      naC2.alignment = { horizontal: 'center', vertical: 'middle' };
+      naC2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+
+      var jinaC2 = ws.getCell(rowIdx, 2);
+      jinaC2.value = a.jina_mtoaji || '';
+      jinaC2.font = { bold: true };
+      jinaC2.alignment = { horizontal: 'left', vertical: 'middle' };
+      jinaC2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+
+      var ahC = ws.getCell(rowIdx, 3);
+      ahC.value = kiasi;
+      ahC.numFmt = '#,##0';
+      ahC.font = { bold: true };
+      ahC.alignment = { horizontal: 'right', vertical: 'middle' };
+      ahC.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFC8E6C9' } };
+
+      var toaC = ws.getCell(rowIdx, 4);
+      toaC.font = { bold: true };
+      if (kimelipwa > 0) {
+        toaC.value = kimelipwa; toaC.numFmt = '#,##0';
+        toaC.alignment = { horizontal: 'right', vertical: 'middle' };
+        toaC.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFC8E6C9' } };
+      } else {
+        toaC.value = '-';
+        toaC.alignment = { horizontal: 'center', vertical: 'middle' };
+        toaC.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+      }
+
+      var bakiC = ws.getCell(rowIdx, 5);
+      bakiC.font = { bold: true };
+      if (kinachobaki > 0) {
+        bakiC.value = kinachobaki; bakiC.numFmt = '#,##0';
+        bakiC.alignment = { horizontal: 'right', vertical: 'middle' };
+        bakiC.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFE0B2' } };
+      } else {
+        bakiC.value = '-';
+        bakiC.alignment = { horizontal: 'center', vertical: 'middle' };
+        bakiC.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+      }
+    });
+
+    var totalRow = startData + sorted.length;
+    ws.mergeCells(totalRow, 1, totalRow, 2);
+    var totLbl = ws.getCell(totalRow, 1);
+    totLbl.value = 'JUMLA';
+    totLbl.font = { bold: true };
+    totLbl.alignment = { horizontal: 'center', vertical: 'middle' };
+    totLbl.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0E0E0' } };
+    [[3, totalAhadi, 'FFA5D6A7'], [4, totalAlichotoa, 'FFA5D6A7'], [5, totalBaki, 'FFFFCC80']].forEach(function(t) {
+      var c = ws.getCell(totalRow, t[0]);
+      c.value = t[1]; c.numFmt = '#,##0';
+      c.font = { bold: true };
+      c.alignment = { horizontal: 'right', vertical: 'middle' };
+      c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: t[2] } };
+    });
+    ws.getRow(totalRow).height = 20;
+
+    for (var rr = hdrRow1; rr <= totalRow; rr++) {
+      for (var cc = 1; cc <= COL; cc++) {
+        ws.getCell(rr, cc).border = {
+          top: { style: 'thin', color: { argb: 'FF999999' } },
+          left: { style: 'thin', color: { argb: 'FF999999' } },
+          bottom: { style: 'thin', color: { argb: 'FF999999' } },
+          right: { style: 'thin', color: { argb: 'FF999999' } }
+        };
+      }
+    }
+
+    var buf = await wb.xlsx.writeBuffer();
+    var blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    var url = URL.createObjectURL(blob);
+    var aTag = document.createElement('a');
+    aTag.href = url;
+    aTag.download = 'Ahadi_' + evName.replace(/\s+/g, '-') + '.xlsx';
+    document.body.appendChild(aTag);
+    aTag.click();
+    document.body.removeChild(aTag);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+    toastFn('✅ Excel imepakuliwa');
+  } catch (e) {
+    console.error('Excel generation error:', e);
+    toastFn('❌ Imeshindwa kutengeneza Excel: ' + (e && e.message ? e.message : 'hitilafu isiyojulikana'));
+  }
 }
 
 // ==================== KAMATI & BAJETI MANAGEMENT ====================
